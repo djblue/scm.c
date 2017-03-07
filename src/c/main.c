@@ -21,7 +21,7 @@ int main (int argc, char** argv) {
   init(env);
   define_port(env);
   define_read(env);
-  vm_set_root_env(vm, env);
+  vm_set_env(vm, env);
   object_t *expr = NULL;
 
   if (isatty(STDIN_FILENO)) {
@@ -29,7 +29,7 @@ int main (int argc, char** argv) {
   }
 
   while (yyparse(scanner, &expr) == 0 && expr != &eof) {
-    object_t *value = eval(expr, vm_root_env(vm));
+    object_t *value = eval(expr, vm_env(vm));
 
     if (isatty(STDIN_FILENO)) {
       print(value);

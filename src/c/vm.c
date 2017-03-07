@@ -10,7 +10,7 @@ struct alloc_t {
 
 struct vm_t {
   alloc_t *root_alloc;
-  object_t *root_env;
+  object_t *env;
 };
 
 static alloc_t *make_alloc(size_t n) {
@@ -22,7 +22,7 @@ static alloc_t *make_alloc(size_t n) {
 vm_t *make_vm() {
   vm_t *vm = malloc(sizeof(vm_t));
   vm->root_alloc = NULL;
-  vm->root_env = NULL;
+  vm->env = NULL;
   return vm;
 }
 
@@ -64,7 +64,7 @@ static void sweep(alloc_t **root) {
 
 void vm_gc(vm_t *vm) {
   if (vm != NULL) {
-    mark(vm->root_env);
+    mark(vm->env);
     sweep(&vm->root_alloc);
   }
 }
@@ -76,12 +76,12 @@ void free_vm(vm_t *vm) {
   }
 }
 
-object_t **vm_root_env(vm_t *vm) {
-  return &vm->root_env;
+object_t **vm_env(vm_t *vm) {
+  return &vm->env;
 }
 
-void vm_set_root_env(vm_t *vm, object_t *env) {
-  vm->root_env = env;
+void vm_set_env(vm_t *vm, object_t *env) {
+  vm->env = env;
 }
 
 object_t *vm_alloc(vm_t *vm, size_t n) {
