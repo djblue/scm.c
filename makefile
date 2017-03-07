@@ -1,4 +1,5 @@
-BIN=scm
+BDIR=bin
+BIN=$(BDIR)/scm
 CC=gcc
 CFLAGS=-std=gnu99 -g -O2 -Wall -pedantic
 LDFLAGS=-lreadline
@@ -6,7 +7,7 @@ ODIR=obj
 SDIR=src
 
 # find all source files
-SOURCES=$(shell cd $(SDIR) && ls *.c | egrep -v "lexer.c|parser.c") lexer.c parser.c
+SOURCES=$(shell cd $(SDIR) && find | grep '\.c' | egrep -v "lexer.c|parser.c") lexer.c parser.c
 OBJS=$(addprefix $(ODIR)/, $(SOURCES:.c=.o))
 
 .PHONY: clean test repl
@@ -18,10 +19,12 @@ makefile.dep: $(addprefix $(SDIR)/, $(SOURCES))
 
 # build interpreter
 $(BIN): $(ODIR) $(OBJS)
+	mkdir -p `dirname $@`
 	$(CC) $(OBJS) -o $(BIN) $(LDFLAGS)
 
 # build object files from sources
 $(ODIR)/%.o: $(SDIR)/%.c
+	mkdir -p `dirname $@`
 	$(CC) -c $(CFLAGS) -o $@ $<
 
 $(SDIR)/lexer.h $(SDIR)/lexer.c: $(SDIR)/lexer.l
@@ -36,7 +39,7 @@ $(ODIR):
 
 # clean up
 clean:
-	rm -rf $(ODIR)/*.o $(BIN) $(SDIR)/lexer.h $(SDIR)/lexer.c $(SDIR)/parser.h $(SDIR)/parser.c
+	rm -rf $(ODIR) $(BDIR) $(SDIR)/lexer.h $(SDIR)/lexer.c $(SDIR)/parser.h $(SDIR)/parser.c
 
 repl: $(BIN)
 	@echo "Welcome to scm!"
