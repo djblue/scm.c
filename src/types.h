@@ -12,7 +12,6 @@
 #include "error.h"
 #include "primitive.h"
 #include "procedure.h"
-#include "vector.h"
 #include "port.h"
 
 #endif

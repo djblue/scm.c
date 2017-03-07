@@ -27,7 +27,6 @@ void yyerror(yyscan_t scanner, object_t **obj, char const *msg);
 %type <obj> exprs
 %type <obj> expr
 %type <obj> quote
-%type <obj> vector
 
 %%
 
@@ -38,16 +37,11 @@ form : %empty { *obj = &eof; YYACCEPT; }
 expr : atom
      | list
      | quote
-     | vector
      ;
 
 list : '(' exprs ')' { $$ = $2; }
      | '(' ')' { $$ = NULL; }
      ;
-
-vector : '[' exprs ']' { $$ = cons(make_symbol("vector"), $2); }
-       | '[' ']' { $$ = cons(make_symbol("vector"), NULL); }
-       ;
 
 exprs : %empty { $$ = NULL; }
       | expr exprs { $$ = cons($1, $2); }
