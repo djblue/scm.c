@@ -4,7 +4,7 @@ CC=gcc
 CFLAGS=-std=gnu99 -g -O2 -Wall -pedantic
 LDFLAGS=-lreadline
 ODIR=obj
-SDIR=src
+SDIR=src/c
 
 # find all source files
 SOURCES=$(shell cd $(SDIR) && find | grep '\.c' | egrep -v "lexer.c|parser.c") lexer.c parser.c
