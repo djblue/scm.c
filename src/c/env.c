@@ -5,7 +5,7 @@ object_t *make_frame(vm_t *vm, object_t *parent) {
 }
 
 object_t *define(vm_t *vm, object_t *frame, object_t *sym, object_t *val) {
-  set_car(vm, frame, cons(vm, cons(sym, val), car(frame)));
+  set_car(vm, frame, cons(vm, cons(vm, sym, val), car(vm, frame)));
   return frame;
 }
 
@@ -20,7 +20,7 @@ object_t *lookup(vm_t *vm, object_t *env, object_t *sym) {
   if (sym == NULL) return NULL;
   if (env == NULL) return make_error(vm, "cannot find symbol");
   object_t *find = frame_search(vm, car(vm, env), sym);
-  if (find == NULL || false(error(vm, find))) return find;
+  if (find == NULL || false(error(find))) return find;
   return lookup(vm, cdr(vm, env), sym);
 }
 

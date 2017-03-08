@@ -3,9 +3,16 @@
 
 #include <stdlib.h>
 
-#include "types.h"
-
 typedef struct vm_t vm_t;
+
+typedef struct object_t object_t;
+
+struct object_t {
+  unsigned char type;
+  unsigned char trace;
+  unsigned char marked;
+  unsigned char padding;
+};
 
 vm_t *make_vm();
 void free_vm(vm_t *vm);

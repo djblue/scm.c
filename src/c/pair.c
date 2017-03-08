@@ -41,7 +41,7 @@ void set_cdr(vm_t *vm, object_t *pair, object_t *cdr) {
   object_data(pair, pair_t).cdr = cdr;
 }
 
-object_t *null(vm_t *vm, object_t *o) {
+object_t *null(object_t *o) {
   if (o == NULL) return &t;
   return &f;
 }
@@ -49,6 +49,6 @@ object_t *null(vm_t *vm, object_t *o) {
 predicate(pair, PAIR)
 
 object_t *pair_eq(vm_t *vm, object_t *a, object_t *b) {
-  return false(object_eq(vm, car(vm, a), car(b))) ? &f : object_eq(cdr(vm, a), cdr(b));
+  return false(object_eq(vm, car(vm, a), car(vm, b))) ? &f : object_eq(vm, cdr(vm, a), cdr(vm, b));
 }
 

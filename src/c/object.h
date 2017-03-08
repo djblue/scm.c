@@ -2,6 +2,7 @@
 #define OBJECTS_H
 
 #include <stdlib.h>
+#include "vm.h"
 
 typedef enum {
   FIXNUM = 1,
@@ -19,20 +20,11 @@ typedef enum {
   ENDOFINPUT
 } type_t;
 
-typedef struct object_t object_t;
-
 extern object_t t;
 extern object_t f;
 
 #define true(o) ((o) == &t)
 #define false(o) ((o) == &f)
-
-struct object_t {
-  unsigned char type;
-  unsigned char trace;
-  unsigned char marked;
-  unsigned char padding;
-};
 
 object_t *make(vm_t *vm, type_t type, size_t n);
 object_t *object_eq(vm_t *vm, object_t *a, object_t *b);

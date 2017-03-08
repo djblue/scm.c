@@ -12,7 +12,7 @@ vm_t *vm = NULL;
 int main (int argc, char** argv) {
   yyscan_t scanner;
 
-  yylex_init(vm, &scanner);
+  yylex_init(&scanner);
   yyset_in(stdin, scanner);
 
   vm = make_vm();
@@ -28,11 +28,11 @@ int main (int argc, char** argv) {
     printf("> ");
   }
 
-  while (yyparse(scanner, &expr) == 0 && expr != &eof) {
+  while (yyparse(vm, scanner, &expr) == 0 && expr != &eof) {
     object_t *value = eval(vm, expr, vm_env(vm));
 
     if (isatty(STDIN_FILENO)) {
-      print(value);
+      print(vm, value);
       printf("\n> ");
     }
 

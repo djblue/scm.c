@@ -13,7 +13,7 @@ void yyerror(vm_t *vm, yyscan_t scanner, object_t **obj, char const *msg);
 %define parse.error verbose
 %define api.pure full
 %lex-param {void *scanner}
-%parse-param {void *scanner} {object_t **obj}
+%parse-param {vm_t *vm} {void *scanner} {object_t **obj}
 
 %union {
   char *str;
@@ -47,7 +47,7 @@ exprs : %empty { $$ = NULL; }
       | expr exprs { $$ = cons(vm, $1, $2); }
       ;
 
-quote : '\'' expr { $$ = cons(vm, make_symbol(vm, "quote"), cons($2, NULL)); }
+quote : '\'' expr { $$ = cons(vm, make_symbol(vm, "quote"), cons(vm, $2, NULL)); }
       ;
 
 atom : BOOLEAN_T    { $$ = make_boolean(vm, yylval.str); }

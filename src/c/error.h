@@ -3,9 +3,10 @@
 
 #include "object.h"
 #include "string.h"
+#include "vm.h"
 
 object_t *make_error(vm_t *vm, char *str);
 
-object_t *error(vm_t *vm, object_t *o);
+object_t *error(object_t *o);
 
 #endif

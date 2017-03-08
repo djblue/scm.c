@@ -2,6 +2,7 @@
 #define ENV_H
 
 #include "object.h"
+#include "vm.h"
 
 object_t *make_frame(vm_t *vm, object_t *parent);
 

@@ -12,7 +12,7 @@ typedef struct {
   FILE *fp;
 } port_t;
 
-object_t *make_port(vm_t *vm, ) {
+object_t *make_port(vm_t *vm) {
   return make(vm, PORT, sizeof(port_t));
 }
 
@@ -26,7 +26,7 @@ void print_port(vm_t *vm, object_t *port) {
 
 defn(eval_open) {
   object_t *str = eval(vm, car(vm, cdr(vm, expr)), env);
-  if (false(string(vm, str)))
+  if (false(string(str)))
     return make_error(vm, "First argument is not a string.");
 
   char *path = string_cstr(str);
@@ -36,7 +36,7 @@ defn(eval_open) {
     return make_error(vm, "Can't open input file.");
   }
 
-  object_t *port = make_port(vm, );
+  object_t *port = make_port(vm);
   object_data(port, port_t).path = str;
   object_data(port, port_t).fp = fp;
   return port;

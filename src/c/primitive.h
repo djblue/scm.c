@@ -2,10 +2,11 @@
 #define PRIMITIVE_H
 
 #include "object.h"
+#include "vm.h"
 
-typedef struct object_t *(*primitive)(object_t *expr, object_t **env);
+typedef struct object_t *(*primitive)(vm_t *vm, object_t *expr, object_t **env);
 
-#define defn(name) static object_t *name(object_t *expr, object_t **env)
+#define defn(name) static object_t *name(vm_t *vm, object_t *expr, object_t **env)
 
 object_t *make_primitive(vm_t *vm, primitive fn);
 

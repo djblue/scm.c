@@ -5,7 +5,7 @@
 #include "print.h"
 
 object_t *_if(vm_t *vm, object_t *predicate, object_t *consequent, object_t *alternative, object_t **env) {
-  if (true(error(vm, predicate))) return predicate;
+  if (true(error(predicate))) return predicate;
 
   if (!false(predicate)) {
     return eval(vm, consequent, env);
@@ -16,7 +16,7 @@ object_t *_if(vm_t *vm, object_t *predicate, object_t *consequent, object_t *alt
 
 #define if_predicate(expr) car(vm, expr)
 #define if_consequent(expr) car(vm, cdr(vm, expr))
-#define if_alternative(expr) car(vm, cdr(vm, cdr(expr)))
+#define if_alternative(expr) car(vm, cdr(vm, cdr(vm, expr)))
 
 object_t *eval_if(vm_t *vm, object_t *expr, object_t **env) {
 
@@ -76,15 +76,15 @@ object_t *eval(vm_t *vm, object_t *expr, object_t **env) {
 
 object_t *eval_define(vm_t *vm, object_t *expr, object_t **env) {
   object_t *sym = car(vm, cdr(vm, expr));
-  object_t *val = eval(vm, car(vm, cdr(vm, cdr(expr))), env);
+  object_t *val = eval(vm, car(vm, cdr(vm, cdr(vm, expr))), env);
   define(vm, *env, sym, val);
   return val;
 }
 
 #define eval_predicate(fn,p) \
-  object_t *fn(object_t *expr, object_t **env) { \
+  object_t *fn(vm_t *vm, object_t *expr, object_t **env) { \
     object_t *o = eval(vm, car(vm, cdr(vm, expr)), env); \
-    if (true(error(vm, o))) return o; \
+    if (true(error(o))) return o; \
     return p(o); \
   }
 
@@ -99,7 +99,7 @@ eval_predicate(pairp, pair)
 
 object_t *eval_lambda(vm_t *vm, object_t *expr, object_t **env) {
   object_t *args = car(vm, cdr(vm, expr));
-  object_t *body = cdr(vm, cdr(expr));
+  object_t *body = cdr(vm, cdr(vm, expr));
   return make_procedure(vm, *env, args, body);
 }
 
@@ -125,12 +125,12 @@ object_t *eval_untrace(vm_t *vm, object_t *expr, object_t **env) {
 }
 
 object_t *eval_eval(vm_t *vm, object_t *expr, object_t **env) {
-  return eval(vm, eval(car(vm, cdr(vm, expr)), env), env);
+  return eval(vm, eval(vm, car(vm, cdr(vm, expr)), env), env);
 }
 
 object_t *eval_cons(vm_t *vm, object_t *expr, object_t **env) {
   object_t *a = eval(vm, car(vm, cdr(vm, expr)), env);
-  object_t *b = eval(vm, car(vm, cdr(vm, cdr(expr))), env);
+  object_t *b = eval(vm, car(vm, cdr(vm, cdr(vm, expr))), env);
   return cons(vm, a, b);
 }
 
@@ -170,7 +170,7 @@ object_t *eval_eq(vm_t *vm, object_t *expr, object_t **env) {
   if (expr == NULL) return NULL;
 
   object_t *a = eval(vm, car(vm, cdr(vm, expr)), env);
-  object_t *ls = cdr(vm, cdr(expr));
+  object_t *ls = cdr(vm, cdr(vm, expr));
 
   while (ls != NULL) {
     object_t *b = eval(vm, car(vm, ls), env);
@@ -192,14 +192,14 @@ object_t *eval_apply(vm_t *vm, object_t *expr, object_t **env) {
 object_t *eval_plus(vm_t *vm, object_t *expr, object_t **env) {
   if (expr == NULL) return NULL;
   object_t *op = eval(vm, car(vm, cdr(vm, expr)), env);
-  if (true(error(vm, op))) return op;
+  if (true(error(op))) return op;
   return plus(vm, op, eval_plus(vm, cdr(vm, expr), env));
 }
 
 object_t *eval_multiply(vm_t *vm, object_t *expr, object_t **env) {
   if (expr == NULL) return NULL;
   object_t *op = eval(vm, car(vm, cdr(vm, expr)), env);
-  if (true(error(vm, op))) return op;
+  if (true(error(op))) return op;
   return multiply(vm, op, eval_multiply(vm, cdr(vm, expr), env));
 }
 

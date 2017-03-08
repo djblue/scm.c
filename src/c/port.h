@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #include "object.h"
+#include "vm.h"
 
 extern object_t eof;
 

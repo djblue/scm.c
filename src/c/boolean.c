@@ -13,7 +13,7 @@ object_t *make_boolean(vm_t *vm, char *str) {
   }
 }
 
-object_t *boolean(vm_t *vm, object_t *o) {
+object_t *boolean(object_t *o) {
   if (o == &t || o == &f) return &t;
   return &f;
 }

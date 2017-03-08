@@ -27,7 +27,7 @@ object_t *eval_args(vm_t *vm, object_t *frame, object_t *params, object_t *args,
   object_t *sym = car(vm, params);
   object_t *val = eval(vm, car(vm, args), env);
 
-  return define(vm, eval_args(vm, frame, cdr(vm, params), cdr(args), env), sym, val);
+  return define(vm, eval_args(vm, frame, cdr(vm, params), cdr(vm, args), env), sym, val);
 }
 
 object_t *proc_apply(vm_t *vm, object_t *procedure, object_t *args, object_t **env) {

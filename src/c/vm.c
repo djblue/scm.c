@@ -1,4 +1,5 @@
 #include "vm.h"
+#include "types.h"
 
 typedef struct alloc_t alloc_t;
 
@@ -26,15 +27,15 @@ vm_t *make_vm() {
   return vm;
 }
 
-static void mark(object_t *o) {
+static void mark(vm_t *vm, object_t *o) {
   if (o == NULL || o->marked) return;
 
   o->marked = 1;
 
   switch (o->type) {
     case PAIR:
-      mark(car(o));
-      mark(cdr(o));
+      mark(vm, car(vm, o));
+      mark(vm, cdr(vm, o));
       break;
     case ERROR:
     case PROCEDURE:
@@ -43,7 +44,7 @@ static void mark(object_t *o) {
   }
 }
 
-static void sweep(alloc_t **root) {
+static void sweep(vm_t *vm, alloc_t **root) {
   alloc_t **prev = root, *alloc = *root;
   while (alloc != NULL) {
     object_t *o = alloc_data(alloc);
@@ -64,14 +65,14 @@ static void sweep(alloc_t **root) {
 
 void vm_gc(vm_t *vm) {
   if (vm != NULL) {
-    mark(vm->env);
-    sweep(&vm->root_alloc);
+    mark(vm, vm->env);
+    sweep(vm, &vm->root_alloc);
   }
 }
 
 void free_vm(vm_t *vm) {
   if (vm != NULL) {
-    sweep(&vm->root_alloc);
+    sweep(vm, &vm->root_alloc);
     free(vm);
   }
 }

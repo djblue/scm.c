@@ -7,14 +7,14 @@ static char *get_str(object_t *o) {
   return &object_data(o, char);
 }
 
-static void print_object(object_t *o);
+static void print_object(vm_t *vm, object_t *o);
 
-static void print_pair(vm, object_t *o) {
+static void print_pair(vm_t *vm, object_t *o) {
   printf("(");
 
   object_t *temp = o, *next;
   while (temp != NULL) {
-    print_object(car(vm, temp));
+    print_object(vm, car(vm, temp));
     next = cdr(vm, temp);
     if (next == NULL || next->type != PAIR) break;
     printf(" ");
@@ -24,14 +24,14 @@ static void print_pair(vm, object_t *o) {
   if (temp != NULL) {
     if (next != NULL) {
       printf(" . ");
-      print_object(next);
+      print_object(vm, next);
     }
   }
 
   printf(")");
 }
 
-static void print_object(object_t *o) {
+static void print_object(vm_t *vm, object_t *o) {
   if (o == NULL) {
     printf(__green("nil"));
   } else {
@@ -79,6 +79,6 @@ static void print_object(object_t *o) {
 }
 
 void print(vm_t *vm, object_t *o) {
-  print_object(o);
+  print_object(vm, o);
 }
 

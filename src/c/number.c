@@ -29,7 +29,7 @@ int fixnum_int(object_t *o) {
   return object_data(o, int);
 }
 
-object_t *number(vm_t *vm, object_t *o) {
+object_t *number(object_t *o) {
   if (o == NULL || (o->type != FIXNUM && o->type != FLONUM)) {
     return &f;
   }
@@ -40,7 +40,7 @@ object_t *plus(vm_t *vm, object_t *a, object_t *b) {
   if (a == NULL) return plus(vm, make_fixnum_int(vm, 0), b);
   if (b == NULL) return plus(vm, a, make_fixnum_int(vm, 0));
 
-  if (!true(number(vm, a)) || !true(number(b)))
+  if (!true(number(a)) || !true(number(b)))
     return make_error(vm, "can't perform arithmetic on non numeric values");
 
   if (a->type == FLONUM || b->type == FLONUM) {
@@ -56,7 +56,7 @@ object_t *multiply(vm_t *vm, object_t *a, object_t *b) {
   if (a == NULL) return plus(vm, make_fixnum_int(vm, 1), b);
   if (b == NULL) return plus(vm, a, make_fixnum_int(vm, 1));
 
-  if (!true(number(vm, a)) || !true(number(b)))
+  if (!true(number(a)) || !true(number(b)))
     return make_error(vm, "can't perform arithmetic on non numeric values");
 
   if (a->type == FLONUM || b->type == FLONUM) {
