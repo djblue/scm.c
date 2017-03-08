@@ -12,7 +12,6 @@ typedef enum {
   TRUE,
   FALSE,
   PAIR,
-  QUOTE,
   PRIMITIVE,
   PROCEDURE,
   ERROR,
