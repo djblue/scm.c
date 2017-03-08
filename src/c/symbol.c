@@ -4,7 +4,7 @@
 
 object_t *make_symbol(vm_t *vm, char *str) {
   size_t n = strlen(str) + 1;
-  object_t *o = make(SYMBOL, n);
+  object_t *o = make(vm, SYMBOL, n);
   memcpy(&object_data(o, char), str, n);
   return o;
 }

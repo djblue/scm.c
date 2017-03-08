@@ -44,18 +44,18 @@ list : '(' exprs ')' { $$ = $2; }
      ;
 
 exprs : %empty { $$ = NULL; }
-      | expr exprs { $$ = cons($1, $2); }
+      | expr exprs { $$ = cons(vm, $1, $2); }
       ;
 
-quote : '\'' expr { $$ = cons(make_symbol("quote"), cons($2, NULL)); }
+quote : '\'' expr { $$ = cons(vm, make_symbol(vm, "quote"), cons($2, NULL)); }
       ;
 
-atom : BOOLEAN_T    { $$ = make_boolean(yylval.str); }
-     | FIXNUM_T     { $$ = make_fixnum(yylval.str);  }
-     | FLONUM_T     { $$ = make_fixnum(yylval.str);  }
-     | CHARACTER_T  { $$ = make_char(yylval.str);    }
-     | STRING_T     { $$ = make_string(yylval.str);  }
-     | SYMBOL_T     { $$ = make_symbol(yylval.str);  }
+atom : BOOLEAN_T    { $$ = make_boolean(vm, yylval.str); }
+     | FIXNUM_T     { $$ = make_fixnum(vm, yylval.str);  }
+     | FLONUM_T     { $$ = make_fixnum(vm, yylval.str);  }
+     | CHARACTER_T  { $$ = make_char(vm, yylval.str);    }
+     | STRING_T     { $$ = make_string(vm, yylval.str);  }
+     | SYMBOL_T     { $$ = make_symbol(vm, yylval.str);  }
      ;
 
 %%

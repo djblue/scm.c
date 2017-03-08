@@ -9,7 +9,7 @@ typedef struct {
 } pair_t;
 
 object_t *cons(vm_t *vm, object_t *car, object_t *cdr) {
-  object_t *o = make(PAIR, sizeof(pair_t));
+  object_t *o = make(vm, PAIR, sizeof(pair_t));
   object_data(o, pair_t).car = car;
   object_data(o, pair_t).cdr = cdr;
   return o;
@@ -19,7 +19,7 @@ object_t *car(vm_t *vm, object_t *pair) {
   if (pair == NULL) return NULL;
   if (pair->type == ERROR) return pair;
   if (pair->type != PAIR) {
-    return make_error("object not pair");
+    return make_error(vm, "object not pair");
   }
   return object_data(pair, pair_t).car;
 }
@@ -28,7 +28,7 @@ object_t *cdr(vm_t *vm, object_t *pair) {
   if (pair == NULL) return NULL;
   if (pair->type == ERROR) return pair;
   if (pair->type != PAIR) {
-    return make_error("object not pair");
+    return make_error(vm, "object not pair");
   }
   return object_data(pair, pair_t).cdr;
 }
@@ -49,6 +49,6 @@ object_t *null(vm_t *vm, object_t *o) {
 predicate(pair, PAIR)
 
 object_t *pair_eq(vm_t *vm, object_t *a, object_t *b) {
-  return false(object_eq(car(a), car(b))) ? &f : object_eq(cdr(a), cdr(b));
+  return false(object_eq(vm, car(vm, a), car(b))) ? &f : object_eq(cdr(vm, a), cdr(b));
 }
 

@@ -9,13 +9,13 @@ static char *get_str(object_t *o) {
 
 static void print_object(object_t *o);
 
-static void print_pair(object_t *o) {
+static void print_pair(vm, object_t *o) {
   printf("(");
 
   object_t *temp = o, *next;
   while (temp != NULL) {
-    print_object(car(temp));
-    next = cdr(temp);
+    print_object(car(vm, temp));
+    next = cdr(vm, temp);
     if (next == NULL || next->type != PAIR) break;
     printf(" ");
     temp = next;
@@ -55,7 +55,7 @@ static void print_object(object_t *o) {
         printf(__green("#f"));
         break;
       case PAIR:
-        print_pair(o);
+        print_pair(vm, o);
         break;
       case SYMBOL:
         printf(__blue("%s"), get_str(o));
@@ -70,7 +70,7 @@ static void print_object(object_t *o) {
         printf(__red("#<error:%s>"), get_str(o));
         break;
       case PORT:
-        print_port(o);
+        print_port(vm, o);
         break;
       default:
         printf("cannot write unknown type");

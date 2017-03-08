@@ -1,7 +1,7 @@
 #include "primitive.h"
 
 object_t *make_primitive(vm_t *vm, primitive fn) {
-  object_t *o = make(PRIMITIVE, sizeof(primitive));
+  object_t *o = make(vm, PRIMITIVE, sizeof(primitive));
   object_data(o, primitive) = fn;
   return o;
 }

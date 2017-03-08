@@ -39,13 +39,13 @@ object_t *object_eq(vm_t *vm, object_t *a, object_t *b) {
 
   switch(a->type) {
     case FIXNUM:
-      return number_eq(a, b);
+      return number_eq(vm, a, b);
     case CHARACTER:
-      return character_eq(a, b);
+      return character_eq(vm, a, b);
     case SYMBOL:
-      return symbol_eq(a, b);
+      return symbol_eq(vm, a, b);
     case PAIR:
-      return pair_eq(a, b);
+      return pair_eq(vm, a, b);
   }
 
   return &f;
