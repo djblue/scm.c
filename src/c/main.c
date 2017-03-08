@@ -7,15 +7,13 @@
 #include "parser.h"
 #include "lexer.h"
 
-vm_t *vm = NULL;
-
 int main (int argc, char** argv) {
   yyscan_t scanner;
 
   yylex_init(&scanner);
   yyset_in(stdin, scanner);
 
-  vm = make_vm();
+  vm_t *vm = make_vm();
 
   object_t *env = make_frame(vm, NULL);
   init(vm, env);
