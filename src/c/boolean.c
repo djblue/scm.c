@@ -5,7 +5,7 @@
 object_t t = { TRUE };
 object_t f = { FALSE };
 
-object_t *make_boolean(char *str) {
+object_t *make_boolean(vm_t *vm, char *str) {
   if (strcmp(str, "#t") == 0) {
     return &t;
   } else {
@@ -13,7 +13,7 @@ object_t *make_boolean(char *str) {
   }
 }
 
-object_t *boolean(object_t *o) {
+object_t *boolean(vm_t *vm, object_t *o) {
   if (o == &t || o == &f) return &t;
   return &f;
 }

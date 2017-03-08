@@ -5,7 +5,7 @@
 
 extern vm_t *vm;
 
-object_t *make(type_t type, size_t n) {
+object_t *make(vm_t *vm, type_t type, size_t n) {
   object_t *o = (object_t*) vm_alloc(vm, sizeof(object_t) + n);
   if (o == 0) {
     fprintf(stderr, "out of memory.");
@@ -18,7 +18,7 @@ object_t *make(type_t type, size_t n) {
   return o;
 }
 
-void free_object(object_t *o) {
+void free_object(vm_t *vm, object_t *o) {
   if (o == NULL) return;
 
   /*switch(o->type) {
@@ -32,7 +32,7 @@ void free_object(object_t *o) {
   free(o);
 }
 
-object_t *object_eq(object_t *a, object_t *b) {
+object_t *object_eq(vm_t *vm, object_t *a, object_t *b) {
   if (a == b) return &t;
   if (a == NULL || b == NULL) return &f;
   if (a->type != b->type) return &t;

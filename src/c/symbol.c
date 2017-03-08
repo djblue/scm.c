@@ -2,14 +2,14 @@
 
 #include "symbol.h"
 
-object_t *make_symbol(char *str) {
+object_t *make_symbol(vm_t *vm, char *str) {
   size_t n = strlen(str) + 1;
   object_t *o = make(SYMBOL, n);
   memcpy(&object_data(o, char), str, n);
   return o;
 }
 
-object_t *symbol_eq(object_t *a, object_t *b) {
+object_t *symbol_eq(vm_t *vm, object_t *a, object_t *b) {
   if (a == NULL || b == NULL) return &f;
   if (a->type != b->type) return &f;
   if (a->type != SYMBOL && a->type != STRING && a->type != ERROR) return &f;

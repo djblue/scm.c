@@ -4,7 +4,7 @@
 #include "types.h"
 #include "env.h"
 
-void init(object_t *env);
-object_t *eval(object_t *expr, object_t **env);
+void init(vm_t *vm, object_t *env);
+object_t *eval(vm_t *vm, object_t *expr, object_t **env);
 
 #endif

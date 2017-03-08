@@ -78,7 +78,7 @@ static void print_object(object_t *o) {
   }
 }
 
-void print(object_t *o) {
+void print(vm_t *vm, object_t *o) {
   print_object(o);
 }
 

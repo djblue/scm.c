@@ -9,7 +9,7 @@ extern object_t eof;
 
 FILE *port_pointer(object_t *port);
 
-void print_port(object_t *port);
-void define_port(object_t *env);
+void print_port(vm_t *vm, object_t *port);
+void define_port(vm_t *vm, object_t *env);
 
 #endif

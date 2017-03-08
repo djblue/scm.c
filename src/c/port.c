@@ -12,7 +12,7 @@ typedef struct {
   FILE *fp;
 } port_t;
 
-object_t *make_port() {
+object_t *make_port(vm_t *vm, ) {
   return make(PORT, sizeof(port_t));
 }
 
@@ -20,7 +20,7 @@ FILE *port_pointer(object_t *port) {
   return object_data(port, port_t).fp;
 }
 
-void print_port(object_t *port) {
+void print_port(vm_t *vm, object_t *port) {
   printf(__yellow("#<port:%s>"), string_cstr(object_data(port, port_t).path));
 }
 
@@ -42,7 +42,7 @@ defn(eval_open) {
   return port;
 }
 
-void define_port(object_t *env) {
+void define_port(vm_t *vm, object_t *env) {
   def("open", eval_open)
 }
 

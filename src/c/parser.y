@@ -7,7 +7,7 @@
 #include "parser.h"
 #include "lexer.h"
 
-void yyerror(yyscan_t scanner, object_t **obj, char const *msg);
+void yyerror(vm_t *vm, yyscan_t scanner, object_t **obj, char const *msg);
 %}
 
 %define parse.error verbose
@@ -60,7 +60,7 @@ atom : BOOLEAN_T    { $$ = make_boolean(yylval.str); }
 
 %%
 
-void yyerror(yyscan_t scanner, object_t **obj, const char *msg) {
+void yyerror(vm_t *vm, yyscan_t scanner, object_t **obj, const char *msg) {
   fprintf(stderr, "parse error: %s\n", msg);
 }
 

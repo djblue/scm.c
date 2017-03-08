@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-void print(object_t *o);
+void print(vm_t *vm, object_t *o);
 
 #endif

@@ -19,7 +19,7 @@ static object_t *read_internal(FILE *fp, object_t **env) {
   return expr;
 }
 
-object_t *scm_read(object_t *expr, object_t **env) {
+object_t *scm_read(vm_t *vm, object_t *expr, object_t **env) {
   object_t *port = eval(car(cdr(expr)), env);
   if (port != NULL && port->type != PORT)
     return make_error("Provided argument is not port.");
@@ -28,6 +28,6 @@ object_t *scm_read(object_t *expr, object_t **env) {
   return read_internal(port_pointer(port), env);
 }
 
-void define_read(object_t *env) {
+void define_read(vm_t *vm, object_t *env) {
   def("read", scm_read)
 }

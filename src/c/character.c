@@ -1,6 +1,6 @@
 #include "character.h"
 
-object_t *make_char(char *str) {
+object_t *make_char(vm_t *vm, char *str) {
   object_t *o = make(CHARACTER, sizeof(char));
   object_data(o, char) = *(str + 2);
   return o;
@@ -8,6 +8,6 @@ object_t *make_char(char *str) {
 
 predicate(character, CHARACTER)
 
-object_t *character_eq(object_t *a, object_t *b) {
+object_t *character_eq(vm_t *vm, object_t *a, object_t *b) {
   return &f;
 }
