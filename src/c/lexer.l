@@ -8,6 +8,7 @@
 %option warn noyywrap nodefault
 %option nounput
 %option noinput
+%option always-interactive
 
 FIXNUM 0|[1-9]{DIGIT}*
 FLONUM {FIXNUM}\.{DIGIT}+

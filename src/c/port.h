@@ -8,8 +8,9 @@
 
 extern object_t eof;
 
-FILE *port_pointer(object_t *port);
+object_t *make_port_from_file(vm_t *vm, FILE *fp);
 
+FILE *port_pointer(object_t *port);
 void print_port(vm_t *vm, object_t *port);
 void define_port(vm_t *vm, object_t *env);
 

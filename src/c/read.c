@@ -11,11 +11,9 @@ static object_t *read_internal(vm_t *vm, FILE *fp, object_t **env) {
   yyscan_t scanner;
   yylex_init(&scanner);
   yyset_in(fp, scanner);
-
   object_t *expr = NULL;
   yyparse(vm, scanner, &expr);
   yylex_destroy(scanner);
-
   return expr;
 }
 
