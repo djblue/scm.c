@@ -17,7 +17,8 @@ typedef enum {
   PROCEDURE,
   ERROR,
   PORT,
-  ENDOFINPUT
+  ENDOFINPUT,
+  UENDOFINPUT
 } type_t;
 
 extern object_t t;

@@ -61,6 +61,10 @@ atom : BOOLEAN_T    { $$ = make_boolean(vm, yylval.str); }
 %%
 
 void yyerror(vm_t *vm, yyscan_t scanner, object_t **obj, const char *msg) {
-  fprintf(stderr, "parse error: %s\n", msg);
+  if (strcmp(msg, "syntax error, unexpected $end, expecting ')'") == 0) {
+    *obj = &ueof;
+  } else {
+    fprintf(stderr, "parse error: %s\n", msg);
+  }
 }
 

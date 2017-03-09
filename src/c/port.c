@@ -6,6 +6,7 @@
 #include "eval.h"
 
 object_t eof = { ENDOFINPUT };
+object_t ueof = { UENDOFINPUT };
 
 typedef struct {
   object_t *path;

@@ -17,4 +17,8 @@ object_t *symbol_eq(vm_t *vm, object_t *a, object_t *b) {
   return &t;
 }
 
+char *symbol_str(vm_t *vm, object_t *sym) {
+  return &object_data(sym, char);
+}
+
 predicate(symbol, SYMBOL)

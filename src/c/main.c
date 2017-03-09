@@ -17,10 +17,6 @@ int main (int argc, char** argv) {
 
   vm_set_env(vm, env);
 
-  if (isatty(STDIN_FILENO)) {
-    printf("> ");
-  }
-
   while (1) {
     object_t *value = scm_read(vm, NULL, vm_env(vm));
     if (value == &eof) break;
@@ -28,7 +24,7 @@ int main (int argc, char** argv) {
 
     if (isatty(STDIN_FILENO)) {
       print(vm, value);
-      printf("\n> ");
+      printf("\n");
     }
 
     vm_gc(vm);
