@@ -48,7 +48,7 @@ static void print_object(vm_t *vm, FILE *fp, object_t *o) {
         fprintf(fp, __yellow("#\\%c"), object_data(o, char));
         break;
       case STRING:
-        fprintf(fp, __yellow("%s"), get_str(o));
+        fprintf(fp, __yellow("\"%s\""), get_str(o));
         break;
       case TRUE:
         fprintf(fp, __green("#t"));
