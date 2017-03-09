@@ -34,6 +34,8 @@ static void print_pair(vm_t *vm, FILE *fp, object_t *o) {
 static void print_object(vm_t *vm, FILE *fp, object_t *o) {
   if (o == NULL) {
     fprintf(fp, __green("nil"));
+  } else if (o == &eof) {
+    fprintf(fp, __yellow("#<eof>"));
   } else {
     switch (o->type) {
       case FIXNUM:
