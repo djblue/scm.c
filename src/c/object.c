@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 #include "vm.h"
-#include "object.h"
+#include "types.h"
 
 object_t *make(vm_t *vm, type_t type, size_t n) {
   object_t *o = (object_t*) vm_alloc(vm, sizeof(object_t) + n);
