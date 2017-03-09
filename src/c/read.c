@@ -24,7 +24,9 @@ object_t *scm_read(vm_t *vm, object_t *expr, object_t **env) {
   if (port != NULL && port->type != PORT)
     return make_error(vm, "Provided argument is not port.");
 
-  if (port == NULL) return read_internal(vm, stdin, env);
+  if (port == NULL)
+    port = fetch(vm, STDIN);
+
   return read_internal(vm, port_pointer(port), env);
 }
 

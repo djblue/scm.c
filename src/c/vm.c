@@ -12,7 +12,17 @@ struct alloc_t {
 struct vm_t {
   alloc_t *root_alloc;
   object_t *env;
+  object_t *stdin;    // default input port
+  object_t *stdout;   // default output port
 };
+
+object_t *fetch(vm_t *vm, reg_t reg) {
+  switch (reg) {
+    case STDIN:   return vm->stdin;
+    case STDOUT:  return vm->stdout;
+    default:      return NULL;
+  }
+}
 
 static alloc_t *make_alloc(size_t n) {
   alloc_t *alloc = (alloc_t*) malloc(sizeof(alloc_t) + n);
@@ -24,6 +34,9 @@ vm_t *make_vm() {
   vm_t *vm = malloc(sizeof(vm_t));
   vm->root_alloc = NULL;
   vm->env = NULL;
+
+  vm->stdin = make_port_from_file(vm, stdin);
+  vm->stdout = make_port_from_file(vm, stdout);
   return vm;
 }
 

@@ -14,8 +14,15 @@ struct object_t {
   unsigned char padding;
 };
 
+typedef enum {
+  STDIN,
+  STDOUT
+} reg_t;
+
 vm_t *make_vm();
 void free_vm(vm_t *vm);
+
+object_t *fetch(vm_t *vm, reg_t reg);
 
 object_t *vm_alloc(vm_t *vm, size_t s);
 

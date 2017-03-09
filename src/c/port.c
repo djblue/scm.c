@@ -16,6 +16,12 @@ object_t *make_port(vm_t *vm) {
   return make(vm, PORT, sizeof(port_t));
 }
 
+object_t *make_port_from_file(vm_t *vm, FILE *fp) {
+  object_t * port = make_port(vm);
+  object_data(port, port_t).fp = fp;
+  return port;
+}
+
 FILE *port_pointer(object_t *port) {
   return object_data(port, port_t).fp;
 }
