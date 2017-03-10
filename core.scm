@@ -37,8 +37,6 @@
 (define not
   (lambda (x) (if x #f #t)))
 
-(print (map inc (concat '(1 2 3 4 5) '(6 7 8 9 10))))
-
 (define count (lambda (ls)
   (begin
     (define count-iter (lambda (ls n)

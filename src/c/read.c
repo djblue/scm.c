@@ -7,7 +7,6 @@
 #include <readline/history.h>
 
 #include "types.h"
-#include "eval.h"
 #include "env.h"
 
 #include "parser.h"
@@ -96,7 +95,7 @@ retry:
 }
 
 object_t *scm_read(vm_t *vm, object_t *expr, object_t **env) {
-  object_t *port = eval(vm, car(vm, expr), env);
+  object_t *port = car(vm, expr);
   if (port != NULL && port->type != PORT)
     return make_error(vm, "Provided argument is not port.");
 
@@ -106,20 +105,6 @@ object_t *scm_read(vm_t *vm, object_t *expr, object_t **env) {
   return read_internal(vm, port_pointer(port), env);
 }
 
-object_t *scm_load(vm_t *vm, object_t *expr, object_t **env) {
-  object_t *fname = car(vm, expr);
-  object_t *port = eval(vm, cons(vm, make_symbol(vm, "open"), cons(vm, fname, NULL)), env);
-  FILE *fp = port_pointer(port);
-
-  object_t *exp;
-  while ((exp = read_internal(vm, fp, env)) != &eof) {
-    eval(vm, exp, env);
-  }
-
-  return make_boolean(vm, "#t");
-}
-
 void define_read(vm_t *vm, object_t *env) {
   def("read", scm_read)
-  def("load", scm_load)
 }
