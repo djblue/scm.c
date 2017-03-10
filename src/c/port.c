@@ -32,7 +32,7 @@ void print_port(vm_t *vm, object_t *port) {
 }
 
 defn(eval_open) {
-  object_t *str = eval(vm, car(vm, cdr(vm, expr)), env);
+  object_t *str = eval(vm, car(vm, expr), env);
   if (false(string(str)))
     return make_error(vm, "First argument is not a string.");
 

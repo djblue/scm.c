@@ -53,8 +53,8 @@ object_t *plus(vm_t *vm, object_t *a, object_t *b) {
 }
 
 object_t *multiply(vm_t *vm, object_t *a, object_t *b) {
-  if (a == NULL) return plus(vm, make_fixnum_int(vm, 1), b);
-  if (b == NULL) return plus(vm, a, make_fixnum_int(vm, 1));
+  if (a == NULL) return multiply(vm, make_fixnum_int(vm, 1), b);
+  if (b == NULL) return multiply(vm, a, make_fixnum_int(vm, 1));
 
   if (!true(number(a)) || !true(number(b)))
     return make_error(vm, "can't perform arithmetic on non numeric values");

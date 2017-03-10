@@ -33,7 +33,7 @@ void free_object(vm_t *vm, object_t *o) {
 object_t *object_eq(vm_t *vm, object_t *a, object_t *b) {
   if (a == b) return &t;
   if (a == NULL || b == NULL) return &f;
-  if (a->type != b->type) return &t;
+  if (a->type != b->type) return &f;
 
   switch(a->type) {
     case FIXNUM:
