@@ -25,7 +25,7 @@ object_t *eval_args(vm_t *vm, object_t *frame, object_t *params, object_t *args,
   if (args == NULL || params == NULL) return frame;
 
   object_t *sym = car(vm, params);
-  object_t *val = eval(vm, car(vm, args), env);
+  object_t *val = car(vm, args);
 
   return define(vm, eval_args(vm, frame, cdr(vm, params), cdr(vm, args), env), sym, val);
 }

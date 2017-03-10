@@ -49,7 +49,7 @@ object_t *eval_pair(vm_t *vm, object_t *expr, object_t **env) {
   } else if (procedure->type == PRIMITIVE) {
     ret = prim_apply(vm, procedure, eval_sequence(vm, args, env), env);
   } else if (procedure->type == PROCEDURE) {
-    ret = proc_apply(vm, procedure, args, env);
+    ret = proc_apply(vm, procedure, eval_sequence(vm, args, env), env);
   } else if (procedure->type == ERROR) {
     return procedure;
   } else {
