@@ -4,25 +4,10 @@
 #include "eval.h"
 #include "print.h"
 
-object_t *_if(vm_t *vm, object_t *predicate, object_t *consequent, object_t *alternative, object_t **env) {
-  if (true(error(predicate))) return predicate;
-
-  if (!false(predicate)) {
-    return eval(vm, consequent, env);
-  } else {
-    return eval(vm, alternative, env);
-  }
-}
-
-#define if_predicate(expr) car(vm, expr)
-#define if_consequent(expr) car(vm, cdr(vm, expr))
-#define if_alternative(expr) car(vm, cdr(vm, cdr(vm, expr)))
-
 object_t *eval_if(vm_t *vm, object_t *expr, object_t **env) {
-
-  object_t *body = expr;
-
-  return _if(vm, eval(vm, if_predicate(body), env), if_consequent(body), if_alternative(body), env);
+  object_t *predicate = eval(vm, car(vm, expr), env);
+  if (true(error(predicate))) return predicate;
+  return eval(vm, !false(predicate) ? car(vm, cdr(vm, expr)) : car(vm, cdr(vm, cdr(vm, expr))), env);
 }
 
 object_t *eval_sequence(vm_t *vm, object_t *expr, object_t **env) {
