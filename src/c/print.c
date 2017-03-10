@@ -68,6 +68,9 @@ static void print_object(vm_t *vm, FILE *fp, object_t *o) {
       case PRIMITIVE:
         fprintf(fp, __purple("#<primitive@%p>"), (void*) o);
         break;
+      case SPECIAL:
+        fprintf(fp, __purple("#<special@%p>"), (void*) o);
+        break;
       case ERROR:
         fprintf(fp, __red("#<error:%s>"), get_str(o));
         break;

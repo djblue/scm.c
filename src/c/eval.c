@@ -38,7 +38,9 @@ object_t *eval_pair(vm_t *vm, object_t *expr, object_t **env) {
     printf("\n");
   }
 
-  if (procedure->type == PRIMITIVE) {
+  if (procedure->type == SPECIAL) {
+    ret = prim_apply(vm, procedure, cdr(vm, expr), env);
+  } else if (procedure->type == PRIMITIVE) {
     ret = prim_apply(vm, procedure, cdr(vm, expr), env);
   } else if (procedure->type == PROCEDURE) {
     ret = proc_apply(vm, procedure, cdr(vm, expr), env);
@@ -208,9 +210,9 @@ object_t *eval_multiply(vm_t *vm, object_t *expr, object_t **env) {
 void init(vm_t *vm, object_t *env) {
 
   // special forms
-  def("if", eval_if)
-  def("quote", eval_quote)
-  def("define", eval_define)
+  defs("if", eval_if)
+  defs("quote", eval_quote)
+  defs("define", eval_define)
 
   def("+", eval_plus)
   def("*", eval_multiply)
@@ -227,14 +229,14 @@ void init(vm_t *vm, object_t *env) {
   def("null?", nullp)
 
   def("eval", eval_eval)
-  def("lambda", eval_lambda)
+  defs("lambda", eval_lambda)
   def("trace", eval_trace)
   def("untrace", eval_untrace)
 
   def("cons", eval_cons)
   def("car", eval_car)
   def("cdr", eval_cdr)
-  def("begin", eval_begin)
+  defs("begin", eval_begin)
 
   def("write", eval_print)
   def("env", eval_env)
