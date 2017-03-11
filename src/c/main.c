@@ -24,7 +24,6 @@ int main (int argc, char** argv) {
 
     if (isatty(STDIN_FILENO)) {
       print(vm, value);
-      printf("\n");
     }
 
     vm_gc(vm);

@@ -154,7 +154,6 @@ object_t *eval_begin(vm_t *vm, object_t *expr, object_t **env) {
 object_t *eval_print(vm_t *vm, object_t *expr, object_t **env) {
   object_t *o = car(vm, expr);
   print(vm, o);
-  printf("\n");
   return o;
 }
 

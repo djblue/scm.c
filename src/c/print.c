@@ -86,5 +86,6 @@ static void print_object(vm_t *vm, FILE *fp, object_t *o) {
 void print(vm_t *vm, object_t *o) {
   FILE *fp = port_pointer(fetch(vm, STDOUT));
   print_object(vm, fp, o);
+  fprintf(fp, "\n");
 }
 
