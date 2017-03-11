@@ -74,6 +74,17 @@ object_t *eval_define(vm_t *vm, object_t *expr, object_t **env) {
   return val;
 }
 
+object_t *eval_begin(vm_t *vm, object_t *expr, object_t **env) {
+  object_t *val = eval(vm, car(vm, expr), env);
+  object_t *next = cdr(vm, expr);
+
+  if (next == NULL) {
+    return val;
+  } else {
+    return eval_begin(vm, next, env);
+  }
+}
+
 #define eval_predicate(fn,p) \
   object_t *fn(vm_t *vm, object_t *expr, object_t **env) { \
     object_t *o = car(vm, expr); \
@@ -140,17 +151,6 @@ object_t *eval_env(vm_t *vm, object_t *expr, object_t **env) {
   return *env;
 }
 
-object_t *eval_begin(vm_t *vm, object_t *expr, object_t **env) {
-  object_t *val = eval(vm, car(vm, expr), env);
-  object_t *next = cdr(vm, expr);
-
-  if (next == NULL) {
-    return val;
-  } else {
-    return eval_begin(vm, next, env);
-  }
-}
-
 object_t *eval_print(vm_t *vm, object_t *expr, object_t **env) {
   object_t *o = car(vm, expr);
   print(vm, o);
@@ -202,6 +202,8 @@ void init(vm_t *vm, object_t *env) {
   defs("if", eval_if)
   defs("quote", eval_quote)
   defs("define", eval_define)
+  defs("lambda", eval_lambda)
+  defs("begin", eval_begin)
 
   def("+", eval_plus)
   def("*", eval_multiply)
@@ -218,14 +220,12 @@ void init(vm_t *vm, object_t *env) {
   def("null?", nullp)
 
   def("eval", eval_eval)
-  defs("lambda", eval_lambda)
   def("trace", eval_trace)
   def("untrace", eval_untrace)
 
   def("cons", eval_cons)
   def("car", eval_car)
   def("cdr", eval_cdr)
-  defs("begin", eval_begin)
 
   def("write", eval_print)
   def("env", eval_env)
