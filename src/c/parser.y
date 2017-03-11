@@ -41,6 +41,8 @@ expr : atom
 
 list : '(' exprs ')' { $$ = $2; }
      | '(' ')' { $$ = NULL; }
+     | '[' exprs ']' { $$ = $2; }
+     | '[' ']' { $$ = NULL; }
      ;
 
 exprs : %empty { $$ = NULL; }
