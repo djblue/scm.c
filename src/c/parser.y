@@ -47,6 +47,7 @@ list : '(' exprs ')' { $$ = $2; }
 
 exprs : %empty { $$ = NULL; }
       | expr exprs { $$ = cons(vm, $1, $2); }
+      | expr '.' expr { $$ = cons(vm, $1, $3); }
       ;
 
 quote : '\'' expr { $$ = cons(vm, make_symbol(vm, "quote"), cons(vm, $2, NULL)); }
