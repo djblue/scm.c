@@ -1,6 +1,6 @@
 BIN=./src/scm
 
-.PHONY: clean test repl
+.PHONY: clean test t repl
 
 all: repl
 
@@ -15,7 +15,12 @@ repl: $(BIN)
 src/scm:
 	$(MAKE) -C src
 
+t: test
+
 # build and run tests
 test: $(BIN) 
-	./test/runner.sh $(BIN) ./test/suite
+	@find ./test -type f \
+		| grep -v out$  \
+		| xargs -n1 -I{} echo "cat {} | $(BIN) | diff -u {}.out - || exit 1" 2> /dev/null \
+		| bash && echo "Done!"
 
