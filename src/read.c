@@ -105,6 +105,14 @@ object_t *scm_read(vm_t *vm, object_t *expr, object_t **env) {
   return read_internal(vm, port_pointer(port), env);
 }
 
+void scm_read_load(const char *file) {
+  read_history(file);
+}
+
+void scm_read_save(const char *file) {
+  write_history(file);
+}
+
 void define_read(vm_t *vm, object_t *env) {
   def("read", scm_read)
 }

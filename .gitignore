@@ -1,5 +1,6 @@
 .DS_Store
 src/scm
+.scm_history
 vgcore.*
 lexer.h
 lexer.c

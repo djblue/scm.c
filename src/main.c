@@ -20,6 +20,7 @@ int main (int argc, char** argv) {
   object_t *args = cons(vm, make_port_from_string(vm, core_scm), NULL);
   scm_load(vm, args, &env);
 
+  scm_read_load(".scm_history");
   vm_set_env(vm, env);
 
   while (1) {
@@ -35,6 +36,7 @@ int main (int argc, char** argv) {
   }
 
   free_vm(vm);
+  scm_read_save(".scm_history");
 
   return 0;
 }
