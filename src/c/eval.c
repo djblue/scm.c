@@ -68,10 +68,18 @@ object_t *eval(vm_t *vm, object_t *expr, object_t **env) {
 }
 
 object_t *eval_define(vm_t *vm, object_t *expr, object_t **env) {
-  object_t *sym = car(vm, expr);
-  object_t *val = eval(vm, car(vm, cdr(vm, expr)), env);
-  define(vm, *env, sym, val);
-  return val;
+  object_t *var = car(vm, expr);
+  object_t *val = car(vm, cdr(vm, expr));
+
+  if (true(pair(var))) {
+    object_t *lambda = make_symbol(vm, "lambda");
+    object_t *params = cdr(vm, var);
+    val = cons(vm, lambda, cons(vm, params, cdr(vm, expr)));
+    var = car(vm, var);
+  }
+
+  define(vm, *env, var, eval(vm, val, env));
+  return &t;
 }
 
 object_t *eval_begin(vm_t *vm, object_t *expr, object_t **env) {

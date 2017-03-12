@@ -1,17 +1,17 @@
-(define reverse (lambda (ls)
-  (define reverse-inner (lambda (ls acc)
+(define (reverse ls)
+  (define (reverse-inner ls acc)
     (if (null? ls)
       acc
-      (reverse-inner (cdr ls) (cons (car ls) acc)))))
-  (reverse-inner ls '())))
+      (reverse-inner (cdr ls) (cons (car ls) acc))))
+  (reverse-inner ls '()))
 
-(define inc (lambda (x) (+ x 1)))
+(define (inc x) (+ x 1))
 
-(define range (lambda (n)
-  (define range-iter (lambda (ls i)
+(define (range n)
+  (define (range-iter ls i)
     (if (= i n)
       ls
-      (range-iter (cons i ls) (inc i)))))
-  (reverse (range-iter '() 0))))
+      (range-iter (cons i ls) (inc i))))
+  (reverse (range-iter '() 0)))
 
 (write (range 10))

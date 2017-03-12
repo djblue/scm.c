@@ -1,59 +1,55 @@
 ; map a function over a list
-(define map (lambda (fn ls)
+(define (map fn ls)
   (if (null? ls)
         ls ; base case
         (cons
           (fn (car ls))
-          (map fn (cdr ls))))))
+          (map fn (cdr ls)))))
 
 ; filter items from a list
-(define filter (lambda (fn ls)
+(define (filter fn ls)
   (if (null? ls)
-    ls 
+    ls
     (if (fn (car ls))
       (cons (car ls) (filter fn (cdr ls)))
-      (filter fn (cdr ls))))))
+      (filter fn (cdr ls)))))
 
 ; reverse a list
-(define reverse (lambda (ls)
-  (begin
-    (define reverse-inner (lambda (ls acc)
-      (if (null? ls)
-        acc
-        (reverse-inner (cdr ls) (cons (car ls) acc)))))
-    (reverse-inner ls '()))))
+(define (reverse ls)
+  (define (reverse-inner ls acc)
+    (if (null? ls)
+      acc
+      (reverse-inner (cdr ls) (cons (car ls) acc))))
+  (reverse-inner ls '()))
 
-(define concat (lambda (ls value)
+(define (concat ls value)
   (if (null? ls)
     value
-    (cons (car ls) (concat (cdr ls) value)))))
+    (cons (car ls) (concat (cdr ls) value))))
 
-(define append (lambda (ls value)
-  (concat ls (cons value '()))))
+(define (append ls value)
+  (concat ls (cons value '())))
 
-(define inc (lambda (x) (+ x 1)))
+(define (inc x) (+ x 1))
 
 ; invert a boolean value
-(define not
-  (lambda (x) (if x #f #t)))
+(define (not x) (if x #f #t))
 
-(define count (lambda (ls)
-  (begin
-    (define count-iter (lambda (ls n)
-      (if (null? ls)
-        n 
-        (count-iter (cdr ls) (inc n)))))
-    (count-iter ls 0))))
+(define (count ls)
+  (define (count-iter ls n)
+    (if (null? ls)
+      n
+      (count-iter (cdr ls) (inc n))))
+  (count-iter ls 0))
 
-(define zero? (lambda (n) (= n 0)))
+(define (zero? n) (= n 0))
 
-(define range (lambda (n)
-  (begin
-    (define range-iter (lambda (ls i)
-      (if (= i n)
-        ls
-        (range-iter (cons i ls) (inc i)))))
-    (reverse (range-iter '() 0)))))
+(define (range n)
+  (define (range-iter ls i)
+    (if (= i n)
+      ls
+      (range-iter (cons i ls) (inc i))))
+  (reverse (range-iter '() 0)))
 
 (define list (lambda ls ls))
 
