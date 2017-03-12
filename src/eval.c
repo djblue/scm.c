@@ -155,6 +155,14 @@ object_t *eval_cdr(vm_t *vm, object_t *expr, object_t **env) {
   return cdr(vm, car(vm, expr));
 }
 
+object_t *eval_set_car(vm_t *vm, object_t *expr, object_t **env) {
+  return set_car(vm, car(vm, expr), car(vm, cdr(vm, expr)));
+}
+
+object_t *eval_set_cdr(vm_t *vm, object_t *expr, object_t **env) {
+  return set_cdr(vm, car(vm, expr), car(vm, cdr(vm, expr)));
+}
+
 object_t *eval_env(vm_t *vm, object_t *expr, object_t **env) {
   return *env;
 }
@@ -234,6 +242,8 @@ void init(vm_t *vm, object_t *env) {
   def("cons", eval_cons)
   def("car", eval_car)
   def("cdr", eval_cdr)
+  def("set-car!", eval_set_car)
+  def("set-cdr!", eval_set_cdr)
 
   def("write", eval_print)
   def("env", eval_env)

@@ -33,12 +33,24 @@ object_t *cdr(vm_t *vm, object_t *pair) {
   return object_data(pair, pair_t).cdr;
 }
 
-void set_car(vm_t *vm, object_t *pair, object_t *car) {
+object_t *set_car(vm_t *vm, object_t *pair, object_t *car) {
+  if (pair == NULL) return NULL;
+  if (pair->type == ERROR) return pair;
+  if (pair->type != PAIR) {
+    return make_error(vm, "object not pair");
+  }
   object_data(pair, pair_t).car = car;
+  return &t;
 }
 
-void set_cdr(vm_t *vm, object_t *pair, object_t *cdr) {
+object_t *set_cdr(vm_t *vm, object_t *pair, object_t *cdr) {
+  if (pair == NULL) return NULL;
+  if (pair->type == ERROR) return pair;
+  if (pair->type != PAIR) {
+    return make_error(vm, "object not pair");
+  }
   object_data(pair, pair_t).cdr = cdr;
+  return &t;
 }
 
 object_t *null(object_t *o) {
