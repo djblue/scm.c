@@ -27,6 +27,8 @@ void yyerror(vm_t *vm, yyscan_t scanner, object_t **obj, char const *msg);
 %type <obj> exprs
 %type <obj> expr
 %type <obj> quote
+%type <obj> quasiquote
+%type <obj> unquote
 
 %%
 
@@ -37,6 +39,8 @@ form : %empty { *obj = &eof; YYACCEPT; }
 expr : atom
      | list
      | quote
+     | quasiquote
+     | unquote
      ;
 
 list : '(' exprs ')' { $$ = $2; }
@@ -52,6 +56,12 @@ exprs : %empty { $$ = NULL; }
 
 quote : '\'' expr { $$ = list(vm, 2, make_symbol(vm, "quote"), $2); }
       ;
+
+quasiquote : '`' expr { $$ = list(vm, 2, make_symbol(vm, "quasiquote"), $2); }
+           ;
+
+unquote : ',' expr { $$ = list(vm, 2, make_symbol(vm, "unquote"), $2); }
+        ;
 
 atom : BOOLEAN_T    { $$ = make_boolean(vm, yylval.str); }
      | FIXNUM_T     { $$ = make_fixnum(vm, yylval.str);  }

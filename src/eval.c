@@ -54,6 +54,23 @@ object_t *eval_quote(vm_t *vm, object_t *expr, object_t **env) {
   return car(vm, expr);
 }
 
+object_t *eval_unquote(vm_t *vm, object_t *expr, object_t **env) {
+  if (expr == NULL || expr->type != PAIR) return expr;
+  object_t *val = car(vm, expr);
+
+  if (true(object_eq(vm, val, make_symbol(vm, "unquote")))) {
+    return eval(vm, car(vm, cdr(vm, expr)), env);
+  } else if (true(object_eq(vm, val, make_symbol(vm, "quasiquote")))) {
+    return eval(vm, expr, env);
+  }
+
+  return cons(vm, eval_unquote(vm, val, env), eval_unquote(vm, cdr(vm, expr), env));
+}
+
+object_t *eval_quasiquote(vm_t *vm, object_t *expr, object_t **env) {
+  return eval_unquote(vm, car(vm, expr), env);
+}
+
 object_t *eval(vm_t *vm, object_t *expr, object_t **env) {
   if (expr == NULL) return NULL;
 
@@ -192,6 +209,13 @@ object_t *eval_eq(vm_t *vm, object_t *expr, object_t **env) {
 object_t *eval_apply(vm_t *vm, object_t *expr, object_t **env) {
   object_t *op = car(vm, expr);
   object_t *args = car(vm, cdr(vm, expr));
+  if (args != NULL && args->type != PAIR) {
+    if (args->type == ERROR) {
+      return args;
+    } else {
+      return make_error(vm, "cannot apply non-list arguments to function");
+    }
+  }
   return eval_pair(vm, cons(vm, op, args), env);
 }
 
@@ -217,6 +241,7 @@ void init(vm_t *vm, object_t *env) {
   // special forms
   defs("if", eval_if)
   defs("quote", eval_quote)
+  defs("quasiquote", eval_quasiquote)
   defs("define", eval_define)
   defs("lambda", eval_lambda)
   defs("begin", eval_begin)
