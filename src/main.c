@@ -5,6 +5,9 @@
 #include "eval.h"
 #include "read.h"
 #include "print.h"
+#include "port.h"
+
+#include "core.xxd"
 
 int main (int argc, char** argv) {
 
@@ -14,6 +17,8 @@ int main (int argc, char** argv) {
   init(vm, env);
   define_port(vm, env);
   define_read(vm, env);
+  object_t *args = cons(vm, make_port_from_string(vm, core_scm), NULL);
+  scm_load(vm, args, &env);
 
   vm_set_env(vm, env);
 

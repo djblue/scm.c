@@ -1,58 +1,21 @@
-BDIR=bin
-BIN=$(BDIR)/scm
-CC=gcc
-CFLAGS=-std=gnu99 -g -O2 -Wall -pedantic
-LDFLAGS=-lreadline
-ODIR=obj
-SDIR=src/c
-
-# find all source files
-SOURCES=$(shell cd $(SDIR) && find | grep '\.c' | egrep -v "lexer.c|parser.c") lexer.c parser.c
-OBJS=$(addprefix $(ODIR)/, $(SOURCES:.c=.o))
+BIN=./src/scm
 
 .PHONY: clean test repl
 
-all: $(BIN)
-
-makefile.dep: $(addprefix $(SDIR)/, $(SOURCES))
-	$(CC) $^ -MM > $@
-
-# build interpreter
-$(BIN): $(ODIR) $(OBJS)
-	mkdir -p `dirname $@`
-	$(CC) $(OBJS) -o $(BIN) $(LDFLAGS)
-
-# build object files from sources
-$(ODIR)/%.o: $(SDIR)/%.c
-	mkdir -p `dirname $@`
-	$(CC) -c $(CFLAGS) -o $@ $<
-
-$(SDIR)/lexer.h $(SDIR)/lexer.c: $(SDIR)/lexer.l
-	flex --header-file=$(SDIR)/lexer.h --outfile=$(SDIR)/lexer.c $<
-
-$(SDIR)/parser.h $(SDIR)/parser.c: $(SDIR)/parser.y
-	bison --output-file=$(SDIR)/parser.c --defines=$(SDIR)/parser.h --warnings=all --feature=all $<
-
-# make obj directory
-$(ODIR):
-	mkdir -p $(ODIR)
+all: repl
 
 # clean up
 clean:
-	rm -rf $(ODIR) $(BDIR) $(SDIR)/lexer.h $(SDIR)/lexer.c $(SDIR)/parser.h $(SDIR)/parser.c
+	$(MAKE) clean -C src
 
 repl: $(BIN)
 	@echo "Welcome to scm!"
-	@rlwrap ./$(BIN)
+	@$(BIN)
 
-# code navigation tags
-tags: $(addprefix $(SDIR)/, $(SOURCES))
-	ctags -R
+src/scm:
+	$(MAKE) -C src
 
 # build and run tests
-test: $(BIN)
-	./test/runner.sh ./$(BIN) ./test/suite
+test: $(BIN) 
+	./test/runner.sh $(BIN) ./test/suite
 
-ifneq ($(MAKECMDGOALS),clean)
--include makefile.dep
-endif

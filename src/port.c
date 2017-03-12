@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 
 #include "types.h"
 #include "colors.h"
@@ -19,8 +20,14 @@ object_t *make_port(vm_t *vm) {
 }
 
 object_t *make_port_from_file(vm_t *vm, FILE *fp) {
-  object_t * port = make_port(vm);
+  object_t *port = make_port(vm);
   object_data(port, port_t).fp = fp;
+  return port;
+}
+
+object_t *make_port_from_string(vm_t *vm, unsigned char *str) {
+  object_t *port = make_port(vm);
+  object_data(port, port_t).fp = fmemopen(str, strlen(str), "r");
   return port;
 }
 
@@ -52,7 +59,13 @@ defn(eval_open) {
 }
 
 object_t *scm_load(vm_t *vm, object_t *expr, object_t **env) {
-  object_t *args = cons(vm, eval_open(vm, expr, env), NULL);
+  object_t *port = car(vm, expr);
+
+  if (true(string(port))) {
+    port = eval_open(vm, cons(vm, port, NULL), env);
+  }
+
+  object_t *args = cons(vm, port, NULL);
 
   object_t *exp;
   while ((exp = scm_read(vm, args, env)) != &eof) {

@@ -1,10 +1,11 @@
-obj/
 .DS_Store
-scm*
+src/scm
 vgcore.*
 lexer.h
 lexer.c
 parser.h
 parser.c
 *.dep
+*.o
+*.xxd
 tags
