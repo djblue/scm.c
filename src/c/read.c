@@ -41,14 +41,14 @@ static char** my_completion(const char *text, int start, int end) {
 static object_t *read_internal(vm_t *vm, FILE *fp, object_t **env) {
   if (fp == stdin && isatty(STDIN_FILENO)) {
     n = 0;
-    object_t *i = *env, *j;
-    while (i != NULL) {
-      j = car(vm, i);
-      while (j != NULL) {
-        completions[n++] = symbol_str(vm, car(vm, car(vm, j)));
-        j = cdr(vm, j);
+    object_t *frames = *env;
+    while (frames != NULL) {
+      object_t *vals = car(vm, car(vm, frames));
+      while (vals != NULL) {
+        completions[n++] = symbol_str(vm, car(vm, vals));
+        vals = cdr(vm, vals);
       }
-      i = cdr(vm, i);
+      frames = cdr(vm, frames);
     }
     char buffer[1024];
     memset(buffer, 0, sizeof buffer);

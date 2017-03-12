@@ -30,12 +30,20 @@ object_t *eval_args(vm_t *vm, object_t *frame, object_t *params, object_t *args,
   return define(vm, eval_args(vm, frame, cdr(vm, params), cdr(vm, args), env), sym, val);
 }
 
-object_t *proc_apply(vm_t *vm, object_t *procedure, object_t *args, object_t **env) {
-  object_t *parent = object_data(procedure, proc_t).env; // captured environment
-  object_t *frame = make_frame(vm, parent);
-  object_t *params = object_data(procedure, proc_t).params;
-  object_t *extended_env = eval_args(vm, frame, params, args, env);
+object_t *proc_apply(vm_t *vm, object_t *procedure, object_t *args, object_t **__remove) {
   object_t *body = car(vm, object_data(procedure, proc_t).body);
+  object_t *parent = object_data(procedure, proc_t).env; // captured environment
+  object_t *params = object_data(procedure, proc_t).params;
 
-  return eval(vm, body, &extended_env);
+  object_t *vars = params;
+  object_t *vals = args;
+
+  if (true(symbol(vars))) {
+    vars = cons(vm, vars, NULL);
+    vals = cons(vm, vals, NULL);
+  }
+
+  object_t *env = extend_frame(vm, vars, vals, parent);
+
+  return eval(vm, body, &env);
 }

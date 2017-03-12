@@ -4,7 +4,8 @@
 #include "object.h"
 #include "vm.h"
 
-object_t *make_frame(vm_t *vm, object_t *parent);
+object_t *extend_frame(vm_t *vm, object_t *vars, object_t *vals, object_t *parent);
+object_t *make_frame(vm_t *vm);
 
 #define def(sym,fun) \
   define(vm, env, make_symbol(vm, sym), make_primitive(vm, fun, 0));

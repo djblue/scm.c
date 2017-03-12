@@ -55,3 +55,5 @@
         (range-iter (cons i ls) (inc i)))))
     (reverse (range-iter '() 0)))))
 
+(define list (lambda ls ls))
+

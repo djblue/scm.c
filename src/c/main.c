@@ -10,7 +10,7 @@ int main (int argc, char** argv) {
 
   vm_t *vm = make_vm();
 
-  object_t *env = make_frame(vm, NULL);
+  object_t *env = make_frame(vm);
   init(vm, env);
   define_port(vm, env);
   define_read(vm, env);
