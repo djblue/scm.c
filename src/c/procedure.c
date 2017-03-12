@@ -31,7 +31,9 @@ object_t *eval_args(vm_t *vm, object_t *frame, object_t *params, object_t *args,
 }
 
 object_t *proc_apply(vm_t *vm, object_t *procedure, object_t *args, object_t **__remove) {
-  object_t *body = car(vm, object_data(procedure, proc_t).body);
+  object_t *begin = make_symbol(vm, "begin");
+
+  object_t *body = cons(vm, begin, object_data(procedure, proc_t).body);
   object_t *parent = object_data(procedure, proc_t).env; // captured environment
   object_t *params = object_data(procedure, proc_t).params;
 
