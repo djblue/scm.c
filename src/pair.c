@@ -1,3 +1,5 @@
+#include <stdarg.h>
+
 #include "pair.h"
 #include "error.h"
 #include "boolean.h"
@@ -51,6 +53,27 @@ object_t *set_cdr(vm_t *vm, object_t *pair, object_t *cdr) {
   }
   object_data(pair, pair_t).cdr = cdr;
   return &t;
+}
+
+object_t *list(vm_t *vm, int argc, ...) {
+  va_list argp;
+  object_t *head = NULL, *prev = NULL;
+
+  va_start(argp, argc);
+
+  for (int i = 0; i < argc; i++) {
+    object_t *pair = cons(vm, va_arg(argp, object_t*), NULL);
+    if (prev != NULL) {
+      set_cdr(vm, prev, pair);
+    } else if (head == NULL) {
+      head = pair;
+    }
+    prev = pair;
+  }
+
+  va_end(argp);
+
+  return head;
 }
 
 object_t *null(object_t *o) {

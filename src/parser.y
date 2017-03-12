@@ -50,7 +50,7 @@ exprs : %empty { $$ = NULL; }
       | expr '.' expr { $$ = cons(vm, $1, $3); }
       ;
 
-quote : '\'' expr { $$ = cons(vm, make_symbol(vm, "quote"), cons(vm, $2, NULL)); }
+quote : '\'' expr { $$ = list(vm, 2, make_symbol(vm, "quote"), $2); }
       ;
 
 atom : BOOLEAN_T    { $$ = make_boolean(vm, yylval.str); }

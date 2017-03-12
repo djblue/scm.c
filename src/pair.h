@@ -10,6 +10,8 @@ object_t *cdr(vm_t *vm, object_t *pair);
 object_t *set_car(vm_t *vm, object_t *pair, object_t *car);
 object_t *set_cdr(vm_t *vm, object_t *pair, object_t *cdr);
 
+object_t *list(vm_t *vm, int argc, ...);
+
 object_t *null(object_t *o);
 object_t *pair(object_t *o);
 
