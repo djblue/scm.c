@@ -41,7 +41,7 @@ tags: $(SOURCES)
 
 # build and run tests
 test: $(BIN)
-	./test/runner.sh ./$(BIN) ./test/suite
+	$(MAKE) test -C ../
 
 ifneq ($(MAKECMDGOALS),clean)
 -include makefile.dep
