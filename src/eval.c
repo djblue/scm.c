@@ -36,65 +36,6 @@ object_t *eval_quasiquote(vm_t *vm, object_t *expr, object_t *env) {
   return eval_unquote(vm, car(vm, expr), env);
 }
 
-object_t *eval(vm_t *vm, object_t *expr, object_t *env) {
-  if (expr == NULL) return NULL;
-
-  switch (expr->type) {
-    case SYMBOL:
-      return lookup(vm, env, expr);
-    case PAIR: {
-      object_t *ret = NULL;
-      object_t *procedure = eval(vm, car(vm, expr), env);
-      object_t *args = cdr(vm, expr);
-
-      if (procedure == NULL) return make_error(vm, "nil is not operator");
-
-      if (procedure->trace == 1) {
-        printf("calling: ");
-        print(vm, cons(vm, procedure, expr));
-        printf("\n");
-      }
-
-      if (procedure->type == SPECIAL) {
-        ret = prim_apply(vm, procedure, args, env);
-      } else if (procedure->type == PRIMITIVE) {
-        ret = prim_apply(vm, procedure, eval_sequence(vm, args, env), env);
-      } else if (procedure->type == PROCEDURE) {
-        object_t *begin = make_symbol(vm, "begin");
-
-        object_t *body = cons(vm, begin, object_data(procedure, proc_t).body);
-        object_t *parent = object_data(procedure, proc_t).env; // captured environment
-        object_t *params = object_data(procedure, proc_t).params;
-
-        object_t *vars = params;
-        object_t *vals = eval_sequence(vm, args, env);
-
-        if (true(symbol(vars))) {
-          vars = cons(vm, vars, NULL);
-          vals = cons(vm, vals, NULL);
-        }
-
-        object_t *env = extend_frame(vm, vars, vals, parent);
-        ret = eval(vm, body, env);
-      } else if (procedure->type == ERROR) {
-        return procedure;
-      } else {
-        return make_error(vm, "not a procedure");
-      }
-
-      if (procedure->trace == 1) {
-        printf("returning: ");
-        print(vm, ret);
-        printf("\n");
-      }
-
-      return ret;
-    }
-    default:
-      return expr;
-  }
-}
-
 object_t *eval_define(vm_t *vm, object_t *expr, object_t *env) {
   object_t *var = car(vm, expr);
   object_t *val = car(vm, cdr(vm, expr));
@@ -145,6 +86,136 @@ object_t *eval_cond(vm_t *vm, object_t *expr, object_t *env) {
   return eval_cond(vm, cdr(vm, expr), env);
 }
 
+object_t *eval_lambda(vm_t *vm, object_t *expr, object_t *env) {
+  object_t *args = car(vm, expr);
+  object_t *body = cdr(vm, expr);
+  return make_procedure(vm, env, args, body);
+}
+
+object_t *eval(vm_t *vm, object_t *expr, object_t *env) {
+  if (expr == NULL) return NULL;
+
+  switch (expr->type) {
+    case SYMBOL:
+      return lookup(vm, env, expr);
+    case PAIR: {
+      object_t *ret = NULL;
+      object_t *procedure = eval(vm, car(vm, expr), env);
+      object_t *args = cdr(vm, expr);
+
+      if (procedure == NULL) return make_error(vm, "nil is not operator");
+
+      if (procedure->trace == 1) {
+        printf("calling: ");
+        print(vm, cons(vm, procedure, expr));
+        printf("\n");
+      }
+
+      if (procedure->type == SPECIAL) {
+        expr = args;
+
+        switch (object_data(procedure, special_t)) {
+          case F_IF: {
+            object_t *predicate = eval(vm, car(vm, expr), env);
+            if (true(error(predicate))) return predicate;
+            return eval(vm, !false(predicate) ? car(vm, cdr(vm, expr)) : car(vm, cdr(vm, cdr(vm, expr))), env);
+          }
+          case F_QUOTE: {
+            return car(vm, expr);
+          }
+          case F_QUASIQUOTE: {
+            return eval_unquote(vm, car(vm, expr), env);
+          }
+          case F_DEFINE: {
+            object_t *var = car(vm, expr);
+            object_t *val = car(vm, cdr(vm, expr));
+
+            if (true(pair(var))) {
+              object_t *lambda = make_symbol(vm, "lambda");
+              object_t *params = cdr(vm, var);
+              val = cons(vm, lambda, cons(vm, params, cdr(vm, expr)));
+              var = car(vm, var);
+            }
+
+            define(vm, env, var, eval(vm, val, env));
+            return &t;
+          }
+          case F_LAMBDA: {
+            object_t *args = car(vm, expr);
+            object_t *body = cdr(vm, expr);
+            return make_procedure(vm, env, args, body);
+          }
+          case F_BEGIN: {
+            object_t *val = eval(vm, car(vm, expr), env);
+            object_t *next = cdr(vm, expr);
+            if (next == NULL) return val;
+            return eval_begin(vm, next, env);
+          }
+          case F_AND: {
+            if (expr == NULL) return &t;
+            object_t *val = eval(vm, car(vm, expr), env);
+            object_t *next = cdr(vm, expr);
+            if (next == NULL || false(val)) return val;
+            return eval_and(vm, next, env);
+          }
+          case F_OR: {
+            if (expr == NULL) return &f;
+            object_t *val = eval(vm, car(vm, expr), env);
+            object_t *next = cdr(vm, expr);
+            if (next == NULL || !false(val)) return val;
+            return eval_or(vm, next, env);
+          }
+          case F_COND: {
+            if (expr == NULL) return NULL;
+            object_t *_case = car(vm, expr);
+            object_t *test = car(vm, _case);
+            object_t *body = car(vm, cdr(vm, _case));
+            if (true(object_eq(vm, test, make_symbol(vm, "else"))) ||
+                true(eval(vm, test, env))) {
+              return eval(vm, body, env);
+            }
+            return eval_cond(vm, cdr(vm, expr), env);
+          }
+          default: return make_error(vm, "oh no!!!");
+        }
+      } else if (procedure->type == PRIMITIVE) {
+        ret = prim_apply(vm, procedure, eval_sequence(vm, args, env), env);
+      } else if (procedure->type == PROCEDURE) {
+        object_t *begin = make_symbol(vm, "begin");
+
+        object_t *body = cons(vm, begin, object_data(procedure, proc_t).body);
+        object_t *parent = object_data(procedure, proc_t).env; // captured environment
+        object_t *params = object_data(procedure, proc_t).params;
+
+        object_t *vars = params;
+        object_t *vals = eval_sequence(vm, args, env);
+
+        if (true(symbol(vars))) {
+          vars = cons(vm, vars, NULL);
+          vals = cons(vm, vals, NULL);
+        }
+
+        object_t *env = extend_frame(vm, vars, vals, parent);
+        ret = eval(vm, body, env);
+      } else if (procedure->type == ERROR) {
+        return procedure;
+      } else {
+        return make_error(vm, "not a procedure");
+      }
+
+      if (procedure->trace == 1) {
+        printf("returning: ");
+        print(vm, ret);
+        printf("\n");
+      }
+
+      return ret;
+    }
+    default:
+      return expr;
+  }
+}
+
 #define eval_predicate(fn,p) \
   object_t *fn(vm_t *vm, object_t *expr, object_t *env) { \
     object_t *o = car(vm, expr); \
@@ -160,12 +231,6 @@ eval_predicate(stringp, string)
 eval_predicate(characterp, character)
 eval_predicate(symbolp, symbol)
 eval_predicate(pairp, pair)
-
-object_t *eval_lambda(vm_t *vm, object_t *expr, object_t *env) {
-  object_t *args = car(vm, expr);
-  object_t *body = cdr(vm, expr);
-  return make_procedure(vm, env, args, body);
-}
 
 object_t *trace(vm_t *vm, object_t *op) {
   op->trace = 1;
@@ -274,15 +339,15 @@ object_t *eval_multiply(vm_t *vm, object_t *expr, object_t *env) {
 void init(vm_t *vm, object_t *env) {
 
   // special forms
-  defs("if", eval_if)
-  defs("quote", eval_quote)
-  defs("quasiquote", eval_quasiquote)
-  defs("define", eval_define)
-  defs("lambda", eval_lambda)
-  defs("begin", eval_begin)
-  defs("and", eval_and)
-  defs("or", eval_or)
-  defs("cond", eval_cond)
+  defs("if", F_IF)
+  defs("quote", F_QUOTE)
+  defs("quasiquote", F_QUASIQUOTE)
+  defs("define", F_DEFINE)
+  defs("lambda", F_LAMBDA)
+  defs("begin", F_BEGIN)
+  defs("and", F_AND)
+  defs("or", F_OR)
+  defs("cond", F_COND)
 
   def("+", eval_plus)
   def("*", eval_multiply)
