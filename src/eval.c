@@ -179,15 +179,18 @@ tailcall:
             goto tailcall;
           }
           case F_COND: {
-            if (expr == NULL) return NULL;
-            object_t *_case = car(vm, expr);
-            object_t *test = car(vm, _case);
-            object_t *body = car(vm, cdr(vm, _case));
-            if (true(object_eq(vm, test, make_symbol(vm, "else"))) ||
-                true(eval(vm, test, env))) {
-              return eval(vm, body, env);
+            while (expr != NULL) {
+              object_t *_case = car(vm, expr);
+              object_t *test = car(vm, _case);
+              object_t *body = car(vm, cdr(vm, _case));
+              if (true(object_eq(vm, test, make_symbol(vm, "else"))) ||
+                  true(eval(vm, test, env))) {
+                expr = body;
+                goto tailcall;
+              }
+              expr = cdr(vm, expr);
             }
-            return eval_cond(vm, cdr(vm, expr), env);
+            goto tailcall;
           }
           default: return make_error(vm, "oh no!!!");
         }
