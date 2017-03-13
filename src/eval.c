@@ -148,10 +148,13 @@ tailcall:
             return make_procedure(vm, env, args, body);
           }
           case F_BEGIN: {
-            object_t *val = eval(vm, car(vm, expr), env);
-            object_t *next = cdr(vm, expr);
-            if (next == NULL) return val;
-            return eval_begin(vm, next, env);
+            if (expr == NULL) return NULL;
+            while (cdr(vm, expr) != NULL) {
+              eval(vm, car(vm, expr), env);
+              expr = cdr(vm, expr);
+            }
+            expr = car(vm, expr);
+            goto tailcall;
           }
           case F_AND: {
             if (expr == NULL) return &t;
