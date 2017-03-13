@@ -102,12 +102,24 @@ object_t *eval_define(vm_t *vm, object_t *expr, object_t **env) {
 object_t *eval_begin(vm_t *vm, object_t *expr, object_t **env) {
   object_t *val = eval(vm, car(vm, expr), env);
   object_t *next = cdr(vm, expr);
+  if (next == NULL) return val;
+  return eval_begin(vm, next, env);
+}
 
-  if (next == NULL) {
-    return val;
-  } else {
-    return eval_begin(vm, next, env);
-  }
+object_t *eval_and(vm_t *vm, object_t *expr, object_t **env) {
+  if (expr == NULL) return &t;
+  object_t *val = eval(vm, car(vm, expr), env);
+  object_t *next = cdr(vm, expr);
+  if (next == NULL || false(val)) return val;
+  return eval_and(vm, next, env);
+}
+
+object_t *eval_or(vm_t *vm, object_t *expr, object_t **env) {
+  if (expr == NULL) return &f;
+  object_t *val = eval(vm, car(vm, expr), env);
+  object_t *next = cdr(vm, expr);
+  if (next == NULL || !false(val)) return val;
+  return eval_or(vm, next, env);
 }
 
 #define eval_predicate(fn,p) \
@@ -245,6 +257,8 @@ void init(vm_t *vm, object_t *env) {
   defs("define", eval_define)
   defs("lambda", eval_lambda)
   defs("begin", eval_begin)
+  defs("and", eval_and)
+  defs("or", eval_or)
 
   def("+", eval_plus)
   def("*", eval_multiply)
