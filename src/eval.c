@@ -4,19 +4,9 @@
 #include "eval.h"
 #include "print.h"
 
-object_t *eval_if(vm_t *vm, object_t *expr, object_t *env) {
-  object_t *predicate = eval(vm, car(vm, expr), env);
-  if (true(error(predicate))) return predicate;
-  return eval(vm, !false(predicate) ? car(vm, cdr(vm, expr)) : car(vm, cdr(vm, cdr(vm, expr))), env);
-}
-
 object_t *eval_sequence(vm_t *vm, object_t *expr, object_t *env) {
   if (expr == NULL) return NULL;
   return cons(vm, eval(vm, car(vm, expr), env), eval_sequence(vm, cdr(vm, expr), env));
-}
-
-object_t *eval_quote(vm_t *vm, object_t *expr, object_t *env) {
-  return car(vm, expr);
 }
 
 object_t *eval_unquote(vm_t *vm, object_t *expr, object_t *env) {
@@ -34,62 +24,6 @@ object_t *eval_unquote(vm_t *vm, object_t *expr, object_t *env) {
 
 object_t *eval_quasiquote(vm_t *vm, object_t *expr, object_t *env) {
   return eval_unquote(vm, car(vm, expr), env);
-}
-
-object_t *eval_define(vm_t *vm, object_t *expr, object_t *env) {
-  object_t *var = car(vm, expr);
-  object_t *val = car(vm, cdr(vm, expr));
-
-  if (true(pair(var))) {
-    object_t *lambda = make_symbol(vm, "lambda");
-    object_t *params = cdr(vm, var);
-    val = cons(vm, lambda, cons(vm, params, cdr(vm, expr)));
-    var = car(vm, var);
-  }
-
-  define(vm, env, var, eval(vm, val, env));
-  return &t;
-}
-
-object_t *eval_begin(vm_t *vm, object_t *expr, object_t *env) {
-  object_t *val = eval(vm, car(vm, expr), env);
-  object_t *next = cdr(vm, expr);
-  if (next == NULL) return val;
-  return eval_begin(vm, next, env);
-}
-
-object_t *eval_and(vm_t *vm, object_t *expr, object_t *env) {
-  if (expr == NULL) return &t;
-  object_t *val = eval(vm, car(vm, expr), env);
-  object_t *next = cdr(vm, expr);
-  if (next == NULL || false(val)) return val;
-  return eval_and(vm, next, env);
-}
-
-object_t *eval_or(vm_t *vm, object_t *expr, object_t *env) {
-  if (expr == NULL) return &f;
-  object_t *val = eval(vm, car(vm, expr), env);
-  object_t *next = cdr(vm, expr);
-  if (next == NULL || !false(val)) return val;
-  return eval_or(vm, next, env);
-}
-
-object_t *eval_cond(vm_t *vm, object_t *expr, object_t *env) {
-  if (expr == NULL) return NULL;
-  object_t *_case = car(vm, expr);
-  object_t *test = car(vm, _case);
-  object_t *body = car(vm, cdr(vm, _case));
-  if (true(object_eq(vm, test, make_symbol(vm, "else"))) ||
-      true(eval(vm, test, env))) {
-    return eval(vm, body, env);
-  }
-  return eval_cond(vm, cdr(vm, expr), env);
-}
-
-object_t *eval_lambda(vm_t *vm, object_t *expr, object_t *env) {
-  object_t *args = car(vm, expr);
-  object_t *body = cdr(vm, expr);
-  return make_procedure(vm, env, args, body);
 }
 
 object_t *eval(vm_t *vm, object_t *expr, object_t *env) {
