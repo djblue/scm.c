@@ -122,6 +122,18 @@ object_t *eval_or(vm_t *vm, object_t *expr, object_t **env) {
   return eval_or(vm, next, env);
 }
 
+object_t *eval_cond(vm_t *vm, object_t *expr, object_t **env) {
+  if (expr == NULL) return NULL;
+  object_t *_case = car(vm, expr);
+  object_t *test = car(vm, _case);
+  object_t *body = car(vm, cdr(vm, _case));
+  if (true(object_eq(vm, test, make_symbol(vm, "else"))) ||
+      true(eval(vm, test, env))) {
+    return eval(vm, body, env);
+  }
+  return eval_cond(vm, cdr(vm, expr), env);
+}
+
 #define eval_predicate(fn,p) \
   object_t *fn(vm_t *vm, object_t *expr, object_t **env) { \
     object_t *o = car(vm, expr); \
@@ -259,6 +271,7 @@ void init(vm_t *vm, object_t *env) {
   defs("begin", eval_begin)
   defs("and", eval_and)
   defs("or", eval_or)
+  defs("cond", eval_cond)
 
   def("+", eval_plus)
   def("*", eval_multiply)

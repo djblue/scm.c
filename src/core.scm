@@ -42,6 +42,12 @@
     acc
     (reduce fn (cdr ls) (fn acc (car ls)))))
 
+(define (member v ls)
+  (cond
+    [(null? ls) #f]
+    [(= v (car ls)) ls]
+    [else (member v (cdr ls))]))
+
 ; map a function over a list
 (define (map fn ls)
   (if (null? ls)
