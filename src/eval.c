@@ -145,8 +145,9 @@ tailcall:
           vals = cons(vm, vals, NULL);
         }
 
-        object_t *env = extend_frame(vm, vars, vals, parent);
-        ret = eval(vm, body, env);
+        env = extend_frame(vm, vars, vals, parent);
+        expr = body;
+        goto tailcall;
       } else if (procedure->type == ERROR) {
         return procedure;
       } else {
