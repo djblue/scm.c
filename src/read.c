@@ -38,10 +38,10 @@ static char** my_completion(const char *text, int start, int end) {
   return rl_completion_matches(text, character_name_generator);
 }
 
-static object_t *read_internal(vm_t *vm, FILE *fp, object_t **env) {
+static object_t *read_internal(vm_t *vm, FILE *fp, object_t *env) {
   if (fp == stdin && isatty(STDIN_FILENO)) {
     n = 0;
-    object_t *frames = *env;
+    object_t *frames = env;
     while (frames != NULL) {
       object_t *vals = car(vm, car(vm, frames));
       while (vals != NULL) {
@@ -94,7 +94,7 @@ retry:
   }
 }
 
-object_t *scm_read(vm_t *vm, object_t *expr, object_t **env) {
+object_t *scm_read(vm_t *vm, object_t *expr, object_t *env) {
   object_t *port = car(vm, expr);
   if (port != NULL && port->type != PORT)
     return make_error(vm, "Provided argument is not port.");

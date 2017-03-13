@@ -4,22 +4,22 @@
 #include "eval.h"
 #include "print.h"
 
-object_t *eval_if(vm_t *vm, object_t *expr, object_t **env) {
+object_t *eval_if(vm_t *vm, object_t *expr, object_t *env) {
   object_t *predicate = eval(vm, car(vm, expr), env);
   if (true(error(predicate))) return predicate;
   return eval(vm, !false(predicate) ? car(vm, cdr(vm, expr)) : car(vm, cdr(vm, cdr(vm, expr))), env);
 }
 
-object_t *eval_sequence(vm_t *vm, object_t *expr, object_t **env) {
+object_t *eval_sequence(vm_t *vm, object_t *expr, object_t *env) {
   if (expr == NULL) return NULL;
   return cons(vm, eval(vm, car(vm, expr), env), eval_sequence(vm, cdr(vm, expr), env));
 }
 
-object_t *eval_quote(vm_t *vm, object_t *expr, object_t **env) {
+object_t *eval_quote(vm_t *vm, object_t *expr, object_t *env) {
   return car(vm, expr);
 }
 
-object_t *eval_unquote(vm_t *vm, object_t *expr, object_t **env) {
+object_t *eval_unquote(vm_t *vm, object_t *expr, object_t *env) {
   if (expr == NULL || expr->type != PAIR) return expr;
   object_t *val = car(vm, expr);
 
@@ -32,16 +32,16 @@ object_t *eval_unquote(vm_t *vm, object_t *expr, object_t **env) {
   return cons(vm, eval_unquote(vm, val, env), eval_unquote(vm, cdr(vm, expr), env));
 }
 
-object_t *eval_quasiquote(vm_t *vm, object_t *expr, object_t **env) {
+object_t *eval_quasiquote(vm_t *vm, object_t *expr, object_t *env) {
   return eval_unquote(vm, car(vm, expr), env);
 }
 
-object_t *eval(vm_t *vm, object_t *expr, object_t **env) {
+object_t *eval(vm_t *vm, object_t *expr, object_t *env) {
   if (expr == NULL) return NULL;
 
   switch (expr->type) {
     case SYMBOL:
-      return lookup(vm, *env, expr);
+      return lookup(vm, env, expr);
     case PAIR: {
       object_t *ret = NULL;
       object_t *procedure = eval(vm, car(vm, expr), env);
@@ -75,7 +75,7 @@ object_t *eval(vm_t *vm, object_t *expr, object_t **env) {
         }
 
         object_t *env = extend_frame(vm, vars, vals, parent);
-        ret = eval(vm, body, &env);
+        ret = eval(vm, body, env);
       } else if (procedure->type == ERROR) {
         return procedure;
       } else {
@@ -95,7 +95,7 @@ object_t *eval(vm_t *vm, object_t *expr, object_t **env) {
   }
 }
 
-object_t *eval_define(vm_t *vm, object_t *expr, object_t **env) {
+object_t *eval_define(vm_t *vm, object_t *expr, object_t *env) {
   object_t *var = car(vm, expr);
   object_t *val = car(vm, cdr(vm, expr));
 
@@ -106,18 +106,18 @@ object_t *eval_define(vm_t *vm, object_t *expr, object_t **env) {
     var = car(vm, var);
   }
 
-  define(vm, *env, var, eval(vm, val, env));
+  define(vm, env, var, eval(vm, val, env));
   return &t;
 }
 
-object_t *eval_begin(vm_t *vm, object_t *expr, object_t **env) {
+object_t *eval_begin(vm_t *vm, object_t *expr, object_t *env) {
   object_t *val = eval(vm, car(vm, expr), env);
   object_t *next = cdr(vm, expr);
   if (next == NULL) return val;
   return eval_begin(vm, next, env);
 }
 
-object_t *eval_and(vm_t *vm, object_t *expr, object_t **env) {
+object_t *eval_and(vm_t *vm, object_t *expr, object_t *env) {
   if (expr == NULL) return &t;
   object_t *val = eval(vm, car(vm, expr), env);
   object_t *next = cdr(vm, expr);
@@ -125,7 +125,7 @@ object_t *eval_and(vm_t *vm, object_t *expr, object_t **env) {
   return eval_and(vm, next, env);
 }
 
-object_t *eval_or(vm_t *vm, object_t *expr, object_t **env) {
+object_t *eval_or(vm_t *vm, object_t *expr, object_t *env) {
   if (expr == NULL) return &f;
   object_t *val = eval(vm, car(vm, expr), env);
   object_t *next = cdr(vm, expr);
@@ -133,7 +133,7 @@ object_t *eval_or(vm_t *vm, object_t *expr, object_t **env) {
   return eval_or(vm, next, env);
 }
 
-object_t *eval_cond(vm_t *vm, object_t *expr, object_t **env) {
+object_t *eval_cond(vm_t *vm, object_t *expr, object_t *env) {
   if (expr == NULL) return NULL;
   object_t *_case = car(vm, expr);
   object_t *test = car(vm, _case);
@@ -146,7 +146,7 @@ object_t *eval_cond(vm_t *vm, object_t *expr, object_t **env) {
 }
 
 #define eval_predicate(fn,p) \
-  object_t *fn(vm_t *vm, object_t *expr, object_t **env) { \
+  object_t *fn(vm_t *vm, object_t *expr, object_t *env) { \
     object_t *o = car(vm, expr); \
     if (true(error(o))) return o; \
     return p(o); \
@@ -161,10 +161,10 @@ eval_predicate(characterp, character)
 eval_predicate(symbolp, symbol)
 eval_predicate(pairp, pair)
 
-object_t *eval_lambda(vm_t *vm, object_t *expr, object_t **env) {
+object_t *eval_lambda(vm_t *vm, object_t *expr, object_t *env) {
   object_t *args = car(vm, expr);
   object_t *body = cdr(vm, expr);
-  return make_procedure(vm, *env, args, body);
+  return make_procedure(vm, env, args, body);
 }
 
 object_t *trace(vm_t *vm, object_t *op) {
@@ -173,7 +173,7 @@ object_t *trace(vm_t *vm, object_t *op) {
 }
 
 // (trace operator)
-object_t *eval_trace(vm_t *vm, object_t *expr, object_t **env) {
+object_t *eval_trace(vm_t *vm, object_t *expr, object_t *env) {
   object_t *op = car(vm, expr);
   return trace(vm, op);
 }
@@ -183,49 +183,49 @@ object_t *untrace(vm_t *vm, object_t *op) {
   return op;
 }
 
-object_t *eval_untrace(vm_t *vm, object_t *expr, object_t **env) {
+object_t *eval_untrace(vm_t *vm, object_t *expr, object_t *env) {
   object_t *op = car(vm, expr);
   return untrace(vm, op);
 }
 
-object_t *eval_eval(vm_t *vm, object_t *expr, object_t **env) {
+object_t *eval_eval(vm_t *vm, object_t *expr, object_t *env) {
   return eval(vm, car(vm, expr), env);
 }
 
-object_t *eval_cons(vm_t *vm, object_t *expr, object_t **env) {
+object_t *eval_cons(vm_t *vm, object_t *expr, object_t *env) {
   object_t *a = car(vm, expr);
   object_t *b = car(vm, cdr(vm, expr));
   return cons(vm, a, b);
 }
 
-object_t *eval_car(vm_t *vm, object_t *expr, object_t **env) {
+object_t *eval_car(vm_t *vm, object_t *expr, object_t *env) {
   object_t *p = car(vm, expr);
   return car(vm, p);
 }
 
-object_t *eval_cdr(vm_t *vm, object_t *expr, object_t **env) {
+object_t *eval_cdr(vm_t *vm, object_t *expr, object_t *env) {
   return cdr(vm, car(vm, expr));
 }
 
-object_t *eval_set_car(vm_t *vm, object_t *expr, object_t **env) {
+object_t *eval_set_car(vm_t *vm, object_t *expr, object_t *env) {
   return set_car(vm, car(vm, expr), car(vm, cdr(vm, expr)));
 }
 
-object_t *eval_set_cdr(vm_t *vm, object_t *expr, object_t **env) {
+object_t *eval_set_cdr(vm_t *vm, object_t *expr, object_t *env) {
   return set_cdr(vm, car(vm, expr), car(vm, cdr(vm, expr)));
 }
 
-object_t *eval_env(vm_t *vm, object_t *expr, object_t **env) {
-  return *env;
+object_t *eval_env(vm_t *vm, object_t *expr, object_t *env) {
+  return env;
 }
 
-object_t *eval_print(vm_t *vm, object_t *expr, object_t **env) {
+object_t *eval_print(vm_t *vm, object_t *expr, object_t *env) {
   object_t *o = car(vm, expr);
   print(vm, o);
   return o;
 }
 
-object_t *eval_eq(vm_t *vm, object_t *expr, object_t **env) {
+object_t *eval_eq(vm_t *vm, object_t *expr, object_t *env) {
   if (expr == NULL) return NULL;
 
   object_t *a = car(vm, expr);
@@ -241,7 +241,7 @@ object_t *eval_eq(vm_t *vm, object_t *expr, object_t **env) {
 }
 
 // (apply fn op1 ...)
-object_t *eval_apply(vm_t *vm, object_t *expr, object_t **env) {
+object_t *eval_apply(vm_t *vm, object_t *expr, object_t *env) {
   object_t *op = car(vm, expr);
   object_t *args = car(vm, cdr(vm, expr));
   if (args != NULL && args->type != PAIR) {
@@ -257,14 +257,14 @@ object_t *eval_apply(vm_t *vm, object_t *expr, object_t **env) {
 #include "number.h"
 
 // (+ 1 2 3)
-object_t *eval_plus(vm_t *vm, object_t *expr, object_t **env) {
+object_t *eval_plus(vm_t *vm, object_t *expr, object_t *env) {
   if (expr == NULL) return NULL;
   object_t *op = car(vm, expr);
   if (true(error(op))) return op;
   return plus(vm, op, eval_plus(vm, cdr(vm, expr), env));
 }
 
-object_t *eval_multiply(vm_t *vm, object_t *expr, object_t **env) {
+object_t *eval_multiply(vm_t *vm, object_t *expr, object_t *env) {
   if (expr == NULL) return NULL;
   object_t *op = car(vm, expr);
   if (true(error(op))) return op;

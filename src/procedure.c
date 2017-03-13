@@ -41,5 +41,5 @@ object_t *proc_apply(vm_t *vm, object_t *procedure, object_t *args, object_t **_
 
   object_t *env = extend_frame(vm, vars, vals, parent);
 
-  return eval(vm, body, &env);
+  return eval(vm, body, env);
 }

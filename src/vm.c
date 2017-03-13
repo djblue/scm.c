@@ -90,8 +90,8 @@ void free_vm(vm_t *vm) {
   }
 }
 
-object_t **vm_env(vm_t *vm) {
-  return &vm->env;
+object_t *vm_env(vm_t *vm) {
+  return vm->env;
 }
 
 void vm_set_env(vm_t *vm, object_t *env) {

@@ -6,6 +6,6 @@ object_t *make_primitive(vm_t *vm, primitive fn, int special) {
   return o;
 }
 
-object_t *prim_apply(vm_t *vm, object_t *prim, object_t *args, object_t **env) {
+object_t *prim_apply(vm_t *vm, object_t *prim, object_t *args, object_t *env) {
   return (object_data(prim, primitive))(vm, args, env);
 }

@@ -11,7 +11,7 @@ extern object_t ueof;
 
 object_t *make_port_from_file(vm_t *vm, FILE *fp);
 object_t *make_port_from_string(vm_t *vm, unsigned char *str);
-object_t *scm_load(vm_t *vm, object_t *expr, object_t **env);
+object_t *scm_load(vm_t *vm, object_t *expr, object_t *env);
 
 FILE *port_pointer(object_t *port);
 void print_port(vm_t *vm, object_t *port);

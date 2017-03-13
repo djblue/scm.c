@@ -58,7 +58,7 @@ defn(eval_open) {
   return port;
 }
 
-object_t *scm_load(vm_t *vm, object_t *expr, object_t **env) {
+object_t *scm_load(vm_t *vm, object_t *expr, object_t *env) {
   object_t *port = car(vm, expr);
 
   if (true(string(port))) {
