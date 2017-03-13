@@ -1,1 +1,8 @@
+(write (list 1 (+ 1 1) 3))
 (write (range 5))
+(write (reduce + (range 5) 0))
+(write (member 5 (range 5)))
+(write (member 0 (range 5)))
+(write (map number? (range 2)))
+(write (reverse (range 5)))
+(write (length (range 5)))
