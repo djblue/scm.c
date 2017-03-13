@@ -15,41 +15,6 @@ object_t *eval_sequence(vm_t *vm, object_t *expr, object_t **env) {
   return cons(vm, eval(vm, car(vm, expr), env), eval_sequence(vm, cdr(vm, expr), env));
 }
 
-object_t *eval_pair(vm_t *vm, object_t *expr, object_t **env) {
-
-  object_t *ret = NULL;
-  object_t *procedure = eval(vm, car(vm, expr), env);
-  object_t *args = cdr(vm, expr);
-
-  if (procedure == NULL) return make_error(vm, "nil is not operator");
-
-  if (procedure->trace == 1) {
-    printf("calling: ");
-    print(vm, cons(vm, procedure, expr));
-    printf("\n");
-  }
-
-  if (procedure->type == SPECIAL) {
-    ret = prim_apply(vm, procedure, args, env);
-  } else if (procedure->type == PRIMITIVE) {
-    ret = prim_apply(vm, procedure, eval_sequence(vm, args, env), env);
-  } else if (procedure->type == PROCEDURE) {
-    ret = proc_apply(vm, procedure, eval_sequence(vm, args, env), env);
-  } else if (procedure->type == ERROR) {
-    return procedure;
-  } else {
-    return make_error(vm, "not a procedure");
-  }
-
-  if (procedure->trace == 1) {
-    printf("returning: ");
-    print(vm, ret);
-    printf("\n");
-  }
-
-  return ret;
-}
-
 object_t *eval_quote(vm_t *vm, object_t *expr, object_t **env) {
   return car(vm, expr);
 }
@@ -77,8 +42,39 @@ object_t *eval(vm_t *vm, object_t *expr, object_t **env) {
   switch (expr->type) {
     case SYMBOL:
       return lookup(vm, *env, expr);
-    case PAIR:
-      return eval_pair(vm, expr, env);
+    case PAIR: {
+      object_t *ret = NULL;
+      object_t *procedure = eval(vm, car(vm, expr), env);
+      object_t *args = cdr(vm, expr);
+
+      if (procedure == NULL) return make_error(vm, "nil is not operator");
+
+      if (procedure->trace == 1) {
+        printf("calling: ");
+        print(vm, cons(vm, procedure, expr));
+        printf("\n");
+      }
+
+      if (procedure->type == SPECIAL) {
+        ret = prim_apply(vm, procedure, args, env);
+      } else if (procedure->type == PRIMITIVE) {
+        ret = prim_apply(vm, procedure, eval_sequence(vm, args, env), env);
+      } else if (procedure->type == PROCEDURE) {
+        ret = proc_apply(vm, procedure, eval_sequence(vm, args, env), env);
+      } else if (procedure->type == ERROR) {
+        return procedure;
+      } else {
+        return make_error(vm, "not a procedure");
+      }
+
+      if (procedure->trace == 1) {
+        printf("returning: ");
+        print(vm, ret);
+        printf("\n");
+      }
+
+      return ret;
+    }
     default:
       return expr;
   }
@@ -240,7 +236,7 @@ object_t *eval_apply(vm_t *vm, object_t *expr, object_t **env) {
       return make_error(vm, "cannot apply non-list arguments to function");
     }
   }
-  return eval_pair(vm, cons(vm, op, args), env);
+  return eval(vm, cons(vm, op, args), env);
 }
 
 #include "number.h"
