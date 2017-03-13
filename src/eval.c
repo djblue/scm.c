@@ -93,6 +93,7 @@ object_t *eval_lambda(vm_t *vm, object_t *expr, object_t *env) {
 }
 
 object_t *eval(vm_t *vm, object_t *expr, object_t *env) {
+tailcall:
   if (expr == NULL) return NULL;
 
   switch (expr->type) {
@@ -118,7 +119,8 @@ object_t *eval(vm_t *vm, object_t *expr, object_t *env) {
           case F_IF: {
             object_t *predicate = eval(vm, car(vm, expr), env);
             if (true(error(predicate))) return predicate;
-            return eval(vm, !false(predicate) ? car(vm, cdr(vm, expr)) : car(vm, cdr(vm, cdr(vm, expr))), env);
+            expr = !false(predicate) ? car(vm, cdr(vm, expr)) : car(vm, cdr(vm, cdr(vm, expr)));
+            goto tailcall;
           }
           case F_QUOTE: {
             return car(vm, expr);
