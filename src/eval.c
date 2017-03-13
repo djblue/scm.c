@@ -158,17 +158,25 @@ tailcall:
           }
           case F_AND: {
             if (expr == NULL) return &t;
-            object_t *val = eval(vm, car(vm, expr), env);
-            object_t *next = cdr(vm, expr);
-            if (next == NULL || false(val)) return val;
-            return eval_and(vm, next, env);
+
+            while (cdr(vm, expr) != NULL) {
+              object_t *val = eval(vm, car(vm, expr), env);
+              if (false(val)) return val;
+              expr = cdr(vm, expr);
+            }
+            expr = car(vm, expr);
+            goto tailcall;
           }
           case F_OR: {
             if (expr == NULL) return &f;
-            object_t *val = eval(vm, car(vm, expr), env);
-            object_t *next = cdr(vm, expr);
-            if (next == NULL || !false(val)) return val;
-            return eval_or(vm, next, env);
+
+            while (cdr(vm, expr) != NULL) {
+              object_t *val = eval(vm, car(vm, expr), env);
+              if (!false(val)) return val;
+              expr = cdr(vm, expr);
+            }
+            expr = car(vm, expr);
+            goto tailcall;
           }
           case F_COND: {
             if (expr == NULL) return NULL;
