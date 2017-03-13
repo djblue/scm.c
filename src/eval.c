@@ -60,7 +60,22 @@ object_t *eval(vm_t *vm, object_t *expr, object_t **env) {
       } else if (procedure->type == PRIMITIVE) {
         ret = prim_apply(vm, procedure, eval_sequence(vm, args, env), env);
       } else if (procedure->type == PROCEDURE) {
-        ret = proc_apply(vm, procedure, eval_sequence(vm, args, env), env);
+        object_t *begin = make_symbol(vm, "begin");
+
+        object_t *body = cons(vm, begin, object_data(procedure, proc_t).body);
+        object_t *parent = object_data(procedure, proc_t).env; // captured environment
+        object_t *params = object_data(procedure, proc_t).params;
+
+        object_t *vars = params;
+        object_t *vals = eval_sequence(vm, args, env);
+
+        if (true(symbol(vars))) {
+          vars = cons(vm, vars, NULL);
+          vals = cons(vm, vals, NULL);
+        }
+
+        object_t *env = extend_frame(vm, vars, vals, parent);
+        ret = eval(vm, body, &env);
       } else if (procedure->type == ERROR) {
         return procedure;
       } else {

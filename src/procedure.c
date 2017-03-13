@@ -5,12 +5,6 @@
 
 #include "print.h"
 
-typedef struct {
-  object_t *body;
-  object_t *params;
-  object_t *env;
-} proc_t;
-
 object_t *make_procedure(vm_t *vm, object_t *env, object_t *params, object_t *body) {
   object_t *o = make(vm, PROCEDURE, sizeof(proc_t));
   object_data(o, proc_t).body = body;
