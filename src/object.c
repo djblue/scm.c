@@ -16,20 +16,6 @@ object_t *make(vm_t *vm, type_t type, size_t n) {
   return o;
 }
 
-void free_object(vm_t *vm, object_t *o) {
-  if (o == NULL) return;
-
-  /*switch(o->type) {
-    case PAIR: free(o->data.ptr); break;
-    case SYMBOL:
-    case ERROR:
-    case STRING:
-               free_str(o->data.ptr); break;
-  }*/
-
-  free(o);
-}
-
 object_t *object_eq(vm_t *vm, object_t *a, object_t *b) {
   if (a == b) return &t;
   if (a == NULL || b == NULL) return &f;
