@@ -106,3 +106,5 @@
 (define (compose f g)
   (lambda args
     (f (apply g args))))
+
+(define (id x) x)

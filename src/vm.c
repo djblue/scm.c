@@ -50,9 +50,10 @@ static void mark(vm_t *vm, object_t *o) {
       mark(vm, car(vm, o));
       mark(vm, cdr(vm, o));
       break;
-    case ERROR:
     case PROCEDURE:
-      //mark(object_data(o, object_t));
+      mark(vm, object_data(o, proc_t).body);
+      mark(vm, object_data(o, proc_t).env);
+      mark(vm, object_data(o, proc_t).params);
       break;
   }
 }
@@ -78,6 +79,8 @@ static void sweep(vm_t *vm, alloc_t **root) {
 
 void vm_gc(vm_t *vm) {
   if (vm != NULL) {
+    mark(vm, vm->stdin);
+    mark(vm, vm->stdout);
     mark(vm, vm->env);
     sweep(vm, &vm->root_alloc);
   }
@@ -101,6 +104,7 @@ void vm_set_env(vm_t *vm, object_t *env) {
 object_t *vm_alloc(vm_t *vm, size_t n) {
   alloc_t *alloc = make_alloc(n);
   alloc->next = vm->root_alloc;
+  vm->root_alloc = alloc;
   return alloc_data(alloc);
 }
 
