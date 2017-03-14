@@ -79,6 +79,7 @@ retry:
       return expr;
     }
     if (input == NULL) {
+      yylex_destroy(scanner);
       return &eof;
     } else {
       goto retry;
