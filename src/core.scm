@@ -103,3 +103,6 @@
 
 (define list (lambda ls ls))
 
+(define (compose f g)
+  (lambda args
+    (f (apply g args))))
