@@ -75,7 +75,7 @@ retry:
         goto retry;
       }
       yylex_destroy(scanner);
-      add_history(strdup(buffer));
+      add_history(buffer);
       return expr;
     }
     if (input == NULL) {
