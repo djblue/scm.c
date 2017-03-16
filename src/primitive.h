@@ -13,7 +13,8 @@ typedef enum {
   F_BEGIN,
   F_AND,
   F_OR,
-  F_COND
+  F_COND,
+  F_EVAL
 } special_t;
 
 typedef struct object_t *(*primitive)(vm_t *vm, object_t *expr, object_t *env);

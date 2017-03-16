@@ -5,7 +5,7 @@
 #include "print.h"
 
 object_t *eval_sequence(vm_t *vm, object_t *expr, object_t *env) {
-  if (expr == NULL) return NULL;
+  if (expr == NULL || expr->type == ERROR) return expr;
   return cons(vm, eval(vm, car(vm, expr), env), eval_sequence(vm, cdr(vm, expr), env));
 }
 
@@ -126,6 +126,10 @@ tailcall:
             }
             goto tailcall;
           }
+          case F_EVAL: {
+            expr = eval(vm, car(vm, expr), env);
+            goto tailcall;
+          }
           default: return make_error(vm, "oh no!!!");
         }
       } else if (procedure->type == PRIMITIVE) {
@@ -204,10 +208,6 @@ object_t *eval_untrace(vm_t *vm, object_t *expr, object_t *env) {
   return untrace(vm, op);
 }
 
-object_t *eval_eval(vm_t *vm, object_t *expr, object_t *env) {
-  return eval(vm, car(vm, expr), env);
-}
-
 object_t *eval_cons(vm_t *vm, object_t *expr, object_t *env) {
   object_t *a = car(vm, expr);
   object_t *b = car(vm, cdr(vm, expr));
@@ -256,20 +256,6 @@ object_t *eval_eq(vm_t *vm, object_t *expr, object_t *env) {
   return &t;
 }
 
-// (apply fn op1 ...)
-object_t *eval_apply(vm_t *vm, object_t *expr, object_t *env) {
-  object_t *op = car(vm, expr);
-  object_t *args = car(vm, cdr(vm, expr));
-  if (args != NULL && args->type != PAIR) {
-    if (args->type == ERROR) {
-      return args;
-    } else {
-      return make_error(vm, "cannot apply non-list arguments to function");
-    }
-  }
-  return eval(vm, cons(vm, op, args), env);
-}
-
 #include "number.h"
 
 // (+ 1 2 3)
@@ -299,11 +285,11 @@ void init(vm_t *vm, object_t *env) {
   defs("and", F_AND)
   defs("or", F_OR)
   defs("cond", F_COND)
+  defs("eval", F_EVAL)
 
   def("+", eval_plus)
   def("*", eval_multiply)
   def("=", eval_eq)
-  def("apply", eval_apply)
 
   def("number?", numberp)
   def("boolean?", booleanp)
@@ -314,7 +300,6 @@ void init(vm_t *vm, object_t *env) {
   def("pair?", pairp)
   def("null?", nullp)
 
-  def("eval", eval_eval)
   def("trace", eval_trace)
   def("untrace", eval_untrace)
 
