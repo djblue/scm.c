@@ -15,7 +15,7 @@ object_t *eval_unquote(vm_t *vm, object_t *expr, object_t *env) {
 
   if (true(object_eq(vm, val, make_symbol(vm, "unquote")))) {
     return eval(vm, car(vm, cdr(vm, expr)), env);
-  } else if (true(object_eq(vm, val, make_symbol(vm, "quasiquote")))) {
+  } else if (true(object_eq(vm, val, sym_quasiquote))) {
     return eval(vm, expr, env);
   }
 
@@ -67,9 +67,8 @@ tailcall:
             object_t *val = car(vm, cdr(vm, expr));
 
             if (true(pair(var))) {
-              object_t *lambda = make_symbol(vm, "lambda");
               object_t *params = cdr(vm, var);
-              val = cons(vm, lambda, cons(vm, params, cdr(vm, expr)));
+              val = cons(vm, sym_lambda, cons(vm, params, cdr(vm, expr)));
               var = car(vm, var);
             }
 
@@ -135,9 +134,7 @@ tailcall:
       } else if (procedure->type == PRIMITIVE) {
         ret = prim_apply(vm, procedure, eval_sequence(vm, args, env), env);
       } else if (procedure->type == PROCEDURE) {
-        object_t *begin = make_symbol(vm, "begin");
-
-        object_t *body = cons(vm, begin, object_data(procedure, proc_t).body);
+        object_t *body = cons(vm, sym_begin, object_data(procedure, proc_t).body);
         object_t *parent = object_data(procedure, proc_t).env; // captured environment
         object_t *params = object_data(procedure, proc_t).params;
 
@@ -276,16 +273,16 @@ object_t *eval_multiply(vm_t *vm, object_t *expr, object_t *env) {
 void init(vm_t *vm, object_t *env) {
 
   // special forms
-  defs("if", F_IF)
-  defs("quote", F_QUOTE)
-  defs("quasiquote", F_QUASIQUOTE)
-  defs("define", F_DEFINE)
-  defs("lambda", F_LAMBDA)
-  defs("begin", F_BEGIN)
-  defs("and", F_AND)
-  defs("or", F_OR)
-  defs("cond", F_COND)
-  defs("eval", F_EVAL)
+  sym_if = defs("if", F_IF)
+  sym_quote = defs("quote", F_QUOTE)
+  sym_lambda = defs("lambda", F_LAMBDA)
+  sym_begin = defs("begin", F_BEGIN)
+  sym_and = defs("and", F_AND)
+  sym_or = defs("or", F_OR)
+  sym_cond = defs("cond", F_COND)
+  sym_quasiquote = defs("quasiquote", F_QUASIQUOTE)
+  sym_define = defs("define", F_DEFINE)
+  sym_eval = defs("eval", F_EVAL)
 
   def("+", eval_plus)
   def("*", eval_multiply)

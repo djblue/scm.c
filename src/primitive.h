@@ -4,6 +4,17 @@
 #include "object.h"
 #include "vm.h"
 
+object_t *sym_if;
+object_t *sym_quote;
+object_t *sym_quasiquote;
+object_t *sym_define;
+object_t *sym_lambda;
+object_t *sym_begin;
+object_t *sym_and;
+object_t *sym_or;
+object_t *sym_cond;
+object_t *sym_eval;
+
 typedef enum {
   F_IF,
   F_QUOTE,

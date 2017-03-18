@@ -26,7 +26,7 @@ object_t *define(vm_t *vm, object_t *frames, object_t *var, object_t *val) {
   set_car(vm, frame, cons(vm, var, vars));
   set_cdr(vm, frame, cons(vm, val, vals));
 
-  return frame;
+  return var;
 }
 
 static object_t *frame_search(vm_t *vm, object_t *frame, object_t *sym) {
