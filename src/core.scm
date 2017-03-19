@@ -50,11 +50,11 @@
 
 ; map a function over a list
 (define (map fn ls)
-  (if (null? ls)
-    ls ; base case
-    (cons
-      (fn (car ls))
-      (map fn (cdr ls)))))
+  (define (iter ls acc)
+    (if (null? ls)
+      acc
+      (iter (cdr ls) (cons (fn (car ls)) acc))))
+  (reverse (iter ls '())))
 
 ; filter items from a list
 (define (filter fn ls)
