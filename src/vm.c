@@ -11,6 +11,8 @@ struct alloc_t {
 
 struct vm_t {
   alloc_t *root_alloc;
+  size_t allocs;
+  size_t threshold;
   object_t *env;
   object_t *stdin;    // default input port
   object_t *stdout;   // default output port
@@ -33,6 +35,8 @@ static alloc_t *make_alloc(size_t n) {
 vm_t *make_vm() {
   vm_t *vm = malloc(sizeof(vm_t));
   vm->root_alloc = NULL;
+  vm->allocs = 0;
+  vm->threshold = 128;
   vm->env = NULL;
 
   vm->stdin = make_port_from_file(vm, stdin);
@@ -67,6 +71,7 @@ static void sweep(vm_t *vm, alloc_t **root) {
       alloc_t *tmp = alloc;
       alloc = alloc->next;
       free(tmp);
+      vm->allocs--;
     } else {
       o->marked = 0;
       if (alloc->next != NULL) {
@@ -78,11 +83,12 @@ static void sweep(vm_t *vm, alloc_t **root) {
 }
 
 void vm_gc(vm_t *vm) {
-  if (vm != NULL) {
+  if (vm != NULL && vm->allocs > vm->threshold) {
     mark(vm, vm->stdin);
     mark(vm, vm->stdout);
     mark(vm, vm->env);
     sweep(vm, &vm->root_alloc);
+    vm->threshold = 2*vm->allocs;
   }
 }
 
@@ -105,6 +111,7 @@ object_t *vm_alloc(vm_t *vm, size_t n) {
   alloc_t *alloc = make_alloc(n);
   alloc->next = vm->root_alloc;
   vm->root_alloc = alloc;
+  vm->allocs++;
   return alloc_data(alloc);
 }
 
