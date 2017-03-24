@@ -9,23 +9,6 @@ object_t *eval_sequence(vm_t *vm, object_t *expr, object_t *env) {
   return cons(vm, eval(vm, car(vm, expr), env), eval_sequence(vm, cdr(vm, expr), env));
 }
 
-object_t *eval_unquote(vm_t *vm, object_t *expr, object_t *env) {
-  if (expr == NULL || expr->type != PAIR) return expr;
-  object_t *val = car(vm, expr);
-
-  if (true(object_eq(vm, val, make_symbol(vm, "unquote")))) {
-    return eval(vm, car(vm, cdr(vm, expr)), env);
-  } else if (true(object_eq(vm, val, sym_quasiquote))) {
-    return eval(vm, expr, env);
-  }
-
-  return cons(vm, eval_unquote(vm, val, env), eval_unquote(vm, cdr(vm, expr), env));
-}
-
-object_t *eval_quasiquote(vm_t *vm, object_t *expr, object_t *env) {
-  return eval_unquote(vm, car(vm, expr), env);
-}
-
 object_t *eval(vm_t *vm, object_t *expr, object_t *env) {
 tailcall:
   if (expr == NULL) return NULL;
@@ -58,9 +41,6 @@ tailcall:
           }
           case F_QUOTE: {
             return car(vm, expr);
-          }
-          case F_QUASIQUOTE: {
-            return eval_unquote(vm, car(vm, expr), env);
           }
           case F_DEFINE: {
             object_t *var = car(vm, expr);
@@ -280,7 +260,6 @@ void init(vm_t *vm, object_t *env) {
   sym_and = defs("and", F_AND)
   sym_or = defs("or", F_OR)
   sym_cond = defs("cond", F_COND)
-  sym_quasiquote = defs("quasiquote", F_QUASIQUOTE)
   sym_define = defs("define", F_DEFINE)
   sym_eval = defs("eval", F_EVAL)
 

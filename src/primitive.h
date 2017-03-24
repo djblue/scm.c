@@ -6,7 +6,6 @@
 
 object_t *sym_if;
 object_t *sym_quote;
-object_t *sym_quasiquote;
 object_t *sym_define;
 object_t *sym_lambda;
 object_t *sym_begin;
@@ -18,7 +17,6 @@ object_t *sym_eval;
 typedef enum {
   F_IF,
   F_QUOTE,
-  F_QUASIQUOTE,
   F_DEFINE,
   F_LAMBDA,
   F_BEGIN,
