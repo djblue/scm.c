@@ -17,17 +17,10 @@ tailcall:
     case SYMBOL:
       return lookup(vm, env, expr);
     case PAIR: {
-      object_t *ret = NULL;
       object_t *procedure = eval(vm, car(vm, expr), env);
       object_t *args = cdr(vm, expr);
 
       if (procedure == NULL) return make_error(vm, "nil is not operator");
-
-      if (procedure->trace == 1) {
-        printf("calling: ");
-        print(vm, cons(vm, procedure, expr));
-        printf("\n");
-      }
 
       if (procedure->type == SPECIAL) {
         expr = args;
@@ -112,7 +105,7 @@ tailcall:
           default: return make_error(vm, "oh no!!!");
         }
       } else if (procedure->type == PRIMITIVE) {
-        ret = prim_apply(vm, procedure, eval_sequence(vm, args, env), env);
+        return prim_apply(vm, procedure, eval_sequence(vm, args, env), env);
       } else if (procedure->type == PROCEDURE) {
         object_t *body = cons(vm, sym_begin, object_data(procedure, proc_t).body);
         object_t *parent = object_data(procedure, proc_t).env; // captured environment
@@ -134,14 +127,6 @@ tailcall:
       } else {
         return make_error(vm, "not a procedure");
       }
-
-      if (procedure->trace == 1) {
-        printf("returning: ");
-        print(vm, ret);
-        printf("\n");
-      }
-
-      return ret;
     }
     default:
       return expr;
@@ -163,27 +148,6 @@ eval_predicate(stringp, string)
 eval_predicate(characterp, character)
 eval_predicate(symbolp, symbol)
 eval_predicate(pairp, pair)
-
-object_t *trace(vm_t *vm, object_t *op) {
-  op->trace = 1;
-  return op;
-}
-
-// (trace operator)
-object_t *eval_trace(vm_t *vm, object_t *expr, object_t *env) {
-  object_t *op = car(vm, expr);
-  return trace(vm, op);
-}
-
-object_t *untrace(vm_t *vm, object_t *op) {
-  op->trace = 0;
-  return op;
-}
-
-object_t *eval_untrace(vm_t *vm, object_t *expr, object_t *env) {
-  object_t *op = car(vm, expr);
-  return untrace(vm, op);
-}
 
 object_t *eval_cons(vm_t *vm, object_t *expr, object_t *env) {
   object_t *a = car(vm, expr);
@@ -275,9 +239,6 @@ void init(vm_t *vm, object_t *env) {
   def("symbol?", symbolp)
   def("pair?", pairp)
   def("null?", nullp)
-
-  def("trace", eval_trace)
-  def("untrace", eval_untrace)
 
   def("cons", eval_cons)
   def("car", eval_car)
