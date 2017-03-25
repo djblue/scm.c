@@ -21,6 +21,6 @@ t: test
 test: $(BIN) 
 	@find ./test -type f \
 		| grep -v out$  \
-		| xargs -n1 -I{} echo "cat {} | $(BIN) | diff -u {}.out - || exit 1" 2> /dev/null \
+		| xargs -n1 -I{} echo "echo {}; cat {} | $(BIN) | diff -u {}.out - || exit 1" 2> /dev/null \
 		| bash && echo "Done!"
 
