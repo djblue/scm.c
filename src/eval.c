@@ -6,16 +6,33 @@
 
 object_t *eval_sequence(vm_t *vm, object_t *expr, object_t *env) {
   if (expr == NULL || expr->type == ERROR) return expr;
-  return cons(vm, eval(vm, car(vm, expr), env), eval_sequence(vm, cdr(vm, expr), env));
+
+  push(vm, expr);
+  push(vm, env);
+  assign(vm, EXPR, car(vm, expr));
+  object_t *val = eval(vm);
+  assign(vm, ENV, pop(vm));
+  assign(vm, EXPR, pop(vm));
+
+  return cons(vm, val, eval_sequence(vm, cdr(vm, expr), env));
 }
 
-object_t *eval(vm_t *vm, object_t *expr, object_t *env) {
+object_t *eval(vm_t *vm) {
+  object_t *env = fetch(vm, ENV);
+  object_t *expr = fetch(vm, EXPR);
+
 tailcall:
   if (expr == NULL) return NULL;
   if (expr->type == SYMBOL) return lookup(vm, env, expr);
   if (expr->type != PAIR) return expr;
 
-  object_t *procedure = eval(vm, car(vm, expr), env);
+  push(vm, expr);
+  push(vm, env);
+  assign(vm, EXPR, car(vm, expr));
+  object_t *procedure = eval(vm);
+  assign(vm, ENV, pop(vm));
+  assign(vm, EXPR, pop(vm));
+
   object_t *args = cdr(vm, expr);
 
   if (procedure == NULL) return make_error(vm, "nil is not operator");
@@ -25,7 +42,13 @@ tailcall:
 
     switch (object_data(procedure, special_t)) {
       case F_IF: {
-        object_t *predicate = eval(vm, car(vm, expr), env);
+        push(vm, expr);
+        push(vm, env);
+        assign(vm, EXPR, car(vm, expr));
+        object_t *predicate = eval(vm);
+        assign(vm, ENV, pop(vm));
+        assign(vm, EXPR, pop(vm));
+
         if (true(error(predicate))) return predicate;
         expr = !false(predicate) ? car(vm, cdr(vm, expr)) : car(vm, cdr(vm, cdr(vm, expr)));
         goto tailcall;
@@ -43,7 +66,14 @@ tailcall:
           var = car(vm, var);
         }
 
-        define(vm, env, var, eval(vm, val, env));
+        push(vm, expr);
+        push(vm, env);
+        assign(vm, EXPR, val);
+        object_t *result = eval(vm);
+        assign(vm, ENV, pop(vm));
+        assign(vm, EXPR, pop(vm));
+
+        define(vm, env, var, result);
         return &t;
       }
       case F_LAMBDA: {
@@ -54,7 +84,14 @@ tailcall:
       case F_BEGIN: {
         if (expr == NULL) return NULL;
         while (cdr(vm, expr) != NULL) {
-          eval(vm, car(vm, expr), env);
+
+          push(vm, expr);
+          push(vm, env);
+          assign(vm, EXPR, car(vm, expr));
+          eval(vm);
+          assign(vm, ENV, pop(vm));
+          assign(vm, EXPR, pop(vm));
+
           expr = cdr(vm, expr);
         }
         expr = car(vm, expr);
@@ -64,7 +101,14 @@ tailcall:
         if (expr == NULL) return &t;
 
         while (cdr(vm, expr) != NULL) {
-          object_t *val = eval(vm, car(vm, expr), env);
+
+          push(vm, expr);
+          push(vm, env);
+          assign(vm, EXPR, car(vm, expr));
+          object_t *val = eval(vm);
+          assign(vm, ENV, pop(vm));
+          assign(vm, EXPR, pop(vm));
+
           if (false(val)) return val;
           expr = cdr(vm, expr);
         }
@@ -75,7 +119,14 @@ tailcall:
         if (expr == NULL) return &f;
 
         while (cdr(vm, expr) != NULL) {
-          object_t *val = eval(vm, car(vm, expr), env);
+
+          push(vm, expr);
+          push(vm, env);
+          assign(vm, EXPR, car(vm, expr));
+          object_t *val = eval(vm);
+          assign(vm, ENV, pop(vm));
+          assign(vm, EXPR, pop(vm));
+
           if (!false(val)) return val;
           expr = cdr(vm, expr);
         }
@@ -87,17 +138,36 @@ tailcall:
           object_t *_case = car(vm, expr);
           object_t *test = car(vm, _case);
           object_t *body = car(vm, cdr(vm, _case));
-          if (true(object_eq(vm, test, make_symbol(vm, "else"))) ||
-              true(eval(vm, test, env))) {
+          if (true(object_eq(vm, test, make_symbol(vm, "else")))) {
             expr = body;
             goto tailcall;
           }
+
+          push(vm, expr);
+          push(vm, env);
+          assign(vm, EXPR, test);
+          object_t *val = eval(vm);
+          assign(vm, ENV, pop(vm));
+          assign(vm, EXPR, pop(vm));
+
+          if (true(val)) {
+            expr = body;
+            goto tailcall;
+          }
+
           expr = cdr(vm, expr);
         }
         goto tailcall;
       }
       case F_EVAL: {
-        expr = eval(vm, car(vm, expr), env);
+
+        push(vm, expr);
+        push(vm, env);
+        assign(vm, EXPR, car(vm, expr));
+        expr = eval(vm);
+        assign(vm, ENV, pop(vm));
+        assign(vm, EXPR, pop(vm));
+
         goto tailcall;
       }
       default: return make_error(vm, "oh no!!!");

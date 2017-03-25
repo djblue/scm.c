@@ -13,17 +13,41 @@ struct vm_t {
   alloc_t *root_alloc;
   size_t allocs;
   size_t threshold;
+  object_t *expr;
   object_t *env;
+  object_t *stack;
   object_t *stdin;    // default input port
   object_t *stdout;   // default output port
 };
 
 object_t *fetch(vm_t *vm, reg_t reg) {
   switch (reg) {
+    case EXPR:    return vm->expr;
+    case ENV:    return vm->env;
     case STDIN:   return vm->stdin;
     case STDOUT:  return vm->stdout;
     default:      return NULL;
   }
+}
+
+void assign(vm_t *vm, reg_t reg, object_t *value) {
+  switch (reg) {
+    case EXPR:    vm->expr    = value; break;
+    case ENV:     vm->env     = value; break;
+    case STDIN:   vm->stdin   = value; break;
+    case STDOUT:  vm->stdout  = value; break;
+  }
+}
+
+void push(vm_t *vm, object_t *value) {
+  vm->stack = cons(vm, value, vm->stack);
+}
+
+object_t *pop(vm_t *vm) {
+  object_t *tmp = vm->stack;
+  if (tmp == NULL) return NULL;
+  vm->stack = cdr(vm, tmp);
+  return car(vm, tmp);
 }
 
 static alloc_t *make_alloc(size_t n) {
@@ -38,6 +62,7 @@ vm_t *make_vm() {
   vm->allocs = 0;
   vm->threshold = 128;
   vm->env = NULL;
+  vm->stack = NULL;
 
   vm->stdin = make_port_from_file(vm, stdin);
   vm->stdout = make_port_from_file(vm, stdout);
@@ -84,9 +109,11 @@ static void sweep(vm_t *vm, alloc_t **root) {
 
 void vm_gc(vm_t *vm) {
   if (vm != NULL && vm->allocs > vm->threshold) {
+    mark(vm, vm->expr);
+    mark(vm, vm->env);
+    mark(vm, vm->stack);
     mark(vm, vm->stdin);
     mark(vm, vm->stdout);
-    mark(vm, vm->env);
     sweep(vm, &vm->root_alloc);
     vm->threshold = 2*vm->allocs;
   }
@@ -97,14 +124,6 @@ void free_vm(vm_t *vm) {
     sweep(vm, &vm->root_alloc);
     free(vm);
   }
-}
-
-object_t *vm_env(vm_t *vm) {
-  return vm->env;
-}
-
-void vm_set_env(vm_t *vm, object_t *env) {
-  vm->env = env;
 }
 
 object_t *vm_alloc(vm_t *vm, size_t n) {

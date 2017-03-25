@@ -17,7 +17,7 @@ int main (int argc, char** argv) {
   init(vm, env);
   define_port(vm, env);
   define_read(vm, env);
-  vm_set_env(vm, env);
+  assign(vm, ENV, env);
 
   while (1) {
     if (isatty(STDIN_FILENO)) {
@@ -25,8 +25,9 @@ int main (int argc, char** argv) {
     }
 
     object_t *value = scm_read(vm, NULL);
+    assign(vm, EXPR, value);
     if (value == &eof) break;
-    value = eval(vm, value, env);
+    value = eval(vm);
 
     if (isatty(STDIN_FILENO)) {
       print(vm, value);
