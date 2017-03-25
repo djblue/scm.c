@@ -31,6 +31,4 @@ typedef struct object_t *(*primitive)(vm_t *vm, object_t *args);
 object_t *make_special(vm_t *vm, special_t s);
 object_t *make_primitive(vm_t *vm, primitive fn);
 
-object_t *prim_apply(vm_t *vm, object_t *prim, object_t *args, object_t *env);
-
 #endif

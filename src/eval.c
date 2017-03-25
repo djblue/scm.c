@@ -103,7 +103,7 @@ tailcall:
       default: return make_error(vm, "oh no!!!");
     }
   } else if (procedure->type == PRIMITIVE) {
-    return prim_apply(vm, procedure, eval_sequence(vm, args, env), env);
+    return (object_data(procedure, primitive))(vm, eval_sequence(vm, args, env));
   } else if (procedure->type == PROCEDURE) {
     object_t *body = cons(vm, sym_begin, object_data(procedure, proc_t).body);
     object_t *parent = object_data(procedure, proc_t).env; // captured environment
