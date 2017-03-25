@@ -25,12 +25,6 @@ object_t *make_port_from_file(vm_t *vm, FILE *fp) {
   return port;
 }
 
-object_t *make_port_from_string(vm_t *vm, unsigned char *str) {
-  object_t *port = make_port(vm);
-  object_data(port, port_t).fp = fmemopen(str, strlen(str), "r");
-  return port;
-}
-
 FILE *port_pointer(object_t *port) {
   return object_data(port, port_t).fp;
 }
@@ -39,8 +33,8 @@ void print_port(vm_t *vm, object_t *port) {
   printf(__yellow("#<port:%s>"), string_cstr(object_data(port, port_t).path));
 }
 
-defn(eval_open) {
-  object_t *str = car(vm, expr);
+object_t *eval_open(vm_t *vm, object_t *args) {
+  object_t *str = car(vm, args);
 
   if (false(string(str)))
     return make_error(vm, "First argument is not a string.");
@@ -58,26 +52,7 @@ defn(eval_open) {
   return port;
 }
 
-object_t *scm_load(vm_t *vm, object_t *expr, object_t *env) {
-  object_t *port = car(vm, expr);
-
-  if (true(string(port))) {
-    port = eval_open(vm, cons(vm, port, NULL), env);
-  }
-
-  object_t *args = cons(vm, port, NULL);
-
-  object_t *exp;
-  while ((exp = scm_read(vm, args, env)) != &eof) {
-    eval(vm, exp, env);
-  }
-
-  return make_boolean(vm, "#t");
-}
-
-
 void define_port(vm_t *vm, object_t *env) {
   def("open", eval_open)
-  def("load", scm_load)
 }
 
