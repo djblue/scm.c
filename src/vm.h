@@ -17,7 +17,6 @@ struct object_t {
 typedef enum {
   ENV,
   EXPR,
-  PROC,
   STDIN,
   STDOUT
 } reg_t;

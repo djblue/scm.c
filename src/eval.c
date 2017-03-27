@@ -7,10 +7,8 @@
 #define SAVE \
   push(vm, fetch(vm, EXPR)); \
   push(vm, fetch(vm, ENV)); \
-  push(vm, fetch(vm, PROC));
 
 #define RESTORE \
-  assign(vm, PROC, pop(vm)); \
   assign(vm, ENV, pop(vm)); \
   assign(vm, EXPR, pop(vm));
 
@@ -46,7 +44,6 @@ tailcall:
   push(vm, fetch(vm, ENV));
   assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
   object_t *procedure = eval(vm);
-  assign(vm, PROC, procedure);
   assign(vm, ENV, pop(vm));
   assign(vm, EXPR, pop(vm));
 
