@@ -68,24 +68,24 @@ tailcall:
       case F_QUOTE:
         RET(car(vm, fetch(vm, EXPR)))
 
-      case F_DEFINE: {
-        object_t *var = car(vm, fetch(vm, EXPR));
-        object_t *val = car(vm, cdr(vm, fetch(vm, EXPR)));
+      case F_DEFINE:
+        if (true(pair(car(vm, fetch(vm, EXPR))))) {
+          SAVE
+          assign(vm, EXPR, cons(vm, sym_lambda, cons(vm, cdr(vm, car(vm, fetch(vm, EXPR))), cdr(vm, fetch(vm, EXPR)))));
+          eval(vm);
+          RESTORE
 
-        if (true(pair(var))) {
-          object_t *params = cdr(vm, var);
-          val = cons(vm, sym_lambda, cons(vm, params, cdr(vm, fetch(vm, EXPR))));
-          var = car(vm, var);
+          define(vm, fetch(vm, ENV), car(vm, car(vm, fetch(vm, EXPR))), fetch(vm, VAL));
+        } else {
+          SAVE
+          assign(vm, EXPR, car(vm, cdr(vm, fetch(vm, EXPR))));
+          eval(vm);
+          RESTORE
+
+          define(vm, fetch(vm, ENV), car(vm, fetch(vm, EXPR)), fetch(vm, VAL));
         }
 
-        SAVE
-        assign(vm, EXPR, val);
-        eval(vm);
-        RESTORE
-
-        define(vm, fetch(vm, ENV), var, fetch(vm, VAL));
         RET(&t)
-      }
 
       case F_LAMBDA:
         RET(make_procedure(vm,
