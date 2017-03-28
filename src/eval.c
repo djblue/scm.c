@@ -32,13 +32,9 @@ object_t *eval(vm_t *vm) {
 tailcall:
   vm_gc(vm);
 
-  {
-    object_t *expr = fetch(vm, EXPR);
-
-    if (expr == NULL) return NULL;
-    if (expr->type == SYMBOL) return lookup(vm, fetch(vm, ENV), expr);
-    if (expr->type != PAIR) return expr;
-  }
+  if (fetch(vm, EXPR) == NULL) return NULL;
+  if (fetch(vm, EXPR)->type == SYMBOL) return lookup(vm, fetch(vm, ENV), fetch(vm, EXPR));
+  if (fetch(vm, EXPR)->type != PAIR) return fetch(vm, EXPR);
 
   push(vm, fetch(vm, EXPR));
   push(vm, fetch(vm, ENV));
@@ -64,9 +60,10 @@ tailcall:
             : car(vm, cdr(vm, cdr(vm, fetch(vm, EXPR)))));
         goto tailcall;
       }
-      case F_QUOTE: {
+
+      case F_QUOTE:
         return car(vm, fetch(vm, EXPR));
-      }
+
       case F_DEFINE: {
         object_t *var = car(vm, fetch(vm, EXPR));
         object_t *val = car(vm, cdr(vm, fetch(vm, EXPR)));
@@ -85,66 +82,60 @@ tailcall:
         define(vm, fetch(vm, ENV), var, result);
         return &t;
       }
-      case F_LAMBDA: {
-        return make_procedure(vm, fetch(vm, ENV), car(vm, fetch(vm, EXPR)), cdr(vm, fetch(vm, EXPR)));
-      }
-      case F_BEGIN: {
-        object_t *expr = fetch(vm, EXPR);
 
-        if (expr == NULL) return NULL;
-        while (cdr(vm, expr) != NULL) {
+      case F_LAMBDA:
+        return make_procedure(vm,
+            fetch(vm, ENV),
+            car(vm, fetch(vm, EXPR)),
+            cdr(vm, fetch(vm, EXPR)));
+
+      case F_BEGIN:
+        if (fetch(vm, EXPR) == NULL) return NULL;
+        while (cdr(vm, fetch(vm, EXPR)) != NULL) {
 
           SAVE
-          assign(vm, EXPR, car(vm, expr));
+          assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
           eval(vm);
           RESTORE
 
-          expr = cdr(vm, expr);
+          assign(vm, EXPR, cdr(vm, fetch(vm, EXPR)));
         }
-        assign(vm, EXPR, car(vm, expr));
+        assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
         goto tailcall;
-      }
-      case F_AND: {
-        object_t *expr = fetch(vm, EXPR);
 
-        if (expr == NULL) return &t;
-
-        while (cdr(vm, expr) != NULL) {
+      case F_AND:
+        if (fetch(vm, EXPR) == NULL) return &t;
+        while (cdr(vm, fetch(vm, EXPR)) != NULL) {
 
           SAVE
-          assign(vm, EXPR, car(vm, expr));
+          assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
           object_t *val = eval(vm);
           RESTORE
 
           if (false(val)) return val;
-          expr = cdr(vm, expr);
+          assign(vm, EXPR, cdr(vm, fetch(vm, EXPR)));
         }
-        assign(vm, EXPR, car(vm, expr));
+        assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
         goto tailcall;
-      }
-      case F_OR: {
-        object_t *expr = fetch(vm, EXPR);
 
-        if (expr == NULL) return &f;
-
-        while (cdr(vm, expr) != NULL) {
+      case F_OR:
+        if (fetch(vm, EXPR) == NULL) return &f;
+        while (cdr(vm, fetch(vm, EXPR)) != NULL) {
 
           SAVE
-          assign(vm, EXPR, car(vm, expr));
+          assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
           object_t *val = eval(vm);
           RESTORE
 
           if (!false(val)) return val;
-          expr = cdr(vm, expr);
+          assign(vm, EXPR, cdr(vm, fetch(vm, EXPR)));
         }
-        assign(vm, EXPR, car(vm, expr));
+        assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
         goto tailcall;
-      }
-      case F_COND: {
-        object_t *expr = fetch(vm, EXPR);
 
-        while (expr != NULL) {
-          object_t *_case = car(vm, expr);
+      case F_COND:
+        while (fetch(vm, EXPR) != NULL) {
+          object_t *_case = car(vm, fetch(vm, EXPR));
           object_t *test = car(vm, _case);
           object_t *body = car(vm, cdr(vm, _case));
           if (true(object_eq(vm, test, make_symbol(vm, "else")))) {
@@ -162,17 +153,17 @@ tailcall:
             goto tailcall;
           }
 
-          expr = cdr(vm, expr);
+          assign(vm, EXPR, cdr(vm, fetch(vm, EXPR)));
         }
         goto tailcall;
-      }
-      case F_EVAL: {
+
+      case F_EVAL:
         push(vm, fetch(vm, ENV));
         assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
         assign(vm, EXPR, eval(vm));
         assign(vm, ENV, pop(vm));
         goto tailcall;
-      }
+
       default: return make_error(vm, "oh no!!!");
     }
   } else if (procedure->type == PRIMITIVE) {
