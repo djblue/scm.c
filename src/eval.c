@@ -7,8 +7,10 @@
 #define SAVE \
   push(vm, fetch(vm, EXPR)); \
   push(vm, fetch(vm, ENV)); \
+  push(vm, fetch(vm, PROC));
 
 #define RESTORE \
+  assign(vm, PROC, pop(vm)); \
   assign(vm, ENV, pop(vm)); \
   assign(vm, EXPR, pop(vm));
 
@@ -39,16 +41,16 @@ tailcall:
   push(vm, fetch(vm, EXPR));
   push(vm, fetch(vm, ENV));
   assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
-  object_t *procedure = eval(vm);
+  assign(vm, PROC, eval(vm));
   assign(vm, ENV, pop(vm));
   assign(vm, EXPR, pop(vm));
 
-  if (procedure == NULL) return make_error(vm, "nil is not operator");
+  if (fetch(vm, PROC) == NULL) return make_error(vm, "nil is not operator");
 
   assign(vm, EXPR, cdr(vm, fetch(vm, EXPR)));
 
-  if (procedure->type == SPECIAL) {
-    switch (object_data(procedure, special_t)) {
+  if (fetch(vm, PROC)->type == SPECIAL) {
+    switch (object_data(fetch(vm, PROC), special_t)) {
       case F_IF: {
         SAVE
         assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
@@ -166,17 +168,17 @@ tailcall:
 
       default: return make_error(vm, "oh no!!!");
     }
-  } else if (procedure->type == PRIMITIVE) {
-    return (object_data(procedure, primitive))(vm, eval_sequence(vm));
-  } else if (procedure->type == PROCEDURE) {
+  } else if (fetch(vm, PROC)->type == PRIMITIVE) {
+    return (object_data(fetch(vm, PROC), primitive))(vm, eval_sequence(vm));
+  } else if (fetch(vm, PROC)->type == PROCEDURE) {
 
     SAVE
     object_t *vals = eval_sequence(vm);
     RESTORE
 
-    object_t *body = cons(vm, sym_begin, object_data(procedure, proc_t).body);
-    object_t *parent = object_data(procedure, proc_t).env; // captured environment
-    object_t *params = object_data(procedure, proc_t).params;
+    object_t *body = cons(vm, sym_begin, object_data(fetch(vm, PROC), proc_t).body);
+    object_t *parent = object_data(fetch(vm, PROC), proc_t).env; // captured environment
+    object_t *params = object_data(fetch(vm, PROC), proc_t).params;
 
     object_t *vars = params;
 
@@ -189,8 +191,8 @@ tailcall:
     assign(vm, EXPR, body);
 
     goto tailcall;
-  } else if (procedure->type == ERROR) {
-    return procedure;
+  } else if (fetch(vm, PROC)->type == ERROR) {
+    return fetch(vm, PROC);
   } else {
     return make_error(vm, "not a procedure");
   }

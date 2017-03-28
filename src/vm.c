@@ -15,6 +15,7 @@ struct vm_t {
   size_t threshold;
   object_t *expr;
   object_t *env;
+  object_t *proc;
   object_t *stack;
   object_t *stdin;    // default input port
   object_t *stdout;   // default output port
@@ -24,6 +25,7 @@ object_t *fetch(vm_t *vm, reg_t reg) {
   switch (reg) {
     case EXPR:    return vm->expr;
     case ENV:     return vm->env;
+    case PROC:    return vm->proc;
     case STDIN:   return vm->stdin;
     case STDOUT:  return vm->stdout;
     default:      return NULL;
@@ -34,6 +36,7 @@ void assign(vm_t *vm, reg_t reg, object_t *value) {
   switch (reg) {
     case EXPR:    vm->expr    = value; break;
     case ENV:     vm->env     = value; break;
+    case PROC:    vm->proc    = value; break;
     case STDIN:   vm->stdin   = value; break;
     case STDOUT:  vm->stdout  = value; break;
   }
@@ -68,6 +71,7 @@ vm_t *make_vm() {
   vm->threshold = 128;
   vm->env = NULL;
   vm->stack = NULL;
+  vm->proc = NULL;
 
   vm->stdin = make_port_from_file(vm, stdin);
   vm->stdout = make_port_from_file(vm, stdout);
