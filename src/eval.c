@@ -95,70 +95,80 @@ tailcall:
 
       case F_BEGIN:
         if (fetch(vm, EXPR) == NULL) RET(NULL)
-        while (cdr(vm, fetch(vm, EXPR)) != NULL) {
+begin_enter:
+        if (cdr(vm, fetch(vm, EXPR)) == NULL) goto begin_exit;
 
-          SAVE
-          assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
-          eval(vm);
-          RESTORE
+        SAVE
+        assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
+        eval(vm);
+        RESTORE
 
-          assign(vm, EXPR, cdr(vm, fetch(vm, EXPR)));
-        }
+        assign(vm, EXPR, cdr(vm, fetch(vm, EXPR)));
+
+        goto begin_enter;
+begin_exit:
         assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
         goto tailcall;
 
       case F_AND:
         if (fetch(vm, EXPR) == NULL) RET(&t)
-        while (cdr(vm, fetch(vm, EXPR)) != NULL) {
+and_enter:
+        if (cdr(vm, fetch(vm, EXPR)) == NULL) goto and_exit;
 
-          SAVE
-          assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
-          eval(vm);
-          RESTORE
+        SAVE
+        assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
+        eval(vm);
+        RESTORE
 
-          if (false(fetch(vm, VAL))) RET(fetch(vm, VAL))
-          assign(vm, EXPR, cdr(vm, fetch(vm, EXPR)));
-        }
+        if (false(fetch(vm, VAL))) RET(fetch(vm, VAL))
+        assign(vm, EXPR, cdr(vm, fetch(vm, EXPR)));
+
+        goto and_enter;
+and_exit:
         assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
         goto tailcall;
 
       case F_OR:
         if (fetch(vm, EXPR) == NULL) RET(&f)
-        while (cdr(vm, fetch(vm, EXPR)) != NULL) {
+or_enter:
+        if (cdr(vm, fetch(vm, EXPR)) == NULL) goto or_exit;
 
-          SAVE
-          assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
-          eval(vm);
-          RESTORE
+        SAVE
+        assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
+        eval(vm);
+        RESTORE
 
-          if (!false(fetch(vm, VAL))) RET(fetch(vm, VAL))
-          assign(vm, EXPR, cdr(vm, fetch(vm, EXPR)));
-        }
+        if (!false(fetch(vm, VAL))) RET(fetch(vm, VAL))
+        assign(vm, EXPR, cdr(vm, fetch(vm, EXPR)));
+
+        goto or_enter;
+or_exit:
         assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
         goto tailcall;
 
       case F_COND:
-        while (fetch(vm, EXPR) != NULL) {
-          object_t *_case = car(vm, fetch(vm, EXPR));
-          object_t *test = car(vm, _case);
-          object_t *body = car(vm, cdr(vm, _case));
-          if (true(object_eq(vm, test, make_symbol(vm, "else")))) {
-            assign(vm, EXPR, body);
-            goto tailcall;
-          }
+cond_enter:
+        if (fetch(vm, EXPR) == NULL) goto cond_exit;
 
-          SAVE
-          assign(vm, EXPR, test);
-          eval(vm);
-          RESTORE
-
-          if (true(fetch(vm, VAL))) {
-            assign(vm, EXPR, body);
-            goto tailcall;
-          }
-
-          assign(vm, EXPR, cdr(vm, fetch(vm, EXPR)));
+        if (true(object_eq(vm, car(vm, car(vm, fetch(vm, EXPR))), make_symbol(vm, "else")))) {
+          assign(vm, EXPR, car(vm, cdr(vm, car(vm, fetch(vm, EXPR)))));
+          goto tailcall;
         }
+
+        SAVE
+        assign(vm, EXPR, car(vm, car(vm, fetch(vm, EXPR))));
+        eval(vm);
+        RESTORE
+
+        if (true(fetch(vm, VAL))) {
+          assign(vm, EXPR, car(vm, cdr(vm, car(vm, fetch(vm, EXPR)))));
+          goto tailcall;
+        }
+
+        assign(vm, EXPR, cdr(vm, fetch(vm, EXPR)));
+
+        goto cond_enter;
+cond_exit:
         goto tailcall;
 
       case F_EVAL:
