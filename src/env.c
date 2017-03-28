@@ -53,7 +53,6 @@ object_t *lookup(vm_t *vm, object_t *env, object_t *sym) {
     env = cdr(vm, env);
   }
 
-  print(vm, sym);
   return make_error(vm, "cannot find symbol");
 }
 
