@@ -16,7 +16,7 @@
 
 #define RET(value)do{ assign(vm, VAL, (value)); return; } while(0);
 
-object_t *eval_sequence(vm_t *vm) {
+void eval_sequence(vm_t *vm) {
   size_t count = 0;
 
   while (fetch(vm, EXPR) != NULL) {
@@ -29,7 +29,7 @@ object_t *eval_sequence(vm_t *vm) {
     assign(vm, EXPR, cdr(vm, fetch(vm, EXPR)));
   }
 
-  return popn(vm, count);
+  assign(vm, VAL, popn(vm, count));
 }
 
 void eval(vm_t *vm) {
@@ -182,12 +182,15 @@ cond_exit:
       default: RET(make_error(vm, "oh no!!!"))
     }
   } else if (fetch(vm, PROC)->type == PRIMITIVE) {
-    RET((object_data(fetch(vm, PROC), primitive))(vm, eval_sequence(vm)))
+    eval_sequence(vm);
+    RET((object_data(fetch(vm, PROC), primitive))(vm, fetch(vm, VAL)))
   } else if (fetch(vm, PROC)->type == PROCEDURE) {
 
     SAVE
-    object_t *vals = eval_sequence(vm);
+    eval_sequence(vm);
     RESTORE
+
+    object_t *vals = fetch(vm, VAL);
 
     object_t *body = cons(vm, sym_begin, object_data(fetch(vm, PROC), proc_t).body);
     object_t *parent = object_data(fetch(vm, PROC), proc_t).env; // captured environment
