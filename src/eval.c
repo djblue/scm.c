@@ -14,15 +14,17 @@
   assign(vm, ENV, pop(vm)); \
   assign(vm, EXPR, pop(vm));
 
+#define RET(value)do{ assign(vm, VAL, (value)); return; } while(0);
+
 object_t *eval_sequence(vm_t *vm) {
   size_t count = 0;
 
   while (fetch(vm, EXPR) != NULL) {
     SAVE
     assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
-    object_t *value = eval(vm);
+    eval(vm);
     RESTORE
-    push(vm, value);
+    push(vm, fetch(vm, VAL));
     count++;
     assign(vm, EXPR, cdr(vm, fetch(vm, EXPR)));
   }
@@ -30,41 +32,41 @@ object_t *eval_sequence(vm_t *vm) {
   return popn(vm, count);
 }
 
-object_t *eval(vm_t *vm) {
+void eval(vm_t *vm) {
 tailcall:
   vm_gc(vm);
 
-  if (fetch(vm, EXPR) == NULL) return NULL;
-  if (fetch(vm, EXPR)->type == SYMBOL) return lookup(vm, fetch(vm, ENV), fetch(vm, EXPR));
-  if (fetch(vm, EXPR)->type != PAIR) return fetch(vm, EXPR);
+  if (fetch(vm, EXPR) == NULL) RET(NULL)
+  if (fetch(vm, EXPR)->type == SYMBOL) RET(lookup(vm, fetch(vm, ENV), fetch(vm, EXPR)))
+  if (fetch(vm, EXPR)->type != PAIR) RET(fetch(vm, EXPR))
 
   push(vm, fetch(vm, EXPR));
   push(vm, fetch(vm, ENV));
   assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
-  assign(vm, PROC, eval(vm));
+  eval(vm);
+  assign(vm, PROC, fetch(vm, VAL));
   assign(vm, ENV, pop(vm));
   assign(vm, EXPR, pop(vm));
 
-  if (fetch(vm, PROC) == NULL) return make_error(vm, "nil is not operator");
+  if (fetch(vm, PROC) == NULL) RET(make_error(vm, "nil is not operator"))
 
   assign(vm, EXPR, cdr(vm, fetch(vm, EXPR)));
 
   if (fetch(vm, PROC)->type == SPECIAL) {
     switch (object_data(fetch(vm, PROC), special_t)) {
-      case F_IF: {
+      case F_IF:
         SAVE
         assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
-        object_t *predicate = eval(vm);
+        eval(vm);
         RESTORE
-        if (true(error(predicate))) return predicate;
-        assign(vm, EXPR, !false(predicate)
+        if (true(error(fetch(vm, VAL)))) RET(fetch(vm, VAL))
+        assign(vm, EXPR, !false(fetch(vm, VAL))
             ? car(vm, cdr(vm, fetch(vm, EXPR)))
             : car(vm, cdr(vm, cdr(vm, fetch(vm, EXPR)))));
         goto tailcall;
-      }
 
       case F_QUOTE:
-        return car(vm, fetch(vm, EXPR));
+        RET(car(vm, fetch(vm, EXPR)))
 
       case F_DEFINE: {
         object_t *var = car(vm, fetch(vm, EXPR));
@@ -78,21 +80,21 @@ tailcall:
 
         SAVE
         assign(vm, EXPR, val);
-        object_t *result = eval(vm);
+        eval(vm);
         RESTORE
 
-        define(vm, fetch(vm, ENV), var, result);
-        return &t;
+        define(vm, fetch(vm, ENV), var, fetch(vm, VAL));
+        RET(&t)
       }
 
       case F_LAMBDA:
-        return make_procedure(vm,
+        RET(make_procedure(vm,
             fetch(vm, ENV),
             car(vm, fetch(vm, EXPR)),
-            cdr(vm, fetch(vm, EXPR)));
+            cdr(vm, fetch(vm, EXPR))))
 
       case F_BEGIN:
-        if (fetch(vm, EXPR) == NULL) return NULL;
+        if (fetch(vm, EXPR) == NULL) RET(NULL)
         while (cdr(vm, fetch(vm, EXPR)) != NULL) {
 
           SAVE
@@ -106,30 +108,30 @@ tailcall:
         goto tailcall;
 
       case F_AND:
-        if (fetch(vm, EXPR) == NULL) return &t;
+        if (fetch(vm, EXPR) == NULL) RET(&t)
         while (cdr(vm, fetch(vm, EXPR)) != NULL) {
 
           SAVE
           assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
-          object_t *val = eval(vm);
+          eval(vm);
           RESTORE
 
-          if (false(val)) return val;
+          if (false(fetch(vm, VAL))) RET(fetch(vm, VAL))
           assign(vm, EXPR, cdr(vm, fetch(vm, EXPR)));
         }
         assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
         goto tailcall;
 
       case F_OR:
-        if (fetch(vm, EXPR) == NULL) return &f;
+        if (fetch(vm, EXPR) == NULL) RET(&f)
         while (cdr(vm, fetch(vm, EXPR)) != NULL) {
 
           SAVE
           assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
-          object_t *val = eval(vm);
+          eval(vm);
           RESTORE
 
-          if (!false(val)) return val;
+          if (!false(fetch(vm, VAL))) RET(fetch(vm, VAL))
           assign(vm, EXPR, cdr(vm, fetch(vm, EXPR)));
         }
         assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
@@ -147,10 +149,10 @@ tailcall:
 
           SAVE
           assign(vm, EXPR, test);
-          object_t *val = eval(vm);
+          eval(vm);
           RESTORE
 
-          if (true(val)) {
+          if (true(fetch(vm, VAL))) {
             assign(vm, EXPR, body);
             goto tailcall;
           }
@@ -162,14 +164,15 @@ tailcall:
       case F_EVAL:
         push(vm, fetch(vm, ENV));
         assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
-        assign(vm, EXPR, eval(vm));
+        eval(vm);
+        assign(vm, EXPR, fetch(vm, VAL));
         assign(vm, ENV, pop(vm));
         goto tailcall;
 
-      default: return make_error(vm, "oh no!!!");
+      default: RET(make_error(vm, "oh no!!!"))
     }
   } else if (fetch(vm, PROC)->type == PRIMITIVE) {
-    return (object_data(fetch(vm, PROC), primitive))(vm, eval_sequence(vm));
+    RET((object_data(fetch(vm, PROC), primitive))(vm, eval_sequence(vm)))
   } else if (fetch(vm, PROC)->type == PROCEDURE) {
 
     SAVE
@@ -192,9 +195,9 @@ tailcall:
 
     goto tailcall;
   } else if (fetch(vm, PROC)->type == ERROR) {
-    return fetch(vm, PROC);
+    RET(fetch(vm, PROC))
   } else {
-    return make_error(vm, "not a procedure");
+    RET(make_error(vm, "not a procedure"))
   }
 }
 

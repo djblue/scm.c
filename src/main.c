@@ -27,10 +27,10 @@ int main (int argc, char** argv) {
     object_t *value = scm_read(vm, NULL);
     assign(vm, EXPR, value);
     if (value == &eof) break;
-    value = eval(vm);
+    eval(vm);
 
     if (isatty(STDIN_FILENO)) {
-      print(vm, value);
+      print(vm, fetch(vm, VAL));
     }
 
     vm_gc(vm);
