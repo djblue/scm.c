@@ -1,3 +1,5 @@
+#pragma GCC diagnostic ignored "-Wpedantic"
+
 #include <stdio.h>
 #include <string.h>
 
@@ -15,6 +17,7 @@
   assign(vm, PROC, pop(vm)); \
   assign(vm, ENV, pop(vm)); \
   assign(vm, EXPR, pop(vm));
+
 
 #define RET(value)do{\
   assign(vm, VAL, (value)); \
