@@ -19,6 +19,7 @@ typedef enum {
   EXPR,
   PROC,
   VAL,
+  CONTINUE,
   STDIN,
   STDOUT
 } reg_t;

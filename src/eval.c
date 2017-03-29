@@ -7,14 +7,33 @@
 #define SAVE \
   push(vm, fetch(vm, EXPR)); \
   push(vm, fetch(vm, ENV)); \
-  push(vm, fetch(vm, PROC));
+  push(vm, fetch(vm, PROC)); \
+  push(vm, fetch(vm, CONTINUE)); \
 
 #define RESTORE \
+  assign(vm, CONTINUE, pop(vm)); \
   assign(vm, PROC, pop(vm)); \
   assign(vm, ENV, pop(vm)); \
   assign(vm, EXPR, pop(vm));
 
-#define RET(value)do{ assign(vm, VAL, (value)); return; } while(0);
+#define RET(value)do{\
+  assign(vm, VAL, (value)); \
+  if (fetch(vm, CONTINUE) != NULL) { \
+    if (fetch(vm, CONTINUE)->type != LABEL) { \
+      assign(vm, VAL, make_error(vm, "invalid state")); \
+      return; \
+    } \
+    void *label = object_data(fetch(vm, CONTINUE), void*); \
+    goto *label; \
+  } \
+  return; \
+} while(0);
+
+object_t *make_label(vm_t *vm, void *label) {
+  object_t *obj = make(vm, LABEL, sizeof(void*));
+  object_data(obj, void*) = label;
+  return obj;
+}
 
 void eval_sequence(vm_t *vm) {
   size_t count = 0;
@@ -22,6 +41,7 @@ void eval_sequence(vm_t *vm) {
   while (fetch(vm, EXPR) != NULL) {
     SAVE
     assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
+    assign(vm, CONTINUE, NULL);
     eval(vm);
     RESTORE
     push(vm, fetch(vm, VAL));
@@ -40,13 +60,13 @@ tailcall:
   if (fetch(vm, EXPR)->type == SYMBOL) RET(lookup(vm, fetch(vm, ENV), fetch(vm, EXPR)))
   if (fetch(vm, EXPR)->type != PAIR) RET(fetch(vm, EXPR))
 
-  push(vm, fetch(vm, EXPR));
-  push(vm, fetch(vm, ENV));
+  SAVE
   assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
-  eval(vm);
+  assign(vm, CONTINUE, make_label(vm, &&procedure_continue));
+  goto tailcall;
+procedure_continue:
+  RESTORE
   assign(vm, PROC, fetch(vm, VAL));
-  assign(vm, ENV, pop(vm));
-  assign(vm, EXPR, pop(vm));
 
   if (fetch(vm, PROC) == NULL) RET(make_error(vm, "nil is not operator"))
 
@@ -57,7 +77,9 @@ tailcall:
       case F_IF:
         SAVE
         assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
-        eval(vm);
+        assign(vm, CONTINUE, make_label(vm, &&if_continue));
+        goto tailcall;
+if_continue:
         RESTORE
         if (true(error(fetch(vm, VAL)))) RET(fetch(vm, VAL))
         assign(vm, EXPR, !false(fetch(vm, VAL))
@@ -72,14 +94,18 @@ tailcall:
         if (true(pair(car(vm, fetch(vm, EXPR))))) {
           SAVE
           assign(vm, EXPR, cons(vm, sym_lambda, cons(vm, cdr(vm, car(vm, fetch(vm, EXPR))), cdr(vm, fetch(vm, EXPR)))));
-          eval(vm);
+          assign(vm, CONTINUE, make_label(vm, &&define_continue_1));
+          goto tailcall;
+define_continue_1:
           RESTORE
 
           define(vm, fetch(vm, ENV), car(vm, car(vm, fetch(vm, EXPR))), fetch(vm, VAL));
         } else {
           SAVE
           assign(vm, EXPR, car(vm, cdr(vm, fetch(vm, EXPR))));
-          eval(vm);
+          assign(vm, CONTINUE, make_label(vm, &&define_continue_2));
+          goto tailcall;
+define_continue_2:
           RESTORE
 
           define(vm, fetch(vm, ENV), car(vm, fetch(vm, EXPR)), fetch(vm, VAL));
@@ -100,7 +126,9 @@ begin_enter:
 
         SAVE
         assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
-        eval(vm);
+        assign(vm, CONTINUE, make_label(vm, &&begin_continue));
+        goto tailcall;
+begin_continue:
         RESTORE
 
         assign(vm, EXPR, cdr(vm, fetch(vm, EXPR)));
@@ -117,7 +145,9 @@ and_enter:
 
         SAVE
         assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
-        eval(vm);
+        assign(vm, CONTINUE, make_label(vm, &&and_continue));
+        goto tailcall;
+and_continue:
         RESTORE
 
         if (false(fetch(vm, VAL))) RET(fetch(vm, VAL))
@@ -135,7 +165,9 @@ or_enter:
 
         SAVE
         assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
-        eval(vm);
+        assign(vm, CONTINUE, make_label(vm, &&or_continue));
+        goto tailcall;
+or_continue:
         RESTORE
 
         if (!false(fetch(vm, VAL))) RET(fetch(vm, VAL))
@@ -157,7 +189,9 @@ cond_enter:
 
         SAVE
         assign(vm, EXPR, car(vm, car(vm, fetch(vm, EXPR))));
-        eval(vm);
+        assign(vm, CONTINUE, make_label(vm, &&cond_continue));
+        goto tailcall;
+cond_continue:
         RESTORE
 
         if (true(fetch(vm, VAL))) {
@@ -172,11 +206,13 @@ cond_exit:
         goto tailcall;
 
       case F_EVAL:
-        push(vm, fetch(vm, ENV));
+        SAVE
         assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
-        eval(vm);
+        assign(vm, CONTINUE, make_label(vm, &&eval_continue));
+        goto tailcall;
+eval_continue:
+        RESTORE
         assign(vm, EXPR, fetch(vm, VAL));
-        assign(vm, ENV, pop(vm));
         goto tailcall;
 
       default: RET(make_error(vm, "oh no!!!"))
@@ -186,9 +222,7 @@ cond_exit:
     RET((object_data(fetch(vm, PROC), primitive))(vm, fetch(vm, VAL)))
   } else if (fetch(vm, PROC)->type == PROCEDURE) {
 
-    SAVE
     eval_sequence(vm);
-    RESTORE
 
     object_t *vals = fetch(vm, VAL);
 

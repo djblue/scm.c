@@ -15,6 +15,7 @@ typedef enum {
   PAIR,
   SPECIAL,
   PRIMITIVE,
+  LABEL,
   PROCEDURE,
   ERROR,
   PORT,
