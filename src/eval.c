@@ -9,12 +9,12 @@
 #define SAVE \
   push(vm, fetch(vm, EXPR)); \
   push(vm, fetch(vm, ENV)); \
-  push(vm, fetch(vm, PROC)); \
+  push(vm, fetch(vm, FUN)); \
   push(vm, fetch(vm, CONTINUE)); \
 
 #define RESTORE \
   assign(vm, CONTINUE, pop(vm)); \
-  assign(vm, PROC, pop(vm)); \
+  assign(vm, FUN, pop(vm)); \
   assign(vm, ENV, pop(vm)); \
   assign(vm, EXPR, pop(vm));
 
@@ -69,14 +69,14 @@ tailcall:
   goto tailcall;
 procedure_continue:
   RESTORE
-  assign(vm, PROC, fetch(vm, VAL));
+  assign(vm, FUN, fetch(vm, VAL));
 
-  if (fetch(vm, PROC) == NULL) RET(make_error(vm, "nil is not operator"))
+  if (fetch(vm, FUN) == NULL) RET(make_error(vm, "nil is not operator"))
 
   assign(vm, EXPR, cdr(vm, fetch(vm, EXPR)));
 
-  if (fetch(vm, PROC)->type == SPECIAL) {
-    switch (object_data(fetch(vm, PROC), special_t)) {
+  if (fetch(vm, FUN)->type == SPECIAL) {
+    switch (object_data(fetch(vm, FUN), special_t)) {
       case F_IF:
         SAVE
         assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
@@ -220,18 +220,18 @@ eval_continue:
 
       default: RET(make_error(vm, "oh no!!!"))
     }
-  } else if (fetch(vm, PROC)->type == PRIMITIVE) {
+  } else if (fetch(vm, FUN)->type == PRIMITIVE) {
     eval_sequence(vm);
-    RET((object_data(fetch(vm, PROC), primitive))(vm, fetch(vm, VAL)))
-  } else if (fetch(vm, PROC)->type == PROCEDURE) {
+    RET((object_data(fetch(vm, FUN), primitive))(vm, fetch(vm, VAL)))
+  } else if (fetch(vm, FUN)->type == PROCEDURE) {
 
     eval_sequence(vm);
 
     object_t *vals = fetch(vm, VAL);
 
-    object_t *body = cons(vm, sym_begin, object_data(fetch(vm, PROC), proc_t).body);
-    object_t *parent = object_data(fetch(vm, PROC), proc_t).env; // captured environment
-    object_t *params = object_data(fetch(vm, PROC), proc_t).params;
+    object_t *body = cons(vm, sym_begin, object_data(fetch(vm, FUN), proc_t).body);
+    object_t *parent = object_data(fetch(vm, FUN), proc_t).env; // captured environment
+    object_t *params = object_data(fetch(vm, FUN), proc_t).params;
 
     object_t *vars = params;
 
@@ -244,8 +244,8 @@ eval_continue:
     assign(vm, EXPR, body);
 
     goto tailcall;
-  } else if (fetch(vm, PROC)->type == ERROR) {
-    RET(fetch(vm, PROC))
+  } else if (fetch(vm, FUN)->type == ERROR) {
+    RET(fetch(vm, FUN))
   } else {
     RET(make_error(vm, "not a procedure"))
   }

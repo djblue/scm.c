@@ -15,7 +15,7 @@ struct vm_t {
   size_t threshold;
   object_t *expr;
   object_t *env;
-  object_t *proc;
+  object_t *fun;
   object_t *val;
   object_t *cont;
   object_t *stack;
@@ -27,7 +27,7 @@ object_t *fetch(vm_t *vm, reg_t reg) {
   switch (reg) {
     case EXPR:    return vm->expr;
     case ENV:     return vm->env;
-    case PROC:    return vm->proc;
+    case FUN:     return vm->fun;
     case VAL:     return vm->val;
     case CONTINUE: return vm->cont;
     case STDIN:   return vm->stdin;
@@ -40,7 +40,7 @@ void assign(vm_t *vm, reg_t reg, object_t *value) {
   switch (reg) {
     case EXPR:    vm->expr    = value; break;
     case ENV:     vm->env     = value; break;
-    case PROC:    vm->proc    = value; break;
+    case FUN:     vm->fun     = value; break;
     case VAL:     vm->val     = value; break;
     case CONTINUE: vm->cont   = value; break;
     case STDIN:   vm->stdin   = value; break;
@@ -77,7 +77,7 @@ vm_t *make_vm() {
   vm->threshold = 128;
   vm->env = NULL;
   vm->stack = NULL;
-  vm->proc = NULL;
+  vm->fun = NULL;
   vm->val = NULL;
   vm->cont = NULL;
 
@@ -129,7 +129,7 @@ void vm_gc(vm_t *vm) {
     mark(vm, vm->expr);
     mark(vm, vm->env);
     mark(vm, vm->stack);
-    mark(vm, vm->proc);
+    mark(vm, vm->fun);
     mark(vm, vm->val);
     mark(vm, vm->cont);
     mark(vm, vm->stdin);

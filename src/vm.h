@@ -17,7 +17,7 @@ struct object_t {
 typedef enum {
   ENV,
   EXPR,
-  PROC,
+  FUN,
   VAL,
   CONTINUE,
   STDIN,
