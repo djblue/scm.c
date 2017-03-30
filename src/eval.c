@@ -11,8 +11,10 @@
   push(vm, fetch(vm, ENV)); \
   push(vm, fetch(vm, FUN)); \
   push(vm, fetch(vm, CONTINUE)); \
+  push(vm, fetch(vm, ARGL));
 
 #define RESTORE \
+  assign(vm, ARGL, pop(vm)); \
   assign(vm, CONTINUE, pop(vm)); \
   assign(vm, FUN, pop(vm)); \
   assign(vm, ENV, pop(vm)); \
@@ -38,21 +40,9 @@ object_t *make_label(vm_t *vm, void *label) {
   return obj;
 }
 
-void eval_sequence(vm_t *vm) {
-  size_t count = 0;
-
-  while (fetch(vm, EXPR) != NULL) {
-    SAVE
-    assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
-    assign(vm, CONTINUE, NULL);
-    eval(vm);
-    RESTORE
-    push(vm, fetch(vm, VAL));
-    count++;
-    assign(vm, EXPR, cdr(vm, fetch(vm, EXPR)));
-  }
-
-  assign(vm, VAL, popn(vm, count));
+object_t *reverse(vm_t *vm, object_t *args, object_t *acc) {
+  if (args == NULL) return acc;
+  return reverse(vm, cdr(vm, args), cons(vm, car(vm, args), acc));
 }
 
 void eval(vm_t *vm) {
@@ -221,11 +211,19 @@ eval_continue:
       default: RET(make_error(vm, "oh no!!!"))
     }
   } else if (fetch(vm, FUN)->type == PRIMITIVE) {
-    eval_sequence(vm);
+    SAVE
+    assign(vm, CONTINUE, make_label(vm, &&eval_primitive));
+    goto eval_sequence;
+eval_primitive:
+    RESTORE
     RET((object_data(fetch(vm, FUN), primitive))(vm, fetch(vm, VAL)))
   } else if (fetch(vm, FUN)->type == PROCEDURE) {
 
-    eval_sequence(vm);
+    SAVE
+    assign(vm, CONTINUE, make_label(vm, &&eval_procedure));
+    goto eval_sequence;
+eval_procedure:
+    RESTORE
 
     object_t *vals = fetch(vm, VAL);
 
@@ -249,6 +247,24 @@ eval_continue:
   } else {
     RET(make_error(vm, "not a procedure"))
   }
+
+eval_sequence:
+  assign(vm, ARGL, NULL);
+
+eval_sequence_enter:
+  if (fetch(vm, EXPR) == NULL) goto eval_sequence_exit;
+    SAVE
+    assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
+    assign(vm, CONTINUE, make_label(vm, &&eval_sequence_continue));
+    goto tailcall;
+eval_sequence_continue:
+    RESTORE
+    assign(vm, ARGL, cons(vm, fetch(vm, VAL), fetch(vm, ARGL)));
+    assign(vm, EXPR, cdr(vm, fetch(vm, EXPR)));
+  goto eval_sequence_enter;
+eval_sequence_exit:
+
+  RET(reverse(vm, fetch(vm, ARGL), NULL))
 }
 
 #define eval_predicate(fn,p) \

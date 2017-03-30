@@ -16,6 +16,7 @@ struct vm_t {
   object_t *expr;
   object_t *env;
   object_t *fun;
+  object_t *argl;
   object_t *val;
   object_t *cont;
   object_t *stack;
@@ -28,6 +29,7 @@ object_t *fetch(vm_t *vm, reg_t reg) {
     case EXPR:    return vm->expr;
     case ENV:     return vm->env;
     case FUN:     return vm->fun;
+    case ARGL:    return vm->argl;
     case VAL:     return vm->val;
     case CONTINUE: return vm->cont;
     case STDIN:   return vm->stdin;
@@ -41,6 +43,7 @@ void assign(vm_t *vm, reg_t reg, object_t *value) {
     case EXPR:    vm->expr    = value; break;
     case ENV:     vm->env     = value; break;
     case FUN:     vm->fun     = value; break;
+    case ARGL:    vm->argl    = value; break;
     case VAL:     vm->val     = value; break;
     case CONTINUE: vm->cont   = value; break;
     case STDIN:   vm->stdin   = value; break;
@@ -78,6 +81,7 @@ vm_t *make_vm() {
   vm->env = NULL;
   vm->stack = NULL;
   vm->fun = NULL;
+  vm->argl = NULL;
   vm->val = NULL;
   vm->cont = NULL;
 
@@ -130,6 +134,7 @@ void vm_gc(vm_t *vm) {
     mark(vm, vm->env);
     mark(vm, vm->stack);
     mark(vm, vm->fun);
+    mark(vm, vm->argl);
     mark(vm, vm->val);
     mark(vm, vm->cont);
     mark(vm, vm->stdin);

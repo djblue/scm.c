@@ -18,6 +18,7 @@ typedef enum {
   ENV,
   EXPR,
   FUN,
+  ARGL,
   VAL,
   CONTINUE,
   STDIN,
