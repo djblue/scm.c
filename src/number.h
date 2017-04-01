@@ -16,6 +16,7 @@ object_t *flonum(object_t *o);
 object_t *number(object_t *o);
 
 object_t *plus(vm_t *vm, object_t *a, object_t *b);
+object_t *minus(vm_t *vm, object_t *a, object_t *b);
 object_t *multiply(vm_t *vm, object_t *a, object_t *b);
 
 object_t *number_eq(vm_t *vm, object_t *a, object_t *b);

@@ -329,12 +329,25 @@ object_t *eval_eq(vm_t *vm, object_t *args) {
 
 #include "number.h"
 
-// (+ 1 2 3)
 object_t *eval_plus(vm_t *vm, object_t *args) {
   if (args == NULL) return NULL;
   object_t *op = car(vm, args);
   if (true(error(op))) return op;
   return plus(vm, op, eval_plus(vm, cdr(vm, args)));
+}
+
+object_t *eval_minus(vm_t *vm, object_t *args) {
+  if (args == NULL) return NULL;
+  object_t *op = car(vm, args);
+  if (cdr(vm, args) == NULL) {
+    op = minus(vm, op, NULL);
+  }
+  args = cdr(vm, args);
+  while (args != NULL) {
+    op = minus(vm, op, car(vm, args));
+    args = cdr(vm, args);
+  }
+  return op;
 }
 
 object_t *eval_multiply(vm_t *vm, object_t *args) {
@@ -358,6 +371,7 @@ void init(vm_t *vm, object_t *env) {
   sym_eval = defs("eval", F_EVAL)
 
   def("+", eval_plus)
+  def("-", eval_minus)
   def("*", eval_multiply)
   def("=", eval_eq)
 

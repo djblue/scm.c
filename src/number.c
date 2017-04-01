@@ -52,6 +52,21 @@ object_t *plus(vm_t *vm, object_t *a, object_t *b) {
   return make_fixnum_int(vm, object_data(a, int) + object_data(b, int));
 }
 
+object_t *minus(vm_t *vm, object_t *a, object_t *b) {
+  if (b == NULL) return minus(vm, make_fixnum_int(vm, 0), a);
+
+  if (!true(number(a)) || !true(number(b)))
+    return make_error(vm, "can't perform arithmetic on non numeric values");
+
+  if (a->type == FLONUM || b->type == FLONUM) {
+    if (a->type != FLONUM) return make_flonum_float(vm, object_data(a, int) - object_data(b, float));
+    if (b->type != FLONUM) return make_flonum_float(vm, object_data(a, float) - object_data(b, int));
+    return make_flonum_float(vm, object_data(a, float) - object_data(b, float));
+  }
+
+  return make_fixnum_int(vm, object_data(a, int) - object_data(b, int));
+}
+
 object_t *multiply(vm_t *vm, object_t *a, object_t *b) {
   if (a == NULL) return multiply(vm, make_fixnum_int(vm, 1), b);
   if (b == NULL) return multiply(vm, a, make_fixnum_int(vm, 1));
