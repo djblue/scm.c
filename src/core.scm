@@ -81,6 +81,7 @@
   (concat ls (cons value '())))
 
 (define (inc x) (+ x 1))
+(define (dec x) (- x 1))
 
 ; invert a boolean value
 (define (not x) (if x #f #t))
@@ -95,11 +96,11 @@
 (define (zero? n) (= n 0))
 
 (define (range n)
-  (define (range-iter ls i)
-    (if (= i n)
+  (define (iter ls i)
+    (if (zero? i)
       ls
-      (range-iter (cons i ls) (inc i))))
-  (reverse (range-iter '() 0)))
+      (iter (cons (dec i) ls) (dec i))))
+  (iter '() n))
 
 (define list (lambda ls ls))
 
