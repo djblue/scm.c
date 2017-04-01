@@ -19,6 +19,15 @@ int main (int argc, char** argv) {
   define_read(vm, env);
   assign(vm, ENV, env);
 
+  FILE *core = fmemopen(core_scm, core_scm_len, "r");
+
+  while (1) {
+    object_t *value = c_read(vm, core);
+    if (value == &eof) break;
+    assign(vm, EXPR, value);
+    eval(vm);
+  }
+
   while (1) {
     if (isatty(STDIN_FILENO)) {
       printf("> ");

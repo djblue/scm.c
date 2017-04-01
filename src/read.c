@@ -9,7 +9,7 @@
 #include "parser.h"
 #include "lexer.h"
 
-static object_t *read_internal(vm_t *vm, FILE *fp) {
+object_t *c_read(vm_t *vm, FILE *fp) {
   yyscan_t scanner;
   yylex_init(&scanner);
   yyset_in(fp, scanner);
@@ -27,7 +27,7 @@ object_t *scm_read(vm_t *vm, object_t *args) {
   if (port == NULL)
     port = fetch(vm, STDIN);
 
-  return read_internal(vm, port_pointer(port));
+  return c_read(vm, port_pointer(port));
 }
 
 void define_read(vm_t *vm, object_t *env) {

@@ -19,7 +19,7 @@ $(BIN): $(OBJS)
 	$(CC) $(OBJS) -o $(BIN) $(LDFLAGS)
 
 %.xxd: %.scm
-	xxd -i $< | sed 's/\([0-9a-f]\)$$/\0, 0x00/' > $@
+	xxd -i $< > $@
 
 # build object files from sources
 %.o: %.c
