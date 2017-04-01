@@ -28,11 +28,9 @@ int main (int argc, char** argv) {
     eval(vm);
   }
 
-  while (1) {
-    if (isatty(STDIN_FILENO)) {
-      printf("> ");
-    }
+  scm_read_load(".scm_history");
 
+  while (1) {
     object_t *value = scm_read(vm, NULL);
     assign(vm, EXPR, value);
     if (value == &eof) break;
@@ -44,6 +42,8 @@ int main (int argc, char** argv) {
 
     vm_gc(vm);
   }
+
+  scm_read_save(".scm_history");
 
   free_vm(vm);
 
