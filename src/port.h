@@ -9,10 +9,10 @@
 extern object_t eof;
 extern object_t ueof;
 
-object_t *make_port_from_file(vm_t *vm, FILE *fp);
+object_t make_port_from_file(vm_t *vm, FILE *fp);
 
-FILE *port_pointer(object_t *port);
-void print_port(vm_t *vm, object_t *port);
-void define_port(vm_t *vm, object_t *env);
+FILE *port_pointer(object_t port);
+void print_port(vm_t *vm, object_t port);
+void define_port(vm_t *vm, object_t env);
 
 #endif

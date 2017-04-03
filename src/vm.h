@@ -5,14 +5,14 @@
 
 typedef struct vm_t vm_t;
 
-typedef struct object_t object_t;
-
-struct object_t {
+struct _object_t {
   unsigned char type;
   unsigned char trace;
   unsigned char marked;
-  unsigned char padding;
+  unsigned char guard;
 };
+
+typedef struct _object_t* object_t;
 
 typedef enum {
   ENV,
@@ -28,13 +28,13 @@ typedef enum {
 vm_t *make_vm();
 void free_vm(vm_t *vm);
 
-object_t *fetch(vm_t *vm, reg_t reg);
-void assign(vm_t *vm, reg_t reg, object_t *value);
-void push(vm_t *vm, object_t *value);
-object_t *pop(vm_t *vm);
-object_t *popn(vm_t *vm, size_t count);
+object_t fetch(vm_t *vm, reg_t reg);
+void assign(vm_t *vm, reg_t reg, object_t value);
+void push(vm_t *vm, object_t value);
+object_t pop(vm_t *vm);
+object_t popn(vm_t *vm, size_t count);
 
-object_t *vm_alloc(vm_t *vm, size_t s);
+object_t vm_alloc(vm_t *vm, size_t s);
 
 void vm_gc(vm_t *vm);
 

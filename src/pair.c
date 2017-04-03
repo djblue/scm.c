@@ -6,18 +6,18 @@
 #include "eval.h"
 
 typedef struct {
-  object_t *car;
-  object_t *cdr;
+  object_t car;
+  object_t cdr;
 } pair_t;
 
-object_t *cons(vm_t *vm, object_t *car, object_t *cdr) {
-  object_t *o = make(vm, PAIR, sizeof(pair_t));
+object_t cons(vm_t *vm, object_t car, object_t cdr) {
+  object_t o = make(vm, PAIR, sizeof(pair_t));
   object_data(o, pair_t).car = car;
   object_data(o, pair_t).cdr = cdr;
   return o;
 }
 
-object_t *car(vm_t *vm, object_t *pair) {
+object_t car(vm_t *vm, object_t pair) {
   if (pair == NULL) return NULL;
   if (pair->type == ERROR) return pair;
   if (pair->type != PAIR) {
@@ -26,7 +26,7 @@ object_t *car(vm_t *vm, object_t *pair) {
   return object_data(pair, pair_t).car;
 }
 
-object_t *cdr(vm_t *vm, object_t *pair) {
+object_t cdr(vm_t *vm, object_t pair) {
   if (pair == NULL) return NULL;
   if (pair->type == ERROR) return pair;
   if (pair->type != PAIR) {
@@ -35,34 +35,34 @@ object_t *cdr(vm_t *vm, object_t *pair) {
   return object_data(pair, pair_t).cdr;
 }
 
-object_t *set_car(vm_t *vm, object_t *pair, object_t *car) {
+object_t set_car(vm_t *vm, object_t pair, object_t car) {
   if (pair == NULL) return NULL;
   if (pair->type == ERROR) return pair;
   if (pair->type != PAIR) {
     return make_error(vm, "object not pair");
   }
   object_data(pair, pair_t).car = car;
-  return &t;
+  return t;
 }
 
-object_t *set_cdr(vm_t *vm, object_t *pair, object_t *cdr) {
+object_t set_cdr(vm_t *vm, object_t pair, object_t cdr) {
   if (pair == NULL) return NULL;
   if (pair->type == ERROR) return pair;
   if (pair->type != PAIR) {
     return make_error(vm, "object not pair");
   }
   object_data(pair, pair_t).cdr = cdr;
-  return &t;
+  return t;
 }
 
-object_t *list(vm_t *vm, int argc, ...) {
+object_t list(vm_t *vm, int argc, ...) {
   va_list argp;
-  object_t *head = NULL, *prev = NULL;
+  object_t head = NULL, *prev = NULL;
 
   va_start(argp, argc);
 
   for (int i = 0; i < argc; i++) {
-    object_t *pair = cons(vm, va_arg(argp, object_t*), NULL);
+    object_t pair = cons(vm, va_arg(argp, object_t), NULL);
     if (prev != NULL) {
       set_cdr(vm, prev, pair);
     } else if (head == NULL) {
@@ -76,14 +76,14 @@ object_t *list(vm_t *vm, int argc, ...) {
   return head;
 }
 
-object_t *null(object_t *o) {
-  if (o == NULL) return &t;
-  return &f;
+object_t null(object_t o) {
+  if (o == NULL) return t;
+  return f;
 }
 
 predicate(pair, PAIR)
 
-object_t *pair_eq(vm_t *vm, object_t *a, object_t *b) {
-  return false(object_eq(vm, car(vm, a), car(vm, b))) ? &f : object_eq(vm, cdr(vm, a), cdr(vm, b));
+object_t pair_eq(vm_t *vm, object_t a, object_t b) {
+  return false(object_eq(vm, car(vm, a), car(vm, b))) ? f : object_eq(vm, cdr(vm, a), cdr(vm, b));
 }
 

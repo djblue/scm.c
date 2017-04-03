@@ -34,13 +34,13 @@
   return; \
 } while(0);
 
-object_t *make_label(vm_t *vm, void *label) {
-  object_t *obj = make(vm, LABEL, sizeof(void*));
+object_t make_label(vm_t *vm, void *label) {
+  object_t obj = make(vm, LABEL, sizeof(void*));
   object_data(obj, void*) = label;
   return obj;
 }
 
-object_t *reverse(vm_t *vm, object_t *args, object_t *acc) {
+object_t reverse(vm_t *vm, object_t args, object_t acc) {
   if (args == NULL) return acc;
   return reverse(vm, cdr(vm, args), cons(vm, car(vm, args), acc));
 }
@@ -104,7 +104,7 @@ define_continue_2:
           define(vm, fetch(vm, ENV), car(vm, fetch(vm, EXPR)), fetch(vm, VAL));
         }
 
-        RET(&t)
+        RET(t)
 
       case F_LAMBDA:
         RET(make_procedure(vm,
@@ -132,7 +132,7 @@ begin_exit:
         goto tailcall;
 
       case F_AND:
-        if (fetch(vm, EXPR) == NULL) RET(&t)
+        if (fetch(vm, EXPR) == NULL) RET(t)
 and_enter:
         if (cdr(vm, fetch(vm, EXPR)) == NULL) goto and_exit;
 
@@ -152,7 +152,7 @@ and_exit:
         goto tailcall;
 
       case F_OR:
-        if (fetch(vm, EXPR) == NULL) RET(&f)
+        if (fetch(vm, EXPR) == NULL) RET(f)
 or_enter:
         if (cdr(vm, fetch(vm, EXPR)) == NULL) goto or_exit;
 
@@ -225,13 +225,13 @@ eval_primitive:
 eval_procedure:
     RESTORE
 
-    object_t *vals = fetch(vm, VAL);
+    object_t vals = fetch(vm, VAL);
 
-    object_t *body = cons(vm, sym_begin, object_data(fetch(vm, FUN), proc_t).body);
-    object_t *parent = object_data(fetch(vm, FUN), proc_t).env; // captured environment
-    object_t *params = object_data(fetch(vm, FUN), proc_t).params;
+    object_t body = cons(vm, sym_begin, object_data(fetch(vm, FUN), proc_t).body);
+    object_t parent = object_data(fetch(vm, FUN), proc_t).env; // captured environment
+    object_t params = object_data(fetch(vm, FUN), proc_t).params;
 
-    object_t *vars = params;
+    object_t vars = params;
 
     if (true(symbol(vars))) {
       vars = cons(vm, vars, NULL);
@@ -268,8 +268,8 @@ eval_sequence_exit:
 }
 
 #define eval_predicate(fn,p) \
-  object_t *fn(vm_t *vm, object_t *args) { \
-    object_t *o = car(vm, args); \
+  object_t fn(vm_t *vm, object_t args) { \
+    object_t o = car(vm, args); \
     if (true(error(o))) return o; \
     return p(o); \
   }
@@ -283,62 +283,62 @@ eval_predicate(characterp, character)
 eval_predicate(symbolp, symbol)
 eval_predicate(pairp, pair)
 
-object_t *eval_cons(vm_t *vm, object_t *args) {
-  object_t *a = car(vm, args);
-  object_t *b = car(vm, cdr(vm, args));
+object_t eval_cons(vm_t *vm, object_t args) {
+  object_t a = car(vm, args);
+  object_t b = car(vm, cdr(vm, args));
   return cons(vm, a, b);
 }
 
-object_t *eval_car(vm_t *vm, object_t *args) {
-  object_t *p = car(vm, args);
+object_t eval_car(vm_t *vm, object_t args) {
+  object_t p = car(vm, args);
   return car(vm, p);
 }
 
-object_t *eval_cdr(vm_t *vm, object_t *args) {
+object_t eval_cdr(vm_t *vm, object_t args) {
   return cdr(vm, car(vm, args));
 }
 
-object_t *eval_set_car(vm_t *vm, object_t *args) {
+object_t eval_set_car(vm_t *vm, object_t args) {
   return set_car(vm, car(vm, args), car(vm, cdr(vm, args)));
 }
 
-object_t *eval_set_cdr(vm_t *vm, object_t *args) {
+object_t eval_set_cdr(vm_t *vm, object_t args) {
   return set_cdr(vm, car(vm, args), car(vm, cdr(vm, args)));
 }
 
-object_t *eval_print(vm_t *vm, object_t *args) {
-  object_t *o = car(vm, args);
+object_t eval_print(vm_t *vm, object_t args) {
+  object_t o = car(vm, args);
   print(vm, o);
   return o;
 }
 
-object_t *eval_eq(vm_t *vm, object_t *args) {
+object_t eval_eq(vm_t *vm, object_t args) {
   if (args == NULL) return NULL;
 
-  object_t *a = car(vm, args);
-  object_t *ls = cdr(vm, args);
+  object_t a = car(vm, args);
+  object_t ls = cdr(vm, args);
 
   while (ls != NULL) {
-    object_t *b = car(vm, ls);
-    if (false(object_eq(vm, a, b))) return &f;
+    object_t b = car(vm, ls);
+    if (false(object_eq(vm, a, b))) return f;
     ls = cdr(vm, ls);
   }
 
-  return &t;
+  return t;
 }
 
 #include "number.h"
 
-object_t *eval_plus(vm_t *vm, object_t *args) {
+object_t eval_plus(vm_t *vm, object_t args) {
   if (args == NULL) return NULL;
-  object_t *op = car(vm, args);
+  object_t op = car(vm, args);
   if (true(error(op))) return op;
   return plus(vm, op, eval_plus(vm, cdr(vm, args)));
 }
 
-object_t *eval_minus(vm_t *vm, object_t *args) {
+object_t eval_minus(vm_t *vm, object_t args) {
   if (args == NULL) return NULL;
-  object_t *op = car(vm, args);
+  object_t op = car(vm, args);
   if (cdr(vm, args) == NULL) {
     op = minus(vm, op, NULL);
   }
@@ -350,14 +350,14 @@ object_t *eval_minus(vm_t *vm, object_t *args) {
   return op;
 }
 
-object_t *eval_multiply(vm_t *vm, object_t *args) {
+object_t eval_multiply(vm_t *vm, object_t args) {
   if (args == NULL) return NULL;
-  object_t *op = car(vm, args);
+  object_t op = car(vm, args);
   if (true(error(op))) return op;
   return multiply(vm, op, eval_multiply(vm, cdr(vm, args)));
 }
 
-void init(vm_t *vm, object_t *env) {
+void init(vm_t *vm, object_t env) {
 
   // special forms
   sym_if = defs("if", F_IF)
@@ -369,6 +369,15 @@ void init(vm_t *vm, object_t *env) {
   sym_cond = defs("cond", F_COND)
   sym_define = defs("define", F_DEFINE)
   sym_eval = defs("eval", F_EVAL)
+
+  eof = make(vm, ENDOFINPUT, 0);
+  eof->guard = 1;
+  ueof = make(vm, UENDOFINPUT, 0);
+  ueof->guard = 1;
+  t = make(vm, TRUE, 0);
+  t->guard = 1;
+  f = make(vm, FALSE, 0);
+  f->guard = 1;
 
   def("+", eval_plus)
   def("-", eval_minus)

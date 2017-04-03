@@ -5,7 +5,7 @@
 #include "env.h"
 #include "vm.h"
 
-void init(vm_t *vm, object_t *env);
+void init(vm_t *vm, object_t env);
 void eval(vm_t *vm);
 
 #endif

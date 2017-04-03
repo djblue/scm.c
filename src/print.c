@@ -3,16 +3,16 @@
 #include "print.h"
 #include "colors.h"
 
-static char *get_str(object_t *o) {
+static char *get_str(object_t o) {
   return &object_data(o, char);
 }
 
-static void print_object(vm_t *vm, FILE *fp, object_t *o);
+static void print_object(vm_t *vm, FILE *fp, object_t o);
 
-static void print_pair(vm_t *vm, FILE *fp, object_t *o) {
+static void print_pair(vm_t *vm, FILE *fp, object_t o) {
   fprintf(fp, "(");
 
-  object_t *temp = o, *next;
+  object_t temp = o, next;
   while (temp != NULL) {
     print_object(vm, fp, car(vm, temp));
     next = cdr(vm, temp);
@@ -31,10 +31,10 @@ static void print_pair(vm_t *vm, FILE *fp, object_t *o) {
   fprintf(fp, ")");
 }
 
-static void print_object(vm_t *vm, FILE *fp, object_t *o) {
+static void print_object(vm_t *vm, FILE *fp, object_t o) {
   if (o == NULL) {
     fprintf(fp, __green("nil"));
-  } else if (o == &eof) {
+  } else if (o == eof) {
     fprintf(fp, __yellow("#<eof>"));
   } else {
     switch (o->type) {
@@ -83,7 +83,7 @@ static void print_object(vm_t *vm, FILE *fp, object_t *o) {
   }
 }
 
-void print(vm_t *vm, object_t *o) {
+void print(vm_t *vm, object_t o) {
   FILE *fp = port_pointer(fetch(vm, STDOUT));
   print_object(vm, fp, o);
   fprintf(fp, "\n");
