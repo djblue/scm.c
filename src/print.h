@@ -4,6 +4,6 @@
 #include "types.h"
 #include "vm.h"
 
-void print(vm_t *vm, object_t *o);
+void print(vm_t *vm, object_t o);
 
 #endif

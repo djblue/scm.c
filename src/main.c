@@ -13,7 +13,7 @@ int main (int argc, char** argv) {
 
   vm_t *vm = make_vm();
 
-  object_t *env = make_frame(vm);
+  object_t env = make_frame(vm);
   init(vm, env);
   define_port(vm, env);
   define_read(vm, env);
@@ -22,8 +22,8 @@ int main (int argc, char** argv) {
   FILE *core = fmemopen(core_scm, core_scm_len, "r");
 
   while (1) {
-    object_t *value = c_read(vm, core);
-    if (value == &eof) break;
+    object_t value = c_read(vm, core);
+    if (value == eof) break;
     assign(vm, EXPR, value);
     eval(vm);
   }
@@ -31,9 +31,9 @@ int main (int argc, char** argv) {
   scm_read_load(".scm_history");
 
   while (1) {
-    object_t *value = scm_read(vm, NULL);
+    object_t value = scm_read(vm, NULL);
     assign(vm, EXPR, value);
-    if (value == &eof) break;
+    if (value == eof) break;
     eval(vm);
 
     if (isatty(STDIN_FILENO)) {

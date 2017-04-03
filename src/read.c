@@ -40,13 +40,13 @@ static char** my_completion(const char *text, int start, int end) {
   return rl_completion_matches(text, character_name_generator);
 }
 
-object_t *c_read(vm_t *vm, FILE *fp) {
+object_t c_read(vm_t *vm, FILE *fp) {
   if (fp == stdin && isatty(STDIN_FILENO)) {
     n = 0;
-    object_t *frames = fetch(vm, ENV);
+    object_t frames = fetch(vm, ENV);
     // TODO: fix issue with coupling to environment representations
     while (frames != NULL) {
-      object_t *vals = car(vm, car(vm, frames));
+      object_t vals = car(vm, car(vm, frames));
       while (vals != NULL) {
         completions[n++] = symbol_str(vm, car(vm, vals));
         vals = cdr(vm, vals);
@@ -70,9 +70,9 @@ retry:
     }
     if (strlen(buffer) > 0) {
       yy_scan_string(buffer, scanner);
-      object_t *expr = NULL;
+      object_t expr = NULL;
       yyparse(vm, scanner, &expr);
-      if (expr == &ueof) {
+      if (expr == ueof) {
         strcat(buffer, "\n  ");
         prompt = "  ";
         goto retry;
@@ -83,7 +83,7 @@ retry:
     }
     if (input == NULL) {
       yylex_destroy(scanner);
-      return &eof;
+      return eof;
     } else {
       goto retry;
     }
@@ -91,15 +91,15 @@ retry:
     yyscan_t scanner;
     yylex_init(&scanner);
     yyset_in(fp, scanner);
-    object_t *expr = NULL;
+    object_t expr = NULL;
     yyparse(vm, scanner, &expr);
     yylex_destroy(scanner);
     return expr;
   }
 }
 
-object_t *scm_read(vm_t *vm, object_t *args) {
-  object_t *port = car(vm, args);
+object_t scm_read(vm_t *vm, object_t args) {
+  object_t port = car(vm, args);
   if (port != NULL && port->type != PORT)
     return make_error(vm, "Provided argument is not port.");
 
@@ -117,6 +117,6 @@ void scm_read_save(const char *file) {
   write_history(file);
 }
 
-void define_read(vm_t *vm, object_t *env) {
+void define_read(vm_t *vm, object_t env) {
   def("read", scm_read)
 }
