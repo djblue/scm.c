@@ -104,8 +104,7 @@ define_continue_2:
 
       case F_BEGIN:
         if (fetch(vm, EXPR) == NULL) RET(NULL)
-begin_enter:
-        if (cdr(vm, fetch(vm, EXPR)) == NULL) goto begin_exit;
+        while (cdr(vm, fetch(vm, EXPR)) != NULL) {
 
         SAVE
         assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
@@ -116,15 +115,13 @@ begin_continue:
 
         assign(vm, EXPR, cdr(vm, fetch(vm, EXPR)));
 
-        goto begin_enter;
-begin_exit:
+        }
         assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
         goto tailcall;
 
       case F_AND:
         if (fetch(vm, EXPR) == NULL) RET(t)
-and_enter:
-        if (cdr(vm, fetch(vm, EXPR)) == NULL) goto and_exit;
+        while (cdr(vm, fetch(vm, EXPR)) != NULL) {
 
         SAVE
         assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
@@ -136,15 +133,13 @@ and_continue:
         if (false(fetch(vm, VAL))) RET(fetch(vm, VAL))
         assign(vm, EXPR, cdr(vm, fetch(vm, EXPR)));
 
-        goto and_enter;
-and_exit:
+        }
         assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
         goto tailcall;
 
       case F_OR:
         if (fetch(vm, EXPR) == NULL) RET(f)
-or_enter:
-        if (cdr(vm, fetch(vm, EXPR)) == NULL) goto or_exit;
+        while (cdr(vm, fetch(vm, EXPR)) != NULL) {
 
         SAVE
         assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
@@ -156,14 +151,12 @@ or_continue:
         if (!false(fetch(vm, VAL))) RET(fetch(vm, VAL))
         assign(vm, EXPR, cdr(vm, fetch(vm, EXPR)));
 
-        goto or_enter;
-or_exit:
+        }
         assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
         goto tailcall;
 
       case F_COND:
-cond_enter:
-        if (fetch(vm, EXPR) == NULL) goto cond_exit;
+        while (fetch(vm, EXPR) != NULL) {
 
         if (true(object_eq(vm, car(vm, car(vm, fetch(vm, EXPR))), make_symbol(vm, "else")))) {
           assign(vm, EXPR, car(vm, cdr(vm, car(vm, fetch(vm, EXPR)))));
@@ -184,8 +177,7 @@ cond_continue:
 
         assign(vm, EXPR, cdr(vm, fetch(vm, EXPR)));
 
-        goto cond_enter;
-cond_exit:
+        }
         goto tailcall;
 
       case F_EVAL:
@@ -241,8 +233,7 @@ eval_procedure:
 eval_sequence:
   assign(vm, ARGL, NULL);
 
-eval_sequence_enter:
-  if (fetch(vm, EXPR) == NULL) goto eval_sequence_exit;
+  while (fetch(vm, EXPR) != NULL) {
     SAVE
     assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
     assign(vm, CONTINUE, &&eval_sequence_continue);
@@ -251,8 +242,7 @@ eval_sequence_continue:
     RESTORE
     assign(vm, ARGL, cons(vm, fetch(vm, VAL), fetch(vm, ARGL)));
     assign(vm, EXPR, cdr(vm, fetch(vm, EXPR)));
-  goto eval_sequence_enter;
-eval_sequence_exit:
+  }
 
   RET(reverse(vm, fetch(vm, ARGL), NULL))
 }
