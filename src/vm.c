@@ -1,3 +1,5 @@
+#include "stdio.h"
+
 #include "vm.h"
 #include "object.h"
 #include "types.h"
@@ -20,7 +22,8 @@ struct vm_t {
   object_t argl;
   object_t val;
   object_t cont;
-  object_t stack;
+  object_t stack[8192];
+  size_t sp;
   object_t stdin;    // default input port
   object_t stdout;   // default output port
 };
@@ -53,14 +56,16 @@ void assign(vm_t *vm, reg_t reg, object_t value) {
 }
 
 void push(vm_t *vm, object_t value) {
-  vm->stack = cons(vm, value, vm->stack);
+  if (vm->sp == 8192) {
+    fprintf(stderr, "stack overflow.");
+    exit(1);
+  }
+  vm->stack[vm->sp++] = value;
 }
 
 object_t pop(vm_t *vm) {
-  object_t tmp = vm->stack;
-  if (tmp == NULL) return NULL;
-  vm->stack = cdr(vm, tmp);
-  return car(vm, tmp);
+  if (vm->sp == 0) return NULL;
+  return vm->stack[--vm->sp];
 }
 
 static alloc_t *make_alloc(size_t n) {
@@ -75,7 +80,7 @@ vm_t *make_vm() {
   vm->allocs = 0;
   vm->threshold = 128;
   vm->env = NULL;
-  vm->stack = NULL;
+  vm->sp = 0;
   vm->fun = NULL;
   vm->argl = NULL;
   vm->val = NULL;
@@ -130,7 +135,9 @@ void vm_gc(vm_t *vm) {
   if (vm != NULL && vm->allocs > vm->threshold) {
     mark(vm, vm->expr);
     mark(vm, vm->env);
-    mark(vm, vm->stack);
+    for (size_t i = 0; i < vm->sp; i++) {
+      mark(vm, vm->stack[i]);
+    }
     mark(vm, vm->fun);
     mark(vm, vm->argl);
     mark(vm, vm->val);
