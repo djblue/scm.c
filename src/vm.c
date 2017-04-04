@@ -63,11 +63,6 @@ object_t pop(vm_t *vm) {
   return car(vm, tmp);
 }
 
-object_t popn(vm_t *vm, size_t count) {
-  if (count == 0) return NULL;
-  return cons(vm, pop(vm), popn(vm, count - 1));
-}
-
 static alloc_t *make_alloc(size_t n) {
   alloc_t *alloc = (alloc_t*) malloc(sizeof(alloc_t) + n);
   alloc->next = NULL;
