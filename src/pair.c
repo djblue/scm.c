@@ -19,8 +19,8 @@ object_t cons(vm_t *vm, object_t car, object_t cdr) {
 
 object_t car(vm_t *vm, object_t pair) {
   if (pair == NULL) return NULL;
-  if (pair->type == ERROR) return pair;
-  if (pair->type != PAIR) {
+  if (scm_type(pair) == ERROR) return pair;
+  if (scm_type(pair) != PAIR) {
     return make_error(vm, "object not pair");
   }
   return object_data(pair, pair_t).car;
@@ -28,8 +28,8 @@ object_t car(vm_t *vm, object_t pair) {
 
 object_t cdr(vm_t *vm, object_t pair) {
   if (pair == NULL) return NULL;
-  if (pair->type == ERROR) return pair;
-  if (pair->type != PAIR) {
+  if (scm_type(pair) == ERROR) return pair;
+  if (scm_type(pair) != PAIR) {
     return make_error(vm, "object not pair");
   }
   return object_data(pair, pair_t).cdr;
@@ -37,8 +37,8 @@ object_t cdr(vm_t *vm, object_t pair) {
 
 object_t set_car(vm_t *vm, object_t pair, object_t car) {
   if (pair == NULL) return NULL;
-  if (pair->type == ERROR) return pair;
-  if (pair->type != PAIR) {
+  if (scm_type(pair) == ERROR) return pair;
+  if (scm_type(pair) != PAIR) {
     return make_error(vm, "object not pair");
   }
   object_data(pair, pair_t).car = car;
@@ -47,8 +47,8 @@ object_t set_car(vm_t *vm, object_t pair, object_t car) {
 
 object_t set_cdr(vm_t *vm, object_t pair, object_t cdr) {
   if (pair == NULL) return NULL;
-  if (pair->type == ERROR) return pair;
-  if (pair->type != PAIR) {
+  if (scm_type(pair) == ERROR) return pair;
+  if (scm_type(pair) != PAIR) {
     return make_error(vm, "object not pair");
   }
   object_data(pair, pair_t).cdr = cdr;

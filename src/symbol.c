@@ -11,8 +11,8 @@ object_t make_symbol(vm_t *vm, char *str) {
 
 object_t symbol_eq(vm_t *vm, object_t a, object_t b) {
   if (a == NULL || b == NULL) return f;
-  if (a->type != b->type) return f;
-  if (a->type != SYMBOL && a->type != STRING && a->type != ERROR) return f;
+  if (scm_type(a) != scm_type(b)) return f;
+  if (scm_type(a) != SYMBOL && scm_type(a) != STRING && scm_type(a) != ERROR) return f;
   if (strcmp(&object_data(a,char), &object_data(b,char)) != 0) return f;
   return t;
 }

@@ -95,7 +95,7 @@ static void mark(vm_t *vm, object_t o) {
 
   o->marked = 1;
 
-  switch (o->type) {
+  switch (scm_type(o)) {
     case PAIR:
       mark(vm, car(vm, o));
       mark(vm, cdr(vm, o));
