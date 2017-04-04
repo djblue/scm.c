@@ -1,4 +1,5 @@
 #include "vm.h"
+#include "object.h"
 #include "types.h"
 
 typedef struct alloc_t alloc_t;
@@ -91,9 +92,9 @@ vm_t *make_vm() {
 }
 
 static void mark(vm_t *vm, object_t o) {
-  if (o == NULL || o->marked) return;
+  if (o == NULL || scm_is_marked(o)) return;
 
-  o->marked = 1;
+  scm_mark(o);
 
   switch (scm_type(o)) {
     case PAIR:
@@ -105,6 +106,8 @@ static void mark(vm_t *vm, object_t o) {
       mark(vm, object_data(o, proc_t).env);
       mark(vm, object_data(o, proc_t).params);
       break;
+    default:
+      break;
   }
 }
 
@@ -112,14 +115,14 @@ static void sweep(vm_t *vm, alloc_t **root) {
   alloc_t **prev = root, *alloc = *root;
   while (alloc != NULL) {
     object_t o = alloc_data(alloc);
-    if ((o == NULL || o->marked == 0) && !o->guard) {
+    if ((o == NULL || !scm_is_marked(o)) && !scm_has_guard(o)) {
       *prev = alloc->next;
       alloc_t *tmp = alloc;
       alloc = alloc->next;
       free(tmp);
       vm->allocs--;
     } else {
-      o->marked = 0;
+      scm_unmark(o);
       if (alloc->next != NULL) {
         prev = &alloc->next;
       }

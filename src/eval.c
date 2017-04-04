@@ -370,14 +370,10 @@ void init(vm_t *vm, object_t env) {
   sym_define = defs("define", F_DEFINE)
   sym_eval = defs("eval", F_EVAL)
 
-  eof = make(vm, ENDOFINPUT, 0);
-  eof->guard = 1;
-  ueof = make(vm, UENDOFINPUT, 0);
-  ueof->guard = 1;
-  t = make(vm, TRUE, 0);
-  t->guard = 1;
-  f = make(vm, FALSE, 0);
-  f->guard = 1;
+  eof = scm_guard(make(vm, ENDOFINPUT, 0));
+  ueof = scm_guard(make(vm, UENDOFINPUT, 0));
+  t = scm_guard(make(vm, TRUE, 0));
+  f = scm_guard(make(vm, FALSE, 0));
 
   def("+", eval_plus)
   def("-", eval_minus)

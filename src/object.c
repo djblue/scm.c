@@ -3,6 +3,13 @@
 #include "vm.h"
 #include "types.h"
 
+struct _object_t {
+  unsigned char type;
+  unsigned char trace;
+  unsigned char marked;
+  unsigned char guard;
+};
+
 object_t make(vm_t *vm, type_t type, size_t n) {
   object_t o = (object_t) vm_alloc(vm, sizeof(object_t) + n);
   if (o == 0) {
@@ -18,6 +25,27 @@ object_t make(vm_t *vm, type_t type, size_t n) {
 
 type_t scm_type(object_t o) {
   return o->type;
+}
+
+void scm_mark(object_t o) {
+  o->marked = 1;
+}
+
+void scm_unmark(object_t o) {
+  o->marked = 0;
+}
+
+object_t scm_guard(object_t o) {
+  o->guard = 1;
+  return o;
+}
+
+int scm_has_guard(object_t o) {
+  return o->guard;
+}
+
+int scm_is_marked(object_t o) {
+  return o->marked;
 }
 
 object_t object_eq(vm_t *vm, object_t a, object_t b) {
