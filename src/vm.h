@@ -25,7 +25,6 @@ object_t fetch(vm_t *vm, reg_t reg);
 void assign(vm_t *vm, reg_t reg, object_t value);
 void push(vm_t *vm, object_t value);
 object_t pop(vm_t *vm);
-object_t popn(vm_t *vm, size_t count);
 
 object_t vm_alloc(vm_t *vm, size_t s);
 
