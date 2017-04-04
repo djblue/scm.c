@@ -100,7 +100,7 @@ define_continue_2:
         RET(make_procedure(vm,
             fetch(vm, ENV),
             car(vm, fetch(vm, EXPR)),
-            cdr(vm, fetch(vm, EXPR))))
+            cons(vm, sym_begin, cdr(vm, fetch(vm, EXPR)))))
 
       case F_BEGIN:
         if (fetch(vm, EXPR) == NULL) RET(NULL)
@@ -217,7 +217,7 @@ eval_procedure:
 
     object_t vals = fetch(vm, VAL);
 
-    object_t body = cons(vm, sym_begin, object_data(fetch(vm, FUN), proc_t).body);
+    object_t body = object_data(fetch(vm, FUN), proc_t).body;
     object_t parent = object_data(fetch(vm, FUN), proc_t).env; // captured environment
     object_t params = object_data(fetch(vm, FUN), proc_t).params;
 
