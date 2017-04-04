@@ -16,7 +16,7 @@ static void print_pair(vm_t *vm, FILE *fp, object_t o) {
   while (temp != NULL) {
     print_object(vm, fp, car(vm, temp));
     next = cdr(vm, temp);
-    if (next == NULL || next->type != PAIR) break;
+    if (next == NULL || scm_type(next) != PAIR) break;
     fprintf(fp, " ");
     temp = next;
   }
@@ -37,7 +37,7 @@ static void print_object(vm_t *vm, FILE *fp, object_t o) {
   } else if (o == eof) {
     fprintf(fp, __yellow("#<eof>"));
   } else {
-    switch (o->type) {
+    switch (scm_type(o)) {
       case FIXNUM:
         fprintf(fp, __green("%d"), object_data(o, int));
         break;

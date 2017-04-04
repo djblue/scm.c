@@ -24,7 +24,7 @@
 #define RET(value)do{\
   assign(vm, VAL, (value)); \
   if (fetch(vm, CONTINUE) != NULL) { \
-    if (fetch(vm, CONTINUE)->type != LABEL) { \
+    if (scm_type(fetch(vm, CONTINUE)) != LABEL) { \
       assign(vm, VAL, make_error(vm, "invalid state")); \
       return; \
     } \
@@ -50,8 +50,8 @@ tailcall:
   vm_gc(vm);
 
   if (fetch(vm, EXPR) == NULL) RET(NULL)
-  if (fetch(vm, EXPR)->type == SYMBOL) RET(lookup(vm, fetch(vm, ENV), fetch(vm, EXPR)))
-  if (fetch(vm, EXPR)->type != PAIR) RET(fetch(vm, EXPR))
+  if (scm_type(fetch(vm, EXPR)) == SYMBOL) RET(lookup(vm, fetch(vm, ENV), fetch(vm, EXPR)))
+  if (scm_type(fetch(vm, EXPR)) != PAIR) RET(fetch(vm, EXPR))
 
   SAVE
   assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
@@ -65,7 +65,7 @@ procedure_continue:
 
   assign(vm, EXPR, cdr(vm, fetch(vm, EXPR)));
 
-  if (fetch(vm, FUN)->type == SPECIAL) {
+  if (scm_type(fetch(vm, FUN)) == SPECIAL) {
     switch (object_data(fetch(vm, FUN), special_t)) {
       case F_IF:
         SAVE
@@ -210,14 +210,14 @@ eval_continue:
 
       default: RET(make_error(vm, "oh no!!!"))
     }
-  } else if (fetch(vm, FUN)->type == PRIMITIVE) {
+  } else if (scm_type(fetch(vm, FUN)) == PRIMITIVE) {
     SAVE
     assign(vm, CONTINUE, make_label(vm, &&eval_primitive));
     goto eval_sequence;
 eval_primitive:
     RESTORE
     RET((object_data(fetch(vm, FUN), primitive))(vm, fetch(vm, VAL)))
-  } else if (fetch(vm, FUN)->type == PROCEDURE) {
+  } else if (scm_type(fetch(vm, FUN)) == PROCEDURE) {
 
     SAVE
     assign(vm, CONTINUE, make_label(vm, &&eval_procedure));
@@ -242,7 +242,7 @@ eval_procedure:
     assign(vm, EXPR, body);
 
     goto tailcall;
-  } else if (fetch(vm, FUN)->type == ERROR) {
+  } else if (scm_type(fetch(vm, FUN)) == ERROR) {
     RET(fetch(vm, FUN))
   } else {
     RET(make_error(vm, "not a procedure"))

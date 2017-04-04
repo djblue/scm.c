@@ -30,7 +30,7 @@ int fixnum_int(object_t o) {
 }
 
 object_t number(object_t o) {
-  if (o == NULL || (o->type != FIXNUM && o->type != FLONUM)) {
+  if (o == NULL || (scm_type(o) != FIXNUM && scm_type(o) != FLONUM)) {
     return f;
   }
   return t;
@@ -43,9 +43,9 @@ object_t plus(vm_t *vm, object_t a, object_t b) {
   if (!true(number(a)) || !true(number(b)))
     return make_error(vm, "can't perform arithmetic on non numeric values");
 
-  if (a->type == FLONUM || b->type == FLONUM) {
-    if (a->type != FLONUM) return make_flonum_float(vm, object_data(a, int) + object_data(b, float));
-    if (b->type != FLONUM) return make_flonum_float(vm, object_data(a, float) + object_data(b, int));
+  if (scm_type(a) == FLONUM || scm_type(b) == FLONUM) {
+    if (scm_type(a) != FLONUM) return make_flonum_float(vm, object_data(a, int) + object_data(b, float));
+    if (scm_type(b) != FLONUM) return make_flonum_float(vm, object_data(a, float) + object_data(b, int));
     return make_flonum_float(vm, object_data(a, float) + object_data(b, float));
   }
 
@@ -58,9 +58,9 @@ object_t minus(vm_t *vm, object_t a, object_t b) {
   if (!true(number(a)) || !true(number(b)))
     return make_error(vm, "can't perform arithmetic on non numeric values");
 
-  if (a->type == FLONUM || b->type == FLONUM) {
-    if (a->type != FLONUM) return make_flonum_float(vm, object_data(a, int) - object_data(b, float));
-    if (b->type != FLONUM) return make_flonum_float(vm, object_data(a, float) - object_data(b, int));
+  if (scm_type(a) == FLONUM || scm_type(b) == FLONUM) {
+    if (scm_type(a) != FLONUM) return make_flonum_float(vm, object_data(a, int) - object_data(b, float));
+    if (scm_type(b) != FLONUM) return make_flonum_float(vm, object_data(a, float) - object_data(b, int));
     return make_flonum_float(vm, object_data(a, float) - object_data(b, float));
   }
 
@@ -74,9 +74,9 @@ object_t multiply(vm_t *vm, object_t a, object_t b) {
   if (!true(number(a)) || !true(number(b)))
     return make_error(vm, "can't perform arithmetic on non numeric values");
 
-  if (a->type == FLONUM || b->type == FLONUM) {
-    if (a->type != FLONUM) return make_flonum_float(vm, object_data(a, int) * object_data(b, float));
-    if (b->type != FLONUM) return make_flonum_float(vm, object_data(a, float) * object_data(b, int));
+  if (scm_type(a) == FLONUM || scm_type(b) == FLONUM) {
+    if (scm_type(a) != FLONUM) return make_flonum_float(vm, object_data(a, int) * object_data(b, float));
+    if (scm_type(b) != FLONUM) return make_flonum_float(vm, object_data(a, float) * object_data(b, int));
     return make_flonum_float(vm, object_data(a, float) * object_data(b, float));
   }
 
@@ -88,7 +88,7 @@ predicate(flonum, FLONUM)
 
 object_t number_eq(vm_t *vm, object_t a, object_t b) {
   if (a == NULL || b == NULL) return f;
-  if (a->type != FIXNUM || b->type != FIXNUM) return f;
+  if (scm_type(a) != FIXNUM || scm_type(b) != FIXNUM) return f;
   return (object_data(a, int) == object_data(b, int)) ? t : f;
 }
 

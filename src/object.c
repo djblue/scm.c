@@ -16,12 +16,16 @@ object_t make(vm_t *vm, type_t type, size_t n) {
   return o;
 }
 
+type_t scm_type(object_t o) {
+  return o->type;
+}
+
 object_t object_eq(vm_t *vm, object_t a, object_t b) {
   if (a == b) return t;
   if (a == NULL || b == NULL) return f;
-  if (a->type != b->type) return f;
+  if (scm_type(a) != scm_type(b)) return f;
 
-  switch(a->type) {
+  switch(scm_type(a)) {
     case FIXNUM:
       return number_eq(vm, a, b);
     case CHARACTER:
@@ -30,8 +34,8 @@ object_t object_eq(vm_t *vm, object_t a, object_t b) {
       return symbol_eq(vm, a, b);
     case PAIR:
       return pair_eq(vm, a, b);
+    default:
+      return f;
   }
-
-  return f;
 }
 
