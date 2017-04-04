@@ -24,21 +24,11 @@
 #define RET(value)do{\
   assign(vm, VAL, (value)); \
   if (fetch(vm, CONTINUE) != NULL) { \
-    if (scm_type(fetch(vm, CONTINUE)) != LABEL) { \
-      assign(vm, VAL, make_error(vm, "invalid state")); \
-      return; \
-    } \
-    void *label = object_data(fetch(vm, CONTINUE), void*); \
+    void *label = (void*) fetch(vm, CONTINUE); \
     goto *label; \
   } \
   return; \
 } while(0);
-
-object_t make_label(vm_t *vm, void *label) {
-  object_t obj = make(vm, LABEL, sizeof(void*));
-  object_data(obj, void*) = label;
-  return obj;
-}
 
 object_t reverse(vm_t *vm, object_t args, object_t acc) {
   if (args == NULL) return acc;
@@ -55,7 +45,7 @@ tailcall:
 
   SAVE
   assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
-  assign(vm, CONTINUE, make_label(vm, &&procedure_continue));
+  assign(vm, CONTINUE, &&procedure_continue);
   goto tailcall;
 procedure_continue:
   RESTORE
@@ -70,7 +60,7 @@ procedure_continue:
       case F_IF:
         SAVE
         assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
-        assign(vm, CONTINUE, make_label(vm, &&if_continue));
+        assign(vm, CONTINUE, &&if_continue);
         goto tailcall;
 if_continue:
         RESTORE
@@ -87,7 +77,7 @@ if_continue:
         if (true(pair(car(vm, fetch(vm, EXPR))))) {
           SAVE
           assign(vm, EXPR, cons(vm, sym_lambda, cons(vm, cdr(vm, car(vm, fetch(vm, EXPR))), cdr(vm, fetch(vm, EXPR)))));
-          assign(vm, CONTINUE, make_label(vm, &&define_continue_1));
+          assign(vm, CONTINUE, &&define_continue_1);
           goto tailcall;
 define_continue_1:
           RESTORE
@@ -96,7 +86,7 @@ define_continue_1:
         } else {
           SAVE
           assign(vm, EXPR, car(vm, cdr(vm, fetch(vm, EXPR))));
-          assign(vm, CONTINUE, make_label(vm, &&define_continue_2));
+          assign(vm, CONTINUE, &&define_continue_2);
           goto tailcall;
 define_continue_2:
           RESTORE
@@ -119,7 +109,7 @@ begin_enter:
 
         SAVE
         assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
-        assign(vm, CONTINUE, make_label(vm, &&begin_continue));
+        assign(vm, CONTINUE, &&begin_continue);
         goto tailcall;
 begin_continue:
         RESTORE
@@ -138,7 +128,7 @@ and_enter:
 
         SAVE
         assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
-        assign(vm, CONTINUE, make_label(vm, &&and_continue));
+        assign(vm, CONTINUE, &&and_continue);
         goto tailcall;
 and_continue:
         RESTORE
@@ -158,7 +148,7 @@ or_enter:
 
         SAVE
         assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
-        assign(vm, CONTINUE, make_label(vm, &&or_continue));
+        assign(vm, CONTINUE, &&or_continue);
         goto tailcall;
 or_continue:
         RESTORE
@@ -182,7 +172,7 @@ cond_enter:
 
         SAVE
         assign(vm, EXPR, car(vm, car(vm, fetch(vm, EXPR))));
-        assign(vm, CONTINUE, make_label(vm, &&cond_continue));
+        assign(vm, CONTINUE, &&cond_continue);
         goto tailcall;
 cond_continue:
         RESTORE
@@ -201,7 +191,7 @@ cond_exit:
       case F_EVAL:
         SAVE
         assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
-        assign(vm, CONTINUE, make_label(vm, &&eval_continue));
+        assign(vm, CONTINUE, &&eval_continue);
         goto tailcall;
 eval_continue:
         RESTORE
@@ -212,7 +202,7 @@ eval_continue:
     }
   } else if (scm_type(fetch(vm, FUN)) == PRIMITIVE) {
     SAVE
-    assign(vm, CONTINUE, make_label(vm, &&eval_primitive));
+    assign(vm, CONTINUE, &&eval_primitive);
     goto eval_sequence;
 eval_primitive:
     RESTORE
@@ -220,7 +210,7 @@ eval_primitive:
   } else if (scm_type(fetch(vm, FUN)) == PROCEDURE) {
 
     SAVE
-    assign(vm, CONTINUE, make_label(vm, &&eval_procedure));
+    assign(vm, CONTINUE, &&eval_procedure);
     goto eval_sequence;
 eval_procedure:
     RESTORE
@@ -255,7 +245,7 @@ eval_sequence_enter:
   if (fetch(vm, EXPR) == NULL) goto eval_sequence_exit;
     SAVE
     assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
-    assign(vm, CONTINUE, make_label(vm, &&eval_sequence_continue));
+    assign(vm, CONTINUE, &&eval_sequence_continue);
     goto tailcall;
 eval_sequence_continue:
     RESTORE
