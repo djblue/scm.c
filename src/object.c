@@ -2,6 +2,7 @@
 
 #include "vm.h"
 #include "types.h"
+#include "number.h"
 
 struct _object_t {
   unsigned char type;
@@ -24,27 +25,33 @@ object_t make(vm_t *vm, type_t type, size_t n) {
 }
 
 type_t scm_type(object_t o) {
+  if (scm_is_fixnum(o)) return FIXNUM;
   return o->type;
 }
 
 void scm_mark(object_t o) {
+  if (scm_is_fixnum(o)) return;
   o->marked = 1;
 }
 
 void scm_unmark(object_t o) {
+  if (scm_is_fixnum(o)) return;
   o->marked = 0;
 }
 
 object_t scm_guard(object_t o) {
+  if (scm_is_fixnum(o)) return o;
   o->guard = 1;
   return o;
 }
 
 int scm_has_guard(object_t o) {
+  if (scm_is_fixnum(o)) return 1;
   return o->guard;
 }
 
 int scm_is_marked(object_t o) {
+  if (scm_is_fixnum(o)) return 1;
   return o->marked;
 }
 

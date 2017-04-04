@@ -5,11 +5,12 @@
 #include "vm.h"
 
 object_t make_fixnum(vm_t *vm, char *str);
-object_t make_fixnum_int(vm_t *vm, int fix);
+object_t make_fixnum_int(vm_t *vm, long fix);
 object_t make_flonum(vm_t *vm, char *str);
 object_t make_flonum_float(vm_t *vm, float flo);
 
-int fixnum_int(object_t o);
+long scm_fixnum(object_t o);
+int scm_is_fixnum(object_t o);
 
 object_t fixnum(object_t o);
 object_t flonum(object_t o);
