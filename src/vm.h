@@ -5,13 +5,6 @@
 
 typedef struct vm_t vm_t;
 
-struct _object_t {
-  unsigned char type;
-  unsigned char trace;
-  unsigned char marked;
-  unsigned char guard;
-};
-
 typedef struct _object_t* object_t;
 
 typedef enum {
