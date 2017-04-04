@@ -1,6 +1,6 @@
 BIN=scm
 CC=gcc
-CFLAGS=-std=gnu99 -g -O2 -Wall -pedantic
+CFLAGS=-flto -std=gnu99 -g -O3 -Wall -pedantic
 LDFLAGS=-lreadline
 
 # find all source files
@@ -16,7 +16,7 @@ makefile.dep: $(SOURCES)
 
 # build interpreter
 $(BIN): $(OBJS)
-	$(CC) $(OBJS) -o $(BIN) $(LDFLAGS)
+	$(CC) $(CFLAGS) $(OBJS) -o $(BIN) $(LDFLAGS)
 
 %.xxd: %.scm
 	xxd -i $< > $@
