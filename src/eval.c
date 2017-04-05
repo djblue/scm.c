@@ -6,20 +6,8 @@
 #include "eval.h"
 #include "print.h"
 
-#define SAVE \
-  push(vm, fetch(vm, EXPR)); \
-  push(vm, fetch(vm, ENV)); \
-  push(vm, fetch(vm, FUN)); \
-  push(vm, fetch(vm, CONTINUE)); \
-  push(vm, fetch(vm, ARGL));
-
-#define RESTORE \
-  assign(vm, ARGL, pop(vm)); \
-  assign(vm, CONTINUE, pop(vm)); \
-  assign(vm, FUN, pop(vm)); \
-  assign(vm, ENV, pop(vm)); \
-  assign(vm, EXPR, pop(vm));
-
+#define SAVE save(vm);
+#define RESTORE restore(vm);
 
 #define RET(value)do{\
   assign(vm, VAL, (value)); \

@@ -21,10 +21,11 @@ typedef enum {
 vm_t *make_vm();
 void free_vm(vm_t *vm);
 
+void save(vm_t *vm);
+void restore(vm_t *vm);
+
 object_t fetch(vm_t *vm, reg_t reg);
 void assign(vm_t *vm, reg_t reg, object_t value);
-void push(vm_t *vm, object_t value);
-object_t pop(vm_t *vm);
 
 object_t vm_alloc(vm_t *vm, size_t s);
 
