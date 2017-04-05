@@ -55,17 +55,34 @@ void assign(vm_t *vm, reg_t reg, object_t value) {
   }
 }
 
-void push(vm_t *vm, object_t value) {
-  if (vm->sp == 8192) {
+void save(vm_t *vm) {
+  if (vm->sp + 5 > 8192) {
     fprintf(stderr, "stack overflow.");
     exit(1);
   }
-  vm->stack[vm->sp++] = value;
+
+  object_t *bp = vm->stack + vm->sp;
+
+  bp[0] = fetch(vm, EXPR);
+  bp[1] = fetch(vm, ENV);
+  bp[2] = fetch(vm, FUN);
+  bp[3] = fetch(vm, CONTINUE);
+  bp[4] = fetch(vm, ARGL);
+
+  vm->sp += 5;
 }
 
-object_t pop(vm_t *vm) {
-  if (vm->sp == 0) return NULL;
-  return vm->stack[--vm->sp];
+void restore(vm_t *vm) {
+  if (vm->sp == 0) return;
+
+  vm->sp -= 5;
+  object_t *bp = vm->stack + vm->sp;
+
+  assign(vm, ARGL, bp[4]);
+  assign(vm, CONTINUE, bp[3]);
+  assign(vm, FUN, bp[2]);
+  assign(vm, ENV, bp[1]);
+  assign(vm, EXPR, bp[0]);
 }
 
 static alloc_t *make_alloc(size_t n) {
