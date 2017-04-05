@@ -18,6 +18,15 @@
   return; \
 } while(0);
 
+#define recur(value,label)do{\
+  SAVE \
+  assign(vm, EXPR, value); \
+  assign(vm, CONTINUE, &&label); \
+  goto tailcall; \
+label: \
+  RESTORE \
+} while(0);
+
 object_t reverse(vm_t *vm, object_t args, object_t acc) {
   if (args == NULL) return acc;
   return reverse(vm, cdr(vm, args), cons(vm, car(vm, args), acc));
@@ -31,12 +40,7 @@ tailcall:
   if (scm_type(fetch(vm, EXPR)) == SYMBOL) RET(lookup(vm, fetch(vm, ENV), fetch(vm, EXPR)))
   if (scm_type(fetch(vm, EXPR)) != PAIR) RET(fetch(vm, EXPR))
 
-  SAVE
-  assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
-  assign(vm, CONTINUE, &&procedure_continue);
-  goto tailcall;
-procedure_continue:
-  RESTORE
+  recur(car(vm, fetch(vm, EXPR)), procedure_continue)
   assign(vm, FUN, fetch(vm, VAL));
 
   if (fetch(vm, FUN) == NULL) RET(make_error(vm, "nil is not operator"))
@@ -46,12 +50,7 @@ procedure_continue:
   if (scm_type(fetch(vm, FUN)) == SPECIAL) {
     switch (object_data(fetch(vm, FUN), special_t)) {
       case F_IF:
-        SAVE
-        assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
-        assign(vm, CONTINUE, &&if_continue);
-        goto tailcall;
-if_continue:
-        RESTORE
+        recur(car(vm, fetch(vm, EXPR)), if_continue)
         if (true(error(fetch(vm, VAL)))) RET(fetch(vm, VAL))
         assign(vm, EXPR, !false(fetch(vm, VAL))
             ? car(vm, cdr(vm, fetch(vm, EXPR)))
@@ -63,22 +62,10 @@ if_continue:
 
       case F_DEFINE:
         if (true(pair(car(vm, fetch(vm, EXPR))))) {
-          SAVE
-          assign(vm, EXPR, cons(vm, sym_lambda, cons(vm, cdr(vm, car(vm, fetch(vm, EXPR))), cdr(vm, fetch(vm, EXPR)))));
-          assign(vm, CONTINUE, &&define_continue_1);
-          goto tailcall;
-define_continue_1:
-          RESTORE
-
+          recur(cons(vm, sym_lambda, cons(vm, cdr(vm, car(vm, fetch(vm, EXPR))), cdr(vm, fetch(vm, EXPR)))), define_continue_1)
           define(vm, fetch(vm, ENV), car(vm, car(vm, fetch(vm, EXPR))), fetch(vm, VAL));
         } else {
-          SAVE
-          assign(vm, EXPR, car(vm, cdr(vm, fetch(vm, EXPR))));
-          assign(vm, CONTINUE, &&define_continue_2);
-          goto tailcall;
-define_continue_2:
-          RESTORE
-
+          recur(car(vm, cdr(vm, fetch(vm, EXPR))), define_continue_2)
           define(vm, fetch(vm, ENV), car(vm, fetch(vm, EXPR)), fetch(vm, VAL));
         }
 
@@ -93,16 +80,8 @@ define_continue_2:
       case F_BEGIN:
         if (fetch(vm, EXPR) == NULL) RET(NULL)
         while (cdr(vm, fetch(vm, EXPR)) != NULL) {
-
-        SAVE
-        assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
-        assign(vm, CONTINUE, &&begin_continue);
-        goto tailcall;
-begin_continue:
-        RESTORE
-
-        assign(vm, EXPR, cdr(vm, fetch(vm, EXPR)));
-
+          recur(car(vm, fetch(vm, EXPR)), begin_continue)
+          assign(vm, EXPR, cdr(vm, fetch(vm, EXPR)));
         }
         assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
         goto tailcall;
@@ -110,17 +89,9 @@ begin_continue:
       case F_AND:
         if (fetch(vm, EXPR) == NULL) RET(t)
         while (cdr(vm, fetch(vm, EXPR)) != NULL) {
-
-        SAVE
-        assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
-        assign(vm, CONTINUE, &&and_continue);
-        goto tailcall;
-and_continue:
-        RESTORE
-
-        if (false(fetch(vm, VAL))) RET(fetch(vm, VAL))
-        assign(vm, EXPR, cdr(vm, fetch(vm, EXPR)));
-
+          recur(car(vm, fetch(vm, EXPR)), and_continue)
+          if (false(fetch(vm, VAL))) RET(fetch(vm, VAL))
+          assign(vm, EXPR, cdr(vm, fetch(vm, EXPR)));
         }
         assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
         goto tailcall;
@@ -128,53 +99,31 @@ and_continue:
       case F_OR:
         if (fetch(vm, EXPR) == NULL) RET(f)
         while (cdr(vm, fetch(vm, EXPR)) != NULL) {
-
-        SAVE
-        assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
-        assign(vm, CONTINUE, &&or_continue);
-        goto tailcall;
-or_continue:
-        RESTORE
-
-        if (!false(fetch(vm, VAL))) RET(fetch(vm, VAL))
-        assign(vm, EXPR, cdr(vm, fetch(vm, EXPR)));
-
+          recur(car(vm, fetch(vm, EXPR)), or_continue)
+          if (!false(fetch(vm, VAL))) RET(fetch(vm, VAL))
+          assign(vm, EXPR, cdr(vm, fetch(vm, EXPR)));
         }
         assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
         goto tailcall;
 
       case F_COND:
         while (fetch(vm, EXPR) != NULL) {
+          if (true(object_eq(vm, car(vm, car(vm, fetch(vm, EXPR))), make_symbol(vm, "else")))) {
+            assign(vm, EXPR, car(vm, cdr(vm, car(vm, fetch(vm, EXPR)))));
+            goto tailcall;
+          }
+          recur(car(vm, car(vm, fetch(vm, EXPR))), cond_continue)
+          if (true(fetch(vm, VAL))) {
+            assign(vm, EXPR, car(vm, cdr(vm, car(vm, fetch(vm, EXPR)))));
+            goto tailcall;
+          }
 
-        if (true(object_eq(vm, car(vm, car(vm, fetch(vm, EXPR))), make_symbol(vm, "else")))) {
-          assign(vm, EXPR, car(vm, cdr(vm, car(vm, fetch(vm, EXPR)))));
-          goto tailcall;
-        }
-
-        SAVE
-        assign(vm, EXPR, car(vm, car(vm, fetch(vm, EXPR))));
-        assign(vm, CONTINUE, &&cond_continue);
-        goto tailcall;
-cond_continue:
-        RESTORE
-
-        if (true(fetch(vm, VAL))) {
-          assign(vm, EXPR, car(vm, cdr(vm, car(vm, fetch(vm, EXPR)))));
-          goto tailcall;
-        }
-
-        assign(vm, EXPR, cdr(vm, fetch(vm, EXPR)));
-
+          assign(vm, EXPR, cdr(vm, fetch(vm, EXPR)));
         }
         goto tailcall;
 
       case F_EVAL:
-        SAVE
-        assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
-        assign(vm, CONTINUE, &&eval_continue);
-        goto tailcall;
-eval_continue:
-        RESTORE
+        recur(car(vm, fetch(vm, EXPR)), eval_continue)
         assign(vm, EXPR, fetch(vm, VAL));
         goto tailcall;
 
@@ -222,12 +171,7 @@ eval_sequence:
   assign(vm, ARGL, NULL);
 
   while (fetch(vm, EXPR) != NULL) {
-    SAVE
-    assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
-    assign(vm, CONTINUE, &&eval_sequence_continue);
-    goto tailcall;
-eval_sequence_continue:
-    RESTORE
+    recur(car(vm, fetch(vm, EXPR)), eval_sequence_continue)
     assign(vm, ARGL, cons(vm, fetch(vm, VAL), fetch(vm, ARGL)));
     assign(vm, EXPR, cdr(vm, fetch(vm, EXPR)));
   }
