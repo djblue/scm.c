@@ -78,7 +78,7 @@ vm_t *make_vm() {
   vm_t *vm = malloc(sizeof(vm_t));
   vm->root_alloc = NULL;
   vm->allocs = 0;
-  vm->threshold = 128;
+  vm->threshold = 4096;
   vm->env = NULL;
   vm->sp = 0;
   vm->fun = NULL;
