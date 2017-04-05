@@ -19,19 +19,11 @@ object_t cons(vm_t *vm, object_t car, object_t cdr) {
 
 object_t car(vm_t *vm, object_t pair) {
   if (pair == NULL) return NULL;
-  if (scm_type(pair) == ERROR) return pair;
-  if (scm_type(pair) != PAIR) {
-    return make_error(vm, "object not pair");
-  }
   return object_data(pair, pair_t).car;
 }
 
 object_t cdr(vm_t *vm, object_t pair) {
   if (pair == NULL) return NULL;
-  if (scm_type(pair) == ERROR) return pair;
-  if (scm_type(pair) != PAIR) {
-    return make_error(vm, "object not pair");
-  }
   return object_data(pair, pair_t).cdr;
 }
 
