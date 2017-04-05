@@ -270,20 +270,45 @@ object_t eval_cons(vm_t *vm, object_t args) {
 }
 
 object_t eval_car(vm_t *vm, object_t args) {
-  object_t p = car(vm, args);
-  return car(vm, p);
+  object_t pair = car(vm, args);
+  if (pair == NULL) return NULL;
+  if (scm_type(pair) == ERROR) return pair;
+  if (scm_type(pair) != PAIR) {
+    return make_error(vm, "object not pair");
+  }
+  return car(vm, pair);
 }
 
 object_t eval_cdr(vm_t *vm, object_t args) {
-  return cdr(vm, car(vm, args));
+  object_t pair = car(vm, args);
+  if (pair == NULL) return NULL;
+  if (scm_type(pair) == ERROR) return pair;
+  if (scm_type(pair) != PAIR) {
+    return make_error(vm, "object not pair");
+  }
+  return cdr(vm, pair);
 }
 
 object_t eval_set_car(vm_t *vm, object_t args) {
-  return set_car(vm, car(vm, args), car(vm, cdr(vm, args)));
+  object_t pair = car(vm, args);
+  if (pair == NULL) return NULL;
+  object_t value = car(vm, cdr(vm, args));
+  if (scm_type(pair) == ERROR) return pair;
+  if (scm_type(pair) != PAIR) {
+    return make_error(vm, "object not pair");
+  }
+  return set_car(vm, pair, value);
 }
 
 object_t eval_set_cdr(vm_t *vm, object_t args) {
-  return set_cdr(vm, car(vm, args), car(vm, cdr(vm, args)));
+  object_t pair = car(vm, args);
+  if (pair == NULL) return NULL;
+  object_t value = car(vm, cdr(vm, args));
+  if (scm_type(pair) == ERROR) return pair;
+  if (scm_type(pair) != PAIR) {
+    return make_error(vm, "object not pair");
+  }
+  return set_cdr(vm, pair, value);
 }
 
 object_t eval_print(vm_t *vm, object_t args) {
