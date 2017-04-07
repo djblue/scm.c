@@ -16,6 +16,7 @@ struct vm_t {
   alloc_t *root_alloc;
   size_t allocs;
   size_t threshold;
+  object_t syms;
   object_t expr;
   object_t env;
   object_t fun;
@@ -53,6 +54,10 @@ void assign(vm_t *vm, reg_t reg, object_t value) {
     case STDIN:   vm->stdin   = value; break;
     case STDOUT:  vm->stdout  = value; break;
   }
+}
+
+object_t *syms(vm_t *vm) {
+  return &vm->syms;
 }
 
 void save(vm_t *vm) {
@@ -96,6 +101,7 @@ vm_t *make_vm() {
   vm->root_alloc = NULL;
   vm->allocs = 0;
   vm->threshold = 4096;
+  vm->syms = NULL;
   vm->env = NULL;
   vm->sp = 0;
   vm->fun = NULL;

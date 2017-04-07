@@ -60,7 +60,7 @@ static void print_object(vm_t *vm, FILE *fp, object_t o) {
         print_pair(vm, fp, o);
         break;
       case SYMBOL:
-        fprintf(fp, __blue("%s"), get_str(o));
+        fprintf(fp, __blue("%s"), symbol_str(vm, o));
         break;
       case PROCEDURE:
         fprintf(fp, __purple("#<procedure@%p>"), (void*) o);
