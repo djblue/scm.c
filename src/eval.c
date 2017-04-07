@@ -18,7 +18,7 @@
   return; \
 } while(0);
 
-#define recur(value,label)do{\
+#define RECUR(value,label)do{\
   SAVE \
   assign(vm, EXPR, value); \
   assign(vm, CONTINUE, &&label); \
@@ -40,7 +40,7 @@ tailcall:
   if (scm_type(fetch(vm, EXPR)) == SYMBOL) RET(lookup(vm, fetch(vm, ENV), fetch(vm, EXPR)))
   if (scm_type(fetch(vm, EXPR)) != PAIR) RET(fetch(vm, EXPR))
 
-  recur(car(vm, fetch(vm, EXPR)), procedure_continue)
+  RECUR(car(vm, fetch(vm, EXPR)), procedure_continue)
   assign(vm, FUN, fetch(vm, VAL));
 
   if (fetch(vm, FUN) == NULL) RET(make_error(vm, "nil is not operator"))
@@ -50,7 +50,7 @@ tailcall:
   if (scm_type(fetch(vm, FUN)) == SPECIAL) {
     switch (object_data(fetch(vm, FUN), special_t)) {
       case F_IF:
-        recur(car(vm, fetch(vm, EXPR)), if_continue)
+        RECUR(car(vm, fetch(vm, EXPR)), if_continue)
         if (true(error(fetch(vm, VAL)))) RET(fetch(vm, VAL))
         assign(vm, EXPR, !false(fetch(vm, VAL))
             ? car(vm, cdr(vm, fetch(vm, EXPR)))
@@ -62,10 +62,10 @@ tailcall:
 
       case F_DEFINE:
         if (true(pair(car(vm, fetch(vm, EXPR))))) {
-          recur(cons(vm, sym_lambda, cons(vm, cdr(vm, car(vm, fetch(vm, EXPR))), cdr(vm, fetch(vm, EXPR)))), define_continue_1)
+          RECUR(cons(vm, sym_lambda, cons(vm, cdr(vm, car(vm, fetch(vm, EXPR))), cdr(vm, fetch(vm, EXPR)))), define_continue_1)
           define(vm, fetch(vm, ENV), car(vm, car(vm, fetch(vm, EXPR))), fetch(vm, VAL));
         } else {
-          recur(car(vm, cdr(vm, fetch(vm, EXPR))), define_continue_2)
+          RECUR(car(vm, cdr(vm, fetch(vm, EXPR))), define_continue_2)
           define(vm, fetch(vm, ENV), car(vm, fetch(vm, EXPR)), fetch(vm, VAL));
         }
 
@@ -80,7 +80,7 @@ tailcall:
       case F_BEGIN:
         if (fetch(vm, EXPR) == NULL) RET(NULL)
         while (cdr(vm, fetch(vm, EXPR)) != NULL) {
-          recur(car(vm, fetch(vm, EXPR)), begin_continue)
+          RECUR(car(vm, fetch(vm, EXPR)), begin_continue)
           assign(vm, EXPR, cdr(vm, fetch(vm, EXPR)));
         }
         assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
@@ -89,7 +89,7 @@ tailcall:
       case F_AND:
         if (fetch(vm, EXPR) == NULL) RET(t)
         while (cdr(vm, fetch(vm, EXPR)) != NULL) {
-          recur(car(vm, fetch(vm, EXPR)), and_continue)
+          RECUR(car(vm, fetch(vm, EXPR)), and_continue)
           if (false(fetch(vm, VAL))) RET(fetch(vm, VAL))
           assign(vm, EXPR, cdr(vm, fetch(vm, EXPR)));
         }
@@ -99,7 +99,7 @@ tailcall:
       case F_OR:
         if (fetch(vm, EXPR) == NULL) RET(f)
         while (cdr(vm, fetch(vm, EXPR)) != NULL) {
-          recur(car(vm, fetch(vm, EXPR)), or_continue)
+          RECUR(car(vm, fetch(vm, EXPR)), or_continue)
           if (!false(fetch(vm, VAL))) RET(fetch(vm, VAL))
           assign(vm, EXPR, cdr(vm, fetch(vm, EXPR)));
         }
@@ -112,7 +112,7 @@ tailcall:
             assign(vm, EXPR, car(vm, cdr(vm, car(vm, fetch(vm, EXPR)))));
             goto tailcall;
           }
-          recur(car(vm, car(vm, fetch(vm, EXPR))), cond_continue)
+          RECUR(car(vm, car(vm, fetch(vm, EXPR))), cond_continue)
           if (true(fetch(vm, VAL))) {
             assign(vm, EXPR, car(vm, cdr(vm, car(vm, fetch(vm, EXPR)))));
             goto tailcall;
@@ -123,7 +123,7 @@ tailcall:
         goto tailcall;
 
       case F_EVAL:
-        recur(car(vm, fetch(vm, EXPR)), eval_continue)
+        RECUR(car(vm, fetch(vm, EXPR)), eval_continue)
         assign(vm, EXPR, fetch(vm, VAL));
         goto tailcall;
 
@@ -171,7 +171,7 @@ eval_sequence:
   assign(vm, ARGL, NULL);
 
   while (fetch(vm, EXPR) != NULL) {
-    recur(car(vm, fetch(vm, EXPR)), eval_sequence_continue)
+    RECUR(car(vm, fetch(vm, EXPR)), eval_sequence_continue)
     assign(vm, ARGL, cons(vm, fetch(vm, VAL), fetch(vm, ARGL)));
     assign(vm, EXPR, cdr(vm, fetch(vm, EXPR)));
   }
