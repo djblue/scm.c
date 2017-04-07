@@ -26,6 +26,7 @@ void restore(vm_t *vm);
 
 object_t fetch(vm_t *vm, reg_t reg);
 void assign(vm_t *vm, reg_t reg, object_t value);
+object_t *syms(vm_t *vm);
 
 object_t vm_alloc(vm_t *vm, size_t s);
 
