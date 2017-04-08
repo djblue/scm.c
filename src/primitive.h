@@ -12,12 +12,15 @@ object_t sym_begin;
 object_t sym_and;
 object_t sym_or;
 object_t sym_cond;
+object_t sym_case;
 object_t sym_eval;
 
 object_t eof;
 object_t ueof;
 object_t t;
 object_t f;
+
+object_t sym_else;
 
 typedef enum {
   F_IF,
@@ -28,6 +31,7 @@ typedef enum {
   F_AND,
   F_OR,
   F_COND,
+  F_CASE,
   F_EVAL
 } special_t;
 

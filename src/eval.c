@@ -108,7 +108,7 @@ tailcall:
 
       case F_COND:
         while (fetch(vm, EXPR) != NULL) {
-          if (true(object_eq(vm, car(vm, car(vm, fetch(vm, EXPR))), make_symbol(vm, "else")))) {
+          if (true(object_eq(vm, car(vm, car(vm, fetch(vm, EXPR))), sym_else))) {
             assign(vm, EXPR, car(vm, cdr(vm, car(vm, fetch(vm, EXPR)))));
             goto tailcall;
           }
@@ -118,6 +118,27 @@ tailcall:
             goto tailcall;
           }
 
+          assign(vm, EXPR, cdr(vm, fetch(vm, EXPR)));
+        }
+        goto tailcall;
+
+      case F_CASE:
+        RECUR(car(vm, fetch(vm, EXPR)), eval_case)
+        assign(vm, EXPR, cdr(vm, fetch(vm, EXPR)));
+        while (fetch(vm, EXPR) != NULL) {
+          object_t entry = car(vm, fetch(vm, EXPR));
+          if (true(object_eq(vm, car(vm, entry), sym_else))) {
+              assign(vm, EXPR, car(vm, cdr(vm, entry)));
+              goto tailcall;
+          }
+          object_t list = car(vm, entry);
+          while (list != NULL) {
+            if (true(object_eq(vm, car(vm, list), fetch(vm, VAL)))) {
+              assign(vm, EXPR, car(vm, cdr(vm, entry)));
+              goto tailcall;
+            }
+            list = cdr(vm, list);
+          }
           assign(vm, EXPR, cdr(vm, fetch(vm, EXPR)));
         }
         goto tailcall;
@@ -304,6 +325,7 @@ void init(vm_t *vm, object_t env) {
   sym_and = defs("and", F_AND)
   sym_or = defs("or", F_OR)
   sym_cond = defs("cond", F_COND)
+  sym_case = defs("case", F_CASE)
   sym_define = defs("define", F_DEFINE)
   sym_eval = defs("eval", F_EVAL)
 
@@ -311,6 +333,8 @@ void init(vm_t *vm, object_t env) {
   ueof = scm_guard(make(vm, UENDOFINPUT, 0));
   t = scm_guard(make(vm, TRUE, 0));
   f = scm_guard(make(vm, FALSE, 0));
+
+  sym_else = make_symbol(vm, "else");
 
   def("+", eval_plus)
   def("-", eval_minus)
