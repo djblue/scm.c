@@ -124,7 +124,10 @@ object_t scm_load(vm_t *vm, object_t args) {
   while (1) {
     object_t value = scm_read(vm, args);
     if (value == eof) break;
-    scm_eval(vm, value);
+    object_t ret = scm_eval(vm, value);
+    if (scm_type(ret) == ERROR) {
+      return ret;
+    }
   }
 
   return t;
