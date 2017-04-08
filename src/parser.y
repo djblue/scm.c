@@ -73,8 +73,10 @@ atom : BOOLEAN_T    { $$ = make_boolean(vm, yylval.str); }
 
 %%
 
+char *unexpected_end = "syntax error, unexpected $end, expecting";
+
 void yyerror(vm_t *vm, yyscan_t scanner, object_t *obj, const char *msg) {
-  if (strcmp(msg, "syntax error, unexpected $end, expecting ')'") == 0) {
+  if (strncmp(msg, unexpected_end, strlen(unexpected_end)) == 0) {
     *obj = ueof;
   } else {
     fprintf(stderr, "parse error: %s\n", msg);
