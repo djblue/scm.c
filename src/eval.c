@@ -315,6 +315,13 @@ object_t eval_multiply(vm_t *vm, object_t args) {
   return multiply(vm, op, eval_multiply(vm, cdr(vm, args)));
 }
 
+object_t eq(vm_t *vm, object_t args) {
+  if (args == NULL) return NULL;
+  if (cdr(vm, args) == NULL) return NULL;
+  if (car(vm, args) == car(vm, cdr(vm, args))) return t;
+  return f;
+}
+
 void init(vm_t *vm, object_t env) {
 
   // special forms
@@ -349,6 +356,7 @@ void init(vm_t *vm, object_t env) {
   def("symbol?", symbolp)
   def("pair?", pairp)
   def("null?", nullp)
+  def("eq?", eq)
 
   def("cons", eval_cons)
   def("car", eval_car)
