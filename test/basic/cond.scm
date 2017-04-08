@@ -1,4 +1,3 @@
-(write (cond))
 (write (cond [else 5]))
 (write (cond [#t #t]))
 (write

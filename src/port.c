@@ -34,13 +34,13 @@ object_t eval_open(vm_t *vm, object_t args) {
   object_t str = car(vm, args);
 
   if (false(string(str)))
-    return make_error(vm, "First argument is not a string.");
+    return make_error(vm, "First argument is not a string.", str);
 
   char *path = string_cstr(str);
   FILE *fp = fopen(path, "r");
 
   if (fp == NULL) {
-    return make_error(vm, "Can't open input file.");
+    return make_error(vm, "Can't open input file.", str);
   }
 
   object_t port = make_port(vm);

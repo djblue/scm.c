@@ -13,6 +13,7 @@ typedef enum {
   TRUE,
   FALSE,
   PAIR,
+  NIL,
   SPECIAL,
   PRIMITIVE,
   LABEL,

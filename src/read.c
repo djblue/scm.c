@@ -106,7 +106,7 @@ retry:
 object_t scm_read(vm_t *vm, object_t args) {
   object_t port = car(vm, args);
   if (port != NULL && scm_type(port) != PORT)
-    return make_error(vm, "Provided argument is not port.");
+    return make_error(vm, "Provided argument is not port.", port);
 
   if (port == NULL)
     port = fetch(vm, STDIN);

@@ -31,5 +31,6 @@ object_t *syms(vm_t *vm);
 object_t vm_alloc(vm_t *vm, size_t s);
 
 void vm_gc(vm_t *vm);
+void vm_reset(vm_t *vm);
 
 #endif

@@ -49,6 +49,6 @@ object_t lookup(vm_t *vm, object_t env, object_t sym) {
     env = cdr(vm, env);
   }
 
-  return make_error(vm, "cannot find symbol");
+  return make_error(vm, "Cannot find symbol.", sym);
 }
 
