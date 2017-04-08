@@ -295,6 +295,18 @@ object_t eval_eq(vm_t *vm, object_t args) {
   return t;
 }
 
+object_t procedurep(vm_t *vm, object_t args) {
+  object_t proc = car(vm, args);
+  switch (scm_type(proc)) {
+    case SPECIAL:
+    case PRIMITIVE:
+    case PROCEDURE:
+      return t;
+    default:
+      return f;
+  }
+}
+
 #include "number.h"
 
 object_t eval_plus(vm_t *vm, object_t args) {
@@ -374,6 +386,7 @@ void init(vm_t *vm, object_t env) {
   def("symbol?", symbolp)
   def("pair?", pairp)
   def("null?", nullp)
+  def("procedure?", procedurep)
   def("eq?", eq)
 
   def("error", eval_error)
