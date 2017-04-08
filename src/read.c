@@ -59,34 +59,39 @@ object_t c_read(vm_t *vm, FILE *fp) {
     rl_attempted_completion_function = my_completion;
     yyscan_t scanner;
     yylex_init(&scanner);
+    object_t expr = NULL;
 
 retry:
 
     rl_bind_key('\t', rl_complete);
     const char *input = readline(prompt);
-    if (input != NULL) {
-      strcat(buffer, input);
-      free(input);
-    }
-    if (strlen(buffer) > 0) {
-      yy_scan_string(buffer, scanner);
-      object_t expr = NULL;
-      yyparse(vm, scanner, &expr);
-      if (expr == ueof) {
-        strcat(buffer, "\n  ");
-        prompt = "  ";
-        goto retry;
-      }
-      yylex_destroy(scanner);
-      add_history(buffer);
-      return expr;
-    }
+
     if (input == NULL) {
       yylex_destroy(scanner);
       return eof;
-    } else {
+    }
+
+    if (strlen(input) == 0) {
+      free(input);
       goto retry;
     }
+
+    strcat(buffer, input);
+    free(input);
+
+    yy_scan_string(buffer, scanner);
+    yyparse(vm, scanner, &expr);
+
+    if (expr == ueof || expr == eof) {
+      strcat(buffer, "\n  ");
+      prompt = "  ";
+      goto retry;
+    }
+
+    yylex_destroy(scanner);
+    add_history(buffer);
+    return expr;
+
   } else {
     yyscan_t scanner;
     yylex_init(&scanner);
