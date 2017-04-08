@@ -9,6 +9,7 @@
 #include "types.h"
 #include "env.h"
 #include "vm.h"
+#include "eval.h"
 
 #include "parser.h"
 #include "lexer.h"
@@ -114,6 +115,21 @@ object_t scm_read(vm_t *vm, object_t args) {
   return c_read(vm, port_pointer(port));
 }
 
+object_t scm_load(vm_t *vm, object_t args) {
+  object_t port = scm_open(vm, args);
+  if (scm_type(port) == ERROR) return port;
+
+  args = cons(vm, port, NULL);
+
+  while (1) {
+    object_t value = scm_read(vm, args);
+    if (value == eof) break;
+    scm_eval(vm, value);
+  }
+
+  return t;
+}
+
 void scm_read_load(const char *file) {
   read_history(file);
 }
@@ -124,4 +140,5 @@ void scm_read_save(const char *file) {
 
 void define_read(vm_t *vm, object_t env) {
   def("read", scm_read)
+  def("load", scm_load)
 }

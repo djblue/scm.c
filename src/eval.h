@@ -6,6 +6,6 @@
 #include "vm.h"
 
 void init(vm_t *vm, object_t env);
-void eval(vm_t *vm);
+object_t scm_eval(vm_t *vm, object_t expr);
 
 #endif
