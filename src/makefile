@@ -4,7 +4,7 @@ CFLAGS=-flto -std=gnu99 -g -O3 -Wall -pedantic
 LDFLAGS=-lreadline
 
 # find all source files
-SOURCES=$(shell find | grep '\.c' | egrep -v "lexer.c|parser.c") lexer.c parser.c
+SOURCES=$(shell find . | grep '\.c' | egrep -v "lexer.c|parser.c") lexer.c parser.c
 OBJS=$(SOURCES:.c=.o)
 
 .PHONY: clean test
