@@ -36,7 +36,7 @@ object_t reverse(vm_t *vm, object_t args, object_t acc) {
   return reverse(vm, cdr(vm, args), cons(vm, car(vm, args), acc));
 }
 
-void eval(vm_t *vm) {
+static void eval(vm_t *vm) {
 tailcall:
   vm_gc(vm);
 
@@ -202,6 +202,12 @@ eval_sequence:
   }
 
   RET(reverse(vm, fetch(vm, ARGL), NULL))
+}
+
+object_t scm_eval(vm_t *vm, object_t expr) {
+  assign(vm, EXPR, expr);
+  eval(vm);
+  return fetch(vm, VAL);
 }
 
 #define eval_predicate(fn,p) \

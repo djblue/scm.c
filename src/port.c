@@ -30,7 +30,7 @@ void print_port(vm_t *vm, object_t port) {
   printf(__yellow("#<port:%s>"), string_cstr(object_data(port, port_t).path));
 }
 
-object_t eval_open(vm_t *vm, object_t args) {
+object_t scm_open(vm_t *vm, object_t args) {
   object_t str = car(vm, args);
 
   if (false(string(str)))
@@ -50,6 +50,6 @@ object_t eval_open(vm_t *vm, object_t args) {
 }
 
 void define_port(vm_t *vm, object_t env) {
-  def("open", eval_open)
+  def("open", scm_open)
 }
 

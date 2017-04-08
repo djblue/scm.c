@@ -24,20 +24,19 @@ int main (int argc, char** argv) {
   while (1) {
     object_t value = c_read(vm, core);
     if (value == eof) break;
-    assign(vm, EXPR, value);
-    eval(vm);
+    scm_eval(vm, value);
   }
 
   scm_read_load(".scm_history");
 
   while (1) {
     object_t value = scm_read(vm, NULL);
-    assign(vm, EXPR, value);
     if (value == eof) break;
-    eval(vm);
+
+    value = scm_eval(vm, value);
 
     if (isatty(STDIN_FILENO)) {
-      print(vm, fetch(vm, VAL));
+      print(vm, value);
     }
 
     vm_gc(vm);
