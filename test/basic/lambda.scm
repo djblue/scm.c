@@ -1,1 +1,7 @@
 (write ((lambda (x) x) 0))
+(write (procedure? if))
+(write (procedure? +))
+(write (procedure? (lambda (x) x)))
+(write (procedure? #t))
+(write (procedure? 1))
+(write (procedure? "hello"))
