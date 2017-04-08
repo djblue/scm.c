@@ -7,8 +7,6 @@
 #include "print.h"
 #include "port.h"
 
-#include "core.xxd"
-
 int main (int argc, char** argv) {
 
   vm_t *vm = make_vm();
@@ -19,6 +17,9 @@ int main (int argc, char** argv) {
   define_read(vm, env);
   assign(vm, ENV, env);
 
+#ifdef linux
+#include "core.xxd"
+
   FILE *core = fmemopen(core_scm, core_scm_len, "r");
 
   while (1) {
@@ -26,6 +27,8 @@ int main (int argc, char** argv) {
     if (value == eof) break;
     scm_eval(vm, value);
   }
+
+#endif
 
   scm_read_load(".scm_history");
 
