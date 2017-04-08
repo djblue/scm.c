@@ -25,6 +25,7 @@ object_t make(vm_t *vm, type_t type, size_t n) {
 }
 
 type_t scm_type(object_t o) {
+  if (o == NULL) return NIL;
   if (scm_is_fixnum(o)) return FIXNUM;
   return o->type;
 }

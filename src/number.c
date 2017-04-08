@@ -43,8 +43,13 @@ object_t plus(vm_t *vm, object_t a, object_t b) {
   if (a == NULL) return plus(vm, make_fixnum_int(vm, 0), b);
   if (b == NULL) return plus(vm, a, make_fixnum_int(vm, 0));
 
-  if (!true(number(a)) || !true(number(b)))
-    return make_error(vm, "can't perform arithmetic on non numeric values");
+  if (!true(number(a)))
+    return make_error(vm,
+        "can't perform arithmetic on non numeric values", a);
+
+  if (!true(number(b)))
+    return make_error(vm,
+        "can't perform arithmetic on non numeric values", b);
 
   if (scm_type(a) == FLONUM || scm_type(b) == FLONUM) {
     if (scm_type(a) != FLONUM) return make_flonum_float(vm, scm_fixnum(a) + object_data(b, float));
@@ -58,8 +63,13 @@ object_t plus(vm_t *vm, object_t a, object_t b) {
 object_t minus(vm_t *vm, object_t a, object_t b) {
   if (b == NULL) return minus(vm, make_fixnum_int(vm, 0), a);
 
-  if (!true(number(a)) || !true(number(b)))
-    return make_error(vm, "can't perform arithmetic on non numeric values");
+  if (!true(number(a)))
+    return make_error(vm,
+        "can't perform arithmetic on non numeric values", a);
+
+  if (!true(number(b)))
+    return make_error(vm,
+        "can't perform arithmetic on non numeric values", b);
 
   if (scm_type(a) == FLONUM || scm_type(b) == FLONUM) {
     if (scm_type(a) != FLONUM) return make_flonum_float(vm, scm_fixnum(a) - object_data(b, float));
@@ -74,8 +84,13 @@ object_t multiply(vm_t *vm, object_t a, object_t b) {
   if (a == NULL) return multiply(vm, make_fixnum_int(vm, 1), b);
   if (b == NULL) return multiply(vm, a, make_fixnum_int(vm, 1));
 
-  if (!true(number(a)) || !true(number(b)))
-    return make_error(vm, "can't perform arithmetic on non numeric values");
+  if (!true(number(a)))
+    return make_error(vm,
+        "can't perform arithmetic on non numeric values", a);
+
+  if (!true(number(b)))
+    return make_error(vm,
+        "can't perform arithmetic on non numeric values", b);
 
   if (scm_type(a) == FLONUM || scm_type(b) == FLONUM) {
     if (scm_type(a) != FLONUM) return make_flonum_float(vm, scm_fixnum(a) * object_data(b, float));

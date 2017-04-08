@@ -129,6 +129,9 @@ static void mark(vm_t *vm, object_t o) {
       mark(vm, object_data(o, proc_t).env);
       mark(vm, object_data(o, proc_t).params);
       break;
+    case ERROR:
+      mark(vm, scm_error_irritant(o));
+      break;
     default:
       break;
   }
@@ -170,6 +173,11 @@ void vm_gc(vm_t *vm) {
     sweep(vm, &vm->root_alloc);
     vm->threshold = 2*vm->allocs;
   }
+}
+
+void vm_reset(vm_t *vm) {
+  vm->sp = 5;
+  restore(vm);
 }
 
 void free_vm(vm_t *vm) {
