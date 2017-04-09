@@ -354,6 +354,12 @@ object_t eval_error(vm_t *vm, object_t args) {
 
 void init(vm_t *vm, object_t env) {
 
+  eof = scm_guard(make(vm, ENDOFINPUT, 0));
+  ueof = scm_guard(make(vm, UENDOFINPUT, 0));
+  t = scm_guard(make(vm, TRUE, 0));
+  f = scm_guard(make(vm, FALSE, 0));
+  sym_else = make_symbol(vm, "else");
+
   // special forms
   sym_if = defs("if", F_IF)
   sym_quote = defs("quote", F_QUOTE)
@@ -365,13 +371,6 @@ void init(vm_t *vm, object_t env) {
   sym_case = defs("case", F_CASE)
   sym_define = defs("define", F_DEFINE)
   sym_eval = defs("eval", F_EVAL)
-
-  eof = scm_guard(make(vm, ENDOFINPUT, 0));
-  ueof = scm_guard(make(vm, UENDOFINPUT, 0));
-  t = scm_guard(make(vm, TRUE, 0));
-  f = scm_guard(make(vm, FALSE, 0));
-
-  sym_else = make_symbol(vm, "else");
 
   def("+", eval_plus)
   def("-", eval_minus)
