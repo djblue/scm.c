@@ -10,7 +10,7 @@
          [(1 2 3) 'small]
          [(10 11 12) 'big]))
 
-(write (case (list 'y 'x)
+(write (case '(y x)
          [((a b) (x y)) 'forwards]
          [((b a) (y x)) 'backwards]))
 
