@@ -206,7 +206,9 @@ eval_sequence:
 
 object_t scm_eval(vm_t *vm, object_t expr) {
   assign(vm, EXPR, expr);
+  object_t env = fetch(vm, ENV);
   eval(vm);
+  assign(vm, ENV, env);
   return fetch(vm, VAL);
 }
 
