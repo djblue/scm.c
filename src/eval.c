@@ -352,6 +352,10 @@ object_t eval_error(vm_t *vm, object_t args) {
   return make_error(vm, string_cstr(message), irritant);
 }
 
+object_t interaction_environment(vm_t *vm, object_t args) {
+  return fetch(vm, ENV);
+}
+
 void init(vm_t *vm, object_t env) {
 
   eof = scm_guard(make(vm, ENDOFINPUT, 0));
@@ -376,6 +380,9 @@ void init(vm_t *vm, object_t env) {
   def("-", eval_minus)
   def("*", eval_multiply)
   def("=", eval_eq)
+
+
+  def("interaction-environment", interaction_environment)
 
   def("number?", numberp)
   def("boolean?", booleanp)
