@@ -381,7 +381,6 @@ void init(vm_t *vm, object_t env) {
   def("*", eval_multiply)
   def("=", eval_eq)
 
-
   def("interaction-environment", interaction_environment)
 
   def("number?", numberp)
