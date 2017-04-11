@@ -179,8 +179,6 @@ eval_procedure:
     assign(vm, EXPR, body);
 
     goto tailcall;
-  } else if (scm_type(fetch(vm, FUN)) == ERROR) {
-    RET(fetch(vm, FUN))
   } else {
     RET(make_error(vm, "Not a procedure", fetch(vm, FUN)))
   }
