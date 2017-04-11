@@ -53,9 +53,20 @@ object_t lookup(vm_t *vm, object_t env, object_t sym) {
 
   while (env != NULL) {
     object_t frame = car(vm, env);
-    object_t pair = frame_search(vm, frame, sym);
 
-    if (pair != NULL) return car(vm, pair);
+    object_t vars = car(vm, frame);
+    object_t vals = cdr(vm, frame);
+
+    while (vars != NULL) {
+      if (scm_type(vars) == SYMBOL && true(symbol_eq(vm, vars, sym))) {
+        return vals;
+      } else if (true(symbol_eq(vm, car(vm, vars), sym))) {
+        return car(vm, vals);
+      }
+
+      vars = cdr(vm, vars);
+      vals = cdr(vm, vals);
+    }
 
     env = cdr(vm, env);
   }

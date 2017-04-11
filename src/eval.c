@@ -172,15 +172,8 @@ eval_procedure:
     object_t vals = fetch(vm, VAL);
 
     object_t body = object_data(fetch(vm, FUN), proc_t).body;
-    object_t parent = object_data(fetch(vm, FUN), proc_t).env; // captured environment
-    object_t params = object_data(fetch(vm, FUN), proc_t).params;
-
-    object_t vars = params;
-
-    if (true(symbol(vars))) {
-      vars = cons(vm, vars, NULL);
-      vals = cons(vm, vals, NULL);
-    }
+    object_t parent = object_data(fetch(vm, FUN), proc_t).env;
+    object_t vars = object_data(fetch(vm, FUN), proc_t).params;
 
     assign(vm, ENV, extend_frame(vm, vars, vals, parent));
     assign(vm, EXPR, body);

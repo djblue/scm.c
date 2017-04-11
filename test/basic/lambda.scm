@@ -1,4 +1,8 @@
 (write ((lambda (x) x) 0))
+(write ((lambda (x y) (cons x y)) 1 2))
+(write ((lambda x x) 1 2 3 4))
+(write ((lambda (x . y) (cons x y)) 1 2 3 4))
+(write ((lambda (x . y) (cons y x)) 1 2 3 4))
 (write (procedure? if))
 (write (procedure? +))
 (write (procedure? (lambda (x) x)))
