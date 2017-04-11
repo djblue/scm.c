@@ -36,6 +36,9 @@
 (define third   caddr)
 (define fourth  cadddr)
 
+; display an object and then return it
+(define (display o) (write o) o)
+
 ; reduce a list into a single value
 (define (reduce fn ls acc)
   (if (null? ls)
