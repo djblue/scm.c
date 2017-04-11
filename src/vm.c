@@ -176,10 +176,10 @@ void vm_gc(vm_t *vm) {
 }
 
 void vm_reset(vm_t *vm) {
-  if (vm->sp > 0) {
-    vm->sp = 5;
-    restore(vm);
-  }
+  vm->sp = 0;
+  vm->cont = NULL;
+  vm->fun = NULL;
+  vm->argl = NULL;
 }
 
 void free_vm(vm_t *vm) {
