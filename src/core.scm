@@ -56,6 +56,14 @@
       (iter (cdr ls) (cons (fn (car ls)) acc))))
   (reverse (iter ls '())))
 
+; apply fn to each element in a list
+(define (for-each fn ls)
+  (if (null? ls)
+    '()
+    (begin
+      (fn (car ls))
+      (for-each fn (cdr ls)))))
+
 ; filter items from a list
 (define (filter fn ls)
   (if (null? ls)
