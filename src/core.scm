@@ -118,9 +118,6 @@
 
 (define (id x) x)
 
-(define (apply fn args)
-  (eval (cons fn args)))
-
 (define (compose f g)
   (lambda args
     (f (apply g args))))

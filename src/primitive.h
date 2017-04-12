@@ -14,6 +14,7 @@ object_t sym_or;
 object_t sym_cond;
 object_t sym_case;
 object_t sym_eval;
+object_t sym_apply;
 
 object_t eof;
 object_t ueof;
@@ -32,7 +33,8 @@ typedef enum {
   F_OR,
   F_COND,
   F_CASE,
-  F_EVAL
+  F_EVAL,
+  F_APPLY
 } special_t;
 
 typedef object_t (*primitive)(vm_t *vm, object_t args);
