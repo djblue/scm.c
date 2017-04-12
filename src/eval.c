@@ -162,45 +162,23 @@ tailcall:
 
       default: RET(make_error(vm, "Unknown special operator.", fetch(vm, FUN)))
     }
+
     case PRIMITIVE:
-    SAVE
-    assign(vm, CONTINUE, &&eval_primitive);
-    goto eval_sequence;
-eval_primitive:
-    RESTORE
-    RET((object_data(fetch(vm, FUN), primitive))(vm, fetch(vm, VAL)))
     case PROCEDURE:
+      assign(vm, ARGL, NULL);
 
-    SAVE
-    assign(vm, CONTINUE, &&eval_procedure);
-    goto eval_sequence;
-eval_procedure:
-    RESTORE
+      while (fetch(vm, EXPR) != NULL) {
+        RECUR(car(vm, fetch(vm, EXPR)), eval_sequence_continue)
+        assign(vm, ARGL, cons(vm, fetch(vm, VAL), fetch(vm, ARGL)));
+        assign(vm, EXPR, cdr(vm, fetch(vm, EXPR)));
+      }
 
-    object_t vals = fetch(vm, VAL);
+      assign(vm, ARGL, reverse(vm, fetch(vm, ARGL), NULL));
+    goto apply;
 
-    object_t body = object_data(fetch(vm, FUN), proc_t).body;
-    object_t parent = object_data(fetch(vm, FUN), proc_t).env;
-    object_t vars = object_data(fetch(vm, FUN), proc_t).params;
-
-    assign(vm, ENV, extend_frame(vm, vars, vals, parent));
-    assign(vm, EXPR, body);
-
-    goto tailcall;
     default:
     RET(make_error(vm, "Not a procedure", fetch(vm, FUN)))
   }
-
-eval_sequence:
-  assign(vm, ARGL, NULL);
-
-  while (fetch(vm, EXPR) != NULL) {
-    RECUR(car(vm, fetch(vm, EXPR)), eval_sequence_continue)
-    assign(vm, ARGL, cons(vm, fetch(vm, VAL), fetch(vm, ARGL)));
-    assign(vm, EXPR, cdr(vm, fetch(vm, EXPR)));
-  }
-
-  RET(reverse(vm, fetch(vm, ARGL), NULL))
 
 apply:
   switch (scm_type(fetch(vm, FUN))) {
