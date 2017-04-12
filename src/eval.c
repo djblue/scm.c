@@ -80,7 +80,7 @@ tailcall:
         RET(make_procedure(vm,
             fetch(vm, ENV),
             car(vm, fetch(vm, EXPR)),
-            cons(vm, sym_begin, cdr(vm, fetch(vm, EXPR)))))
+            cdr(vm, fetch(vm, EXPR))))
 
       case F_BEGIN:
         if (fetch(vm, EXPR) == NULL) RET(NULL)
@@ -192,6 +192,13 @@ apply:
 
       assign(vm, ENV, extend_frame(vm, vars, vals, parent));
       assign(vm, EXPR, body);
+
+      if (fetch(vm, EXPR) == NULL) RET(NULL)
+      while (cdr(vm, fetch(vm, EXPR)) != NULL) {
+        RECUR(car(vm, fetch(vm, EXPR)), apply_continue)
+        assign(vm, EXPR, cdr(vm, fetch(vm, EXPR)));
+      }
+      assign(vm, EXPR, car(vm, fetch(vm, EXPR)));
       goto tailcall;
     }
     default:
