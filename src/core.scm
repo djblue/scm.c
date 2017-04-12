@@ -88,8 +88,13 @@
     value
     (cons (car ls) (concat (cdr ls) value))))
 
-(define (append ls value)
-  (concat ls (cons value '())))
+(define (append . args)
+  (if (null? args)
+    '()
+    (if (null? (car args))
+        (apply append (cdr args))
+        (cons (caar args)
+              (apply append (cons (cdar args) (cdr args)))))))
 
 (define (inc x) (+ x 1))
 
