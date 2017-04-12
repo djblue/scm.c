@@ -51,7 +51,8 @@ tailcall:
 
   assign(vm, EXPR, cdr(vm, fetch(vm, EXPR)));
 
-  if (scm_type(fetch(vm, FUN)) == SPECIAL) {
+  switch(scm_type(fetch(vm, FUN))) {
+    case SPECIAL:
     switch (object_data(fetch(vm, FUN), special_t)) {
       case F_IF:
         RECUR(car(vm, fetch(vm, EXPR)), if_continue)
@@ -152,16 +153,23 @@ tailcall:
         assign(vm, EXPR, fetch(vm, VAL));
         goto tailcall;
 
+      case F_APPLY:
+        RECUR(car(vm, fetch(vm, EXPR)), apply_continue_1)
+        assign(vm, FUN, fetch(vm, VAL));
+        RECUR(car(vm, cdr(vm, fetch(vm, EXPR))), apply_continue_2)
+        assign(vm, ARGL, fetch(vm, VAL));
+        goto apply;
+
       default: RET(make_error(vm, "Unknown special operator.", fetch(vm, FUN)))
     }
-  } else if (scm_type(fetch(vm, FUN)) == PRIMITIVE) {
+    case PRIMITIVE:
     SAVE
     assign(vm, CONTINUE, &&eval_primitive);
     goto eval_sequence;
 eval_primitive:
     RESTORE
     RET((object_data(fetch(vm, FUN), primitive))(vm, fetch(vm, VAL)))
-  } else if (scm_type(fetch(vm, FUN)) == PROCEDURE) {
+    case PROCEDURE:
 
     SAVE
     assign(vm, CONTINUE, &&eval_procedure);
@@ -179,7 +187,7 @@ eval_procedure:
     assign(vm, EXPR, body);
 
     goto tailcall;
-  } else {
+    default:
     RET(make_error(vm, "Not a procedure", fetch(vm, FUN)))
   }
 
@@ -193,6 +201,25 @@ eval_sequence:
   }
 
   RET(reverse(vm, fetch(vm, ARGL), NULL))
+
+apply:
+  switch (scm_type(fetch(vm, FUN))) {
+    case PRIMITIVE:
+      RET((object_data(fetch(vm, FUN), primitive))(vm, fetch(vm, ARGL)))
+    case PROCEDURE: {
+      object_t body = object_data(fetch(vm, FUN), proc_t).body;
+      object_t parent = object_data(fetch(vm, FUN), proc_t).env;
+      object_t vars = object_data(fetch(vm, FUN), proc_t).params;
+      object_t vals = fetch(vm, ARGL);
+
+      assign(vm, ENV, extend_frame(vm, vars, vals, parent));
+      assign(vm, EXPR, body);
+      goto tailcall;
+    }
+    default:
+    RET(make_error(vm, "apply: cannot apply", fetch(vm, FUN)))
+  }
+
 }
 
 object_t scm_eval(vm_t *vm, object_t expr) {
@@ -368,6 +395,7 @@ void init(vm_t *vm, object_t env) {
   sym_case = defs("case", F_CASE)
   sym_define = defs("define", F_DEFINE)
   sym_eval = defs("eval", F_EVAL)
+  sym_apply = defs("apply", F_APPLY)
 
   def("+", eval_plus)
   def("-", eval_minus)
