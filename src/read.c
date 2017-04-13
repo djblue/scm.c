@@ -105,7 +105,8 @@ retry:
 }
 
 object_t scm_read(vm_t *vm, object_t args) {
-  object_t port = car(vm, args);
+  object_t port = (scm_type(args) == PORT) ? port : car(vm, args);
+
   if (port != NULL && scm_type(port) != PORT)
     return make_error(vm, "Provided argument is not port.", port);
 
@@ -119,10 +120,10 @@ object_t scm_load(vm_t *vm, object_t args) {
   object_t port = scm_open(vm, args);
   if (scm_type(port) == ERROR) return port;
 
-  args = cons(vm, port, NULL);
+  assign(vm, ARGL, cons(vm, port, NULL));
 
   while (1) {
-    object_t value = scm_read(vm, args);
+    object_t value = scm_read(vm, fetch(vm, ARGL));
     if (value == eof) break;
     object_t ret = scm_eval(vm, value);
     if (scm_type(ret) == ERROR) {
