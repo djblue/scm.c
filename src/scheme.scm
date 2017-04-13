@@ -87,6 +87,33 @@
 (define env.init '())
 (define env.global env.init)
 
+(define-macro (definitial name . value)
+  `(begin
+     (set! env.global
+       (cons (cons ',name
+                   ,(if (null? value)
+                      ''void
+                      (car value))) env.global))
+     ',name))
+
+
+(define-macro (defprimitive name value arity)
+  `(definitial ,name
+               (lambda (values)
+                 (if (= ,arity (length values))
+                   (apply ,value values)
+                   (error "incorrect arity" (cons ',name values))))))
+
+(definitial t #t)
+(definitial f 'the-false-value)
+(definitial nil '())
+
+(defprimitive cons cons 2)
+(defprimitive car car 1)
+(defprimitive set-cdr! set-cdr! 2)
+(defprimitive + + 2)
+(defprimitive eq? eq? 2)
+
 (define (chapter1-scheme)
   (define (toplevel)
     (display (evaluate (read) env.global))
