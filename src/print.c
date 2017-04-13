@@ -75,8 +75,11 @@ static void print_object(vm_t *vm, FILE *fp, object_t o) {
     case ERROR:
       fprintf(fp, "(");
       fprintf(fp, __red("error"));
-      fprintf(fp, __yellow(" \"%s\" "), scm_error_message(o));
-      print_object(vm, fp, scm_error_irritant(o));
+      fprintf(fp, __yellow(" \"%s\""), scm_error_message(o));
+      if (scm_error_irritant(o) != NULL) {
+        fprintf(fp, " ");
+        print_object(vm, fp, scm_error_irritant(o));
+      }
       fprintf(fp, ")");
       break;
     case PORT:

@@ -18,6 +18,7 @@ object_t sym_apply;
 
 object_t eof;
 object_t ueof;
+object_t stack_overflow;
 object_t t;
 object_t f;
 

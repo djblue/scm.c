@@ -60,11 +60,8 @@ object_t *syms(vm_t *vm) {
   return &vm->syms;
 }
 
-void save(vm_t *vm) {
-  if (vm->sp + 5 > 8192) {
-    fprintf(stderr, "stack overflow.");
-    exit(1);
-  }
+int save(vm_t *vm) {
+  if (vm->sp + 5 > 8192) return 0; // failed to save stack frame
 
   object_t *bp = vm->stack + vm->sp;
 
@@ -75,6 +72,8 @@ void save(vm_t *vm) {
   bp[4] = fetch(vm, ARGL);
 
   vm->sp += 5;
+
+  return 1;
 }
 
 void restore(vm_t *vm) {

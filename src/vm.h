@@ -21,7 +21,7 @@ typedef enum {
 vm_t *make_vm();
 void free_vm(vm_t *vm);
 
-void save(vm_t *vm);
+int save(vm_t *vm);
 void restore(vm_t *vm);
 
 object_t fetch(vm_t *vm, reg_t reg);
