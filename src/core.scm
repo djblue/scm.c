@@ -126,3 +126,28 @@
 (define (compose f g)
   (lambda args
     (f (apply g args))))
+
+(define (qq-expand-list x)
+  (cond
+    [(not (pair? x)) (list 'list (list 'quote x))]
+    [(= 'unquote (car x)) (list 'list (cadr x))]
+    [(= 'unquote-splicing (car x)) (cadr x)]
+    [(= 'quasiquote (car x))
+     (qq-expand-list (qq-expand (cadr x)))]
+    [else (list 'list
+             (list 'append
+               (qq-expand-list (car x))
+               (qq-expand (cdr x))))]))
+
+(define (qq-expand x)
+  (cond
+    [(not (pair? x)) (list 'quote x)]
+    [(= 'unquote (car x)) (cadr x)]
+    [(= 'unquote-splicing (car x)) (error "quasiquote:" x)]
+    [(= 'quasiquote (car x))
+     (qq-expand (qq-expand (cadr x)))]
+    [else (list 'append
+             (qq-expand-list (car x))
+             (qq-expand (cdr x)))]))
+
+(define quasiquote (macro (x) (qq-expand x)))
