@@ -151,3 +151,14 @@
              (qq-expand (cdr x)))]))
 
 (define quasiquote (macro (x) (qq-expand x)))
+
+(define define-macro
+  (macro (args . body)
+    (cond
+      [(not (symbol? (car args)))
+        (error "Name not provided." (car args))]
+      [(null? body)
+        (error "Body not provided." body)]
+      [else
+        `(define ,(car args)
+          (macro ,(cdr args) ,@body))])))
