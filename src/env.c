@@ -48,6 +48,34 @@ object_t define(vm_t *vm, object_t frames, object_t var, object_t val) {
   return var;
 }
 
+object_t set(vm_t *vm, object_t env, object_t sym, object_t val) {
+  if (sym == NULL) return NULL;
+
+  while (env != NULL) {
+    object_t frame = car(vm, env);
+
+    object_t vars = car(vm, frame);
+    object_t vals = cdr(vm, frame);
+
+    while (vars != NULL) {
+      if (scm_type(vars) == SYMBOL && true(symbol_eq(vm, vars, sym))) {
+        set_car(vm, vals, val);
+        return t;
+      } else if (true(symbol_eq(vm, car(vm, vars), sym))) {
+        set_car(vm, vals, val);
+        return t;
+      }
+
+      vars = cdr(vm, vars);
+      vals = cdr(vm, vals);
+    }
+
+    env = cdr(vm, env);
+  }
+
+  return make_error(vm, "set!: cannot find var.", sym);
+}
+
 object_t lookup(vm_t *vm, object_t env, object_t sym) {
   if (sym == NULL) return NULL;
 

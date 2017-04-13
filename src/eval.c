@@ -76,6 +76,10 @@ tailcall:
 
         RET(t)
 
+      case F_SET:
+        RECUR(car(vm, cdr(vm, fetch(vm, EXPR))), set_continue)
+        RET(set(vm, fetch(vm, ENV), car(vm, fetch(vm, EXPR)), fetch(vm, VAL)))
+
       case F_LAMBDA:
         RET(make_procedure(vm,
             fetch(vm, ENV),
@@ -410,6 +414,7 @@ void init(vm_t *vm, object_t env) {
   sym_cond = defs("cond", F_COND)
   sym_case = defs("case", F_CASE)
   sym_define = defs("define", F_DEFINE)
+  sym_set = defs("set!", F_SET)
   sym_eval = defs("eval", F_EVAL)
   sym_apply = defs("apply", F_APPLY)
 

@@ -14,6 +14,7 @@ object_t make_frame(vm_t *vm);
   define(vm, env, make_symbol(vm, sym), make_special(vm, fun));
 
 object_t define(vm_t *vm, object_t env, object_t sym, object_t val);
+object_t set(vm_t *vm, object_t env, object_t sym, object_t val);
 object_t lookup(vm_t *vm, object_t env, object_t sym);
 
 #endif
