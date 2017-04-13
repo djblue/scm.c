@@ -6,7 +6,7 @@
 #include "eval.h"
 #include "print.h"
 
-#define SAVE save(vm);
+#define SAVE if (!save(vm)) RET(stack_overflow)
 #define RESTORE restore(vm);
 
 #define RET(value)do{\
@@ -368,6 +368,7 @@ void init(vm_t *vm, object_t env) {
   t = scm_guard(make(vm, TRUE, 0));
   f = scm_guard(make(vm, FALSE, 0));
   sym_else = make_symbol(vm, "else");
+  stack_overflow = scm_guard(make_error(vm, "stack overflow", NULL));
 
   // special forms
   sym_if = defs("if", F_IF)
