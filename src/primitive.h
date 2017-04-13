@@ -7,6 +7,7 @@
 object_t sym_if;
 object_t sym_quote;
 object_t sym_define;
+object_t sym_set;
 object_t sym_lambda;
 object_t sym_macro;
 object_t sym_macroexpand;
@@ -30,6 +31,7 @@ typedef enum {
   F_IF,
   F_QUOTE,
   F_DEFINE,
+  F_SET,
   F_LAMBDA,
   F_MACRO,
   F_MACROEXPAND,
