@@ -80,7 +80,13 @@ tailcall:
         RET(make_procedure(vm,
             fetch(vm, ENV),
             car(vm, fetch(vm, EXPR)),
-            cdr(vm, fetch(vm, EXPR))))
+            cdr(vm, fetch(vm, EXPR)), 0))
+
+      case F_MACRO:
+        RET(make_procedure(vm,
+            fetch(vm, ENV),
+            car(vm, fetch(vm, EXPR)),
+            cdr(vm, fetch(vm, EXPR)), 1))
 
       case F_BEGIN:
         if (fetch(vm, EXPR) == NULL) RET(NULL)
@@ -160,6 +166,13 @@ tailcall:
         assign(vm, ARGL, fetch(vm, VAL));
         goto apply;
 
+      case F_MACROEXPAND:
+        RECUR(car(vm, fetch(vm, EXPR)), macroexpand_continue_1)
+        vm_set_macro_expand(vm, 1);
+        RECUR(fetch(vm, VAL), macroexpand_continue_2)
+        vm_set_macro_expand(vm, 0);
+        RET(fetch(vm, VAL))
+
       default: RET(make_error(vm, "Unknown special operator.", fetch(vm, FUN)))
     }
 
@@ -176,6 +189,20 @@ tailcall:
       assign(vm, ARGL, reverse(vm, fetch(vm, ARGL), NULL));
     goto apply;
 
+    case MACRO:
+      SAVE
+      assign(vm, ARGL, fetch(vm, EXPR));
+      assign(vm, CONTINUE, &&macro_expand_continue);
+      goto apply;
+macro_expand_continue:
+      RESTORE
+      if (vm_macro_expand(vm)) {
+        RET(fetch(vm, VAL))
+      } else {
+        assign(vm, EXPR, fetch(vm, VAL));
+        goto tailcall;
+      }
+
     default:
     RET(make_error(vm, "Not a procedure", fetch(vm, FUN)))
   }
@@ -184,6 +211,7 @@ apply:
   switch (scm_type(fetch(vm, FUN))) {
     case PRIMITIVE:
       RET((object_data(fetch(vm, FUN), primitive))(vm, fetch(vm, ARGL)))
+    case MACRO:
     case PROCEDURE: {
       object_t body = object_data(fetch(vm, FUN), proc_t).body;
       object_t parent = object_data(fetch(vm, FUN), proc_t).env;
@@ -374,6 +402,8 @@ void init(vm_t *vm, object_t env) {
   sym_if = defs("if", F_IF)
   sym_quote = defs("quote", F_QUOTE)
   sym_lambda = defs("lambda", F_LAMBDA)
+  sym_macro = defs("macro", F_MACRO)
+  sym_macroexpand = defs("macroexpand", F_MACROEXPAND)
   sym_begin = defs("begin", F_BEGIN)
   sym_and = defs("and", F_AND)
   sym_or = defs("or", F_OR)
