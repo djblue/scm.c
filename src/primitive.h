@@ -8,6 +8,8 @@ object_t sym_if;
 object_t sym_quote;
 object_t sym_define;
 object_t sym_lambda;
+object_t sym_macro;
+object_t sym_macroexpand;
 object_t sym_begin;
 object_t sym_and;
 object_t sym_or;
@@ -29,6 +31,8 @@ typedef enum {
   F_QUOTE,
   F_DEFINE,
   F_LAMBDA,
+  F_MACRO,
+  F_MACROEXPAND,
   F_BEGIN,
   F_AND,
   F_OR,

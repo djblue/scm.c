@@ -13,6 +13,7 @@ struct alloc_t {
 #define alloc_data(a) (object_t)(((char*) a) + sizeof(alloc_t))
 
 struct vm_t {
+  int macro_expand;
   alloc_t *root_alloc;
   size_t allocs;
   size_t threshold;
@@ -60,6 +61,14 @@ object_t *syms(vm_t *vm) {
   return &vm->syms;
 }
 
+int vm_macro_expand(vm_t *vm) {
+  return vm->macro_expand;
+}
+
+void vm_set_macro_expand(vm_t *vm, int flag) {
+  vm->macro_expand = flag;
+}
+
 int save(vm_t *vm) {
   if (vm->sp + 5 > 8192) return 0; // failed to save stack frame
 
@@ -97,6 +106,7 @@ static alloc_t *make_alloc(size_t n) {
 
 vm_t *make_vm() {
   vm_t *vm = malloc(sizeof(vm_t));
+  vm->macro_expand = 0;
   vm->root_alloc = NULL;
   vm->allocs = 0;
   vm->threshold = 4096;
@@ -124,6 +134,7 @@ static void mark(vm_t *vm, object_t o) {
       mark(vm, cdr(vm, o));
       break;
     case PROCEDURE:
+    case MACRO:
       mark(vm, object_data(o, proc_t).body);
       mark(vm, object_data(o, proc_t).env);
       mark(vm, object_data(o, proc_t).params);
@@ -177,6 +188,7 @@ void vm_gc(vm_t *vm) {
 void vm_reset(vm_t *vm) {
   vm->sp = 0;
   vm->cont = NULL;
+  vm->macro_expand = 0;
   vm->fun = NULL;
   vm->argl = NULL;
 }

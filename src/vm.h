@@ -28,6 +28,9 @@ object_t fetch(vm_t *vm, reg_t reg);
 void assign(vm_t *vm, reg_t reg, object_t value);
 object_t *syms(vm_t *vm);
 
+int vm_macro_expand(vm_t *vm);
+void vm_set_macro_expand(vm_t *vm, int flag);
+
 object_t vm_alloc(vm_t *vm, size_t s);
 
 void vm_gc(vm_t *vm);

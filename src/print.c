@@ -66,6 +66,9 @@ static void print_object(vm_t *vm, FILE *fp, object_t o) {
     case PROCEDURE:
       fprintf(fp, __purple("#<procedure@%p>"), (void*) o);
       break;
+    case MACRO:
+      fprintf(fp, __purple("#<macro@%p>"), (void*) o);
+      break;
     case PRIMITIVE:
       fprintf(fp, __purple("#<primitive@%p>"), (void*) o);
       break;
