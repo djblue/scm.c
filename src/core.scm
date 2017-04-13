@@ -162,3 +162,18 @@
       [else
         `(define ,(car args)
           (macro ,(cdr args) ,@body))])))
+
+(define (validate-binding binding)
+  (cond
+    [(not (pair? binding))
+     (error "Binding must be pair." binding)]
+    [(not (= (length binding) 2))
+     (error "Binding must contain two elements." binding)]
+    [(not (symbol? (car binding)))
+     (error "First element of binding must be a symbol." (car binding))]))
+
+(define-macro (let bindings . body)
+              (for-each validate-binding bindings)
+              `(apply
+                    (lambda ,(map car bindings) ,@body)
+                    (list ,@(map cadr bindings))))
