@@ -167,6 +167,8 @@ tailcall:
         RECUR(car(vm, fetch(vm, EXPR)), apply_continue_1)
         assign(vm, FUN, fetch(vm, VAL));
         RECUR(car(vm, cdr(vm, fetch(vm, EXPR))), apply_continue_2)
+        if (scm_type(fetch(vm, VAL)) != NIL && scm_type(fetch(vm, VAL)) != PAIR)
+          RET(make_error(vm, "apply: cannot apply non-list args", fetch(vm, VAL)))
         assign(vm, ARGL, fetch(vm, VAL));
         goto apply;
 
