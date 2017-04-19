@@ -4,10 +4,12 @@
 
 #include "types.h"
 
+#include "read.h"
 #include "parser.h"
 #include "lexer.h"
 
 void yyerror(vm_t *vm, yyscan_t scanner, object_t *obj, char const *msg);
+
 %}
 
 %define parse.error verbose
@@ -20,7 +22,7 @@ void yyerror(vm_t *vm, yyscan_t scanner, object_t *obj, char const *msg);
   object_t obj;
 }
 
-%token BOOLEAN_T FIXNUM_T FLONUM_T CHARACTER_T STRING_T SYMBOL_T
+%token BOOLEAN_T FIXNUM_T FLONUM_T CHARACTER_T STRING_T SYMBOL_T EOF_T
 
 %type <obj> atom
 %type <obj> list
@@ -33,8 +35,8 @@ void yyerror(vm_t *vm, yyscan_t scanner, object_t *obj, char const *msg);
 
 %%
 
-form : %empty { *obj = eof; YYACCEPT; }
-     | expr { *obj = $1; YYACCEPT; }
+form : expr { *obj = $1; YYACCEPT; }
+     | EOF_T { *obj = eof; YYACCEPT; }
      ;
 
 expr : atom
@@ -45,10 +47,22 @@ expr : atom
      | unquotesplice
      ;
 
-list : '(' exprs ')' { $$ = $2; }
-     | '(' ')' { $$ = NULL; }
-     | '[' exprs ']' { $$ = $2; }
-     | '[' ']' { $$ = NULL; }
+lstart : '(' { yyget_extra(scanner)->balance++; }
+       ;
+
+lend : ')' { yyget_extra(scanner)->balance--; }
+     ;
+
+bstart : '[' { yyget_extra(scanner)->balance++; }
+       ;
+
+bend : ']' { yyget_extra(scanner)->balance--; }
+     ;
+
+list : lstart exprs lend { $$ = $2; }
+     | lstart lend { $$ = NULL; }
+     | bstart exprs bend { $$ = $2; }
+     | bstart bend { $$ = NULL; }
      ;
 
 exprs : %empty { $$ = NULL; }
@@ -78,13 +92,7 @@ atom : BOOLEAN_T    { $$ = make_boolean(vm, yylval.str); }
 
 %%
 
-char *unexpected_end = "syntax error, unexpected $end, expecting";
-
 void yyerror(vm_t *vm, yyscan_t scanner, object_t *obj, const char *msg) {
-  if (strncmp(msg, unexpected_end, strlen(unexpected_end)) == 0) {
-    *obj = ueof;
-  } else {
-    fprintf(stderr, "parse error: %s\n", msg);
-  }
+  *obj = make_error(vm, msg, NULL);
 }
 
