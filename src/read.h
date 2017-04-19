@@ -4,6 +4,10 @@
 #include "object.h"
 #include "vm.h"
 
+typedef struct {
+  vm_t *vm;
+  int balance;
+} extra_t;
 
 object_t c_read(vm_t *vm, FILE *fp);
 object_t scm_read(vm_t *vm, object_t args);
