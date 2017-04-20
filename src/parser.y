@@ -22,7 +22,7 @@ void yyerror(vm_t *vm, yyscan_t scanner, object_t *obj, char const *msg);
   object_t obj;
 }
 
-%token BOOLEAN_T FIXNUM_T FLONUM_T CHARACTER_T STRING_T SYMBOL_T EOF_T
+%token BOOLEAN_T FIXNUM_T FLONUM_T CHARACTER_T STRING_T SYMBOL_T EOF_T COMMENT_T
 
 %type <obj> atom
 %type <obj> list
@@ -32,6 +32,7 @@ void yyerror(vm_t *vm, yyscan_t scanner, object_t *obj, char const *msg);
 %type <obj> quasiquote
 %type <obj> unquote
 %type <obj> unquotesplice
+%type <obj> comment
 
 %%
 
@@ -45,6 +46,7 @@ expr : atom
      | quasiquote
      | unquote
      | unquotesplice
+     | comment
      ;
 
 lstart : '(' { yyget_extra(scanner)->balance++; }
@@ -69,6 +71,9 @@ exprs : %empty { $$ = NULL; }
       | expr exprs { $$ = cons(vm, $1, $2); }
       | expr '.' expr { $$ = cons(vm, $1, $3); }
       ;
+
+comment : COMMENT_T expr { $$ = list(vm, 2, make_symbol(vm, "comment"), $2); }
+        ;
 
 quote : '\'' expr { $$ = list(vm, 2, make_symbol(vm, "quote"), $2); }
       ;

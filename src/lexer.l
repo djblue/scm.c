@@ -118,6 +118,8 @@ BOOLEAN #t|#f
 
 %%
 
+#; { return COMMENT_T; }
+
 ;.*
 ("\n"|"\t"|" ")+
 
