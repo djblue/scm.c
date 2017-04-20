@@ -15,23 +15,29 @@
 
 extra_t *yyget_extra(yyscan_t yyscanner);
 
-// TODO: fix issues with overflow
-static char *completions[1024];
-static int n;
+static vm_t *vm;
 
-char *character_name_generator(const char *text, int state) {
-  static int list_index, len;
-  char *name;
+char *symbol_generator(const char *text, int state) {
+  static int len;
+  static object_t frames, vars;
 
   if (!state) {
-    list_index = 0;
+    frames = fetch(vm, ENV);
+    vars = car(vm, car(vm, frames));
     len = strlen(text);
   }
 
-  while ((name = completions[list_index++])) {
-    if (strncmp(name, text, len) == 0) {
-      return strdup(name);
+  while (frames != NULL) {
+    while (vars != NULL) {
+      char *name = symbol_str(vm, car(vm, vars));
+      if (strncmp(name, text, len) == 0) {
+        vars = cdr(vm, vars);
+        return strdup(name);
+      }
+      vars = cdr(vm, vars);
     }
+    frames = cdr(vm, frames);
+    vars = car(vm, car(vm, frames));
   }
 
   return NULL;
@@ -39,27 +45,13 @@ char *character_name_generator(const char *text, int state) {
 
 static char** my_completion(const char *text, int start, int end) {
   rl_attempted_completion_over = 1;
-  return rl_completion_matches(text, character_name_generator);
+  return rl_completion_matches(text, symbol_generator);
 }
 
 static int mygetinput(yyscan_t scanner, FILE *fp, char *buf, int size) {
 
   if (fp == stdin && isatty(STDIN_FILENO)) {
-
-    vm_t *vm = yyget_extra(scanner)->vm;
-
-    n = 0;
-    object_t frames = fetch(vm, ENV);
-    // TODO: fix issue with coupling to environment representations
-    while (frames != NULL) {
-      object_t vals = car(vm, car(vm, frames));
-      while (vals != NULL) {
-        completions[n++] = symbol_str(vm, car(vm, vals));
-        vals = cdr(vm, vals);
-      }
-      frames = cdr(vm, frames);
-    }
-
+    vm = yyget_extra(scanner)->vm;
     rl_attempted_completion_function = my_completion;
 
     char *line;
@@ -75,6 +67,7 @@ static int mygetinput(yyscan_t scanner, FILE *fp, char *buf, int size) {
       return YY_NULL;
     }
     sprintf(buf,"%s\n",line);
+    add_history(line);
     free(line);
     return strlen(buf);
   } else {
