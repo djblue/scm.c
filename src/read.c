@@ -27,10 +27,10 @@ object_t c_read(vm_t *vm, FILE *fp) {
 }
 
 object_t scm_read(vm_t *vm, object_t args) {
-  object_t port = (scm_type(args) == PORT) ? port : car(vm, args);
+  object_t port = (scm_type(args) == PORT) ? args : car(vm, args);
 
   if (port != NULL && scm_type(port) != PORT)
-    return make_error(vm, "Provided argument is not port.", port);
+    return make_error(vm, "read: argument is not port", port);
 
   if (port == NULL)
     port = fetch(vm, STDIN);
@@ -39,20 +39,22 @@ object_t scm_read(vm_t *vm, object_t args) {
 }
 
 object_t scm_load(vm_t *vm, object_t args) {
-  object_t port = scm_open(vm, args);
+  object_t port = scm_guard(scm_open(vm, args));
   if (scm_type(port) == ERROR) return port;
 
-  assign(vm, ARGL, cons(vm, port, NULL));
-
   while (1) {
-    object_t value = scm_read(vm, fetch(vm, ARGL));
+    object_t value = scm_read(vm, port);
     if (value == eof) break;
     object_t ret = scm_eval(vm, value);
     if (scm_type(ret) == ERROR) {
+      port = scm_unguard(port);
+      scm_close(vm, port);
       return ret;
     }
   }
 
+  port = scm_unguard(port);
+  scm_close(vm, port);
   return t;
 }
 

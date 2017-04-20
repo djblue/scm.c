@@ -46,6 +46,12 @@ object_t scm_guard(object_t o) {
   return o;
 }
 
+object_t scm_unguard(object_t o) {
+  if (scm_is_fixnum(o)) return o;
+  o->guard = 0;
+  return o;
+}
+
 int scm_has_guard(object_t o) {
   if (scm_is_fixnum(o)) return 1;
   return o->guard;
