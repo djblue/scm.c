@@ -177,3 +177,5 @@
               `(apply
                     (lambda ,(map car bindings) ,@body)
                     (list ,@(map cadr bindings))))
+
+(define-macro (comment . body) #t)
