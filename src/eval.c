@@ -2,9 +2,16 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <signal.h>
 
 #include "eval.h"
 #include "print.h"
+
+static volatile int interrupt = 0;
+
+void sigint_handler(int sig) {
+  interrupt = 1;
+}
 
 #define SAVE if (!save(vm)) RET(stack_overflow)
 #define RESTORE restore(vm);
@@ -38,6 +45,8 @@ object_t reverse(vm_t *vm, object_t args, object_t acc) {
 
 static void eval(vm_t *vm) {
 tailcall:
+  if (interrupt) RET(make_error(vm, "execution interrupted", NULL))
+
   vm_gc(vm);
 
   if (fetch(vm, EXPR) == NULL) RET(NULL)
@@ -242,10 +251,13 @@ apply:
 }
 
 object_t scm_eval(vm_t *vm, object_t expr) {
+  interrupt = 0;
+  signal(SIGINT, sigint_handler);
   assign(vm, EXPR, expr);
   object_t env = fetch(vm, ENV);
   eval(vm);
   assign(vm, ENV, env);
+  signal(SIGINT, SIG_DFL);
   return fetch(vm, VAL);
 }
 
