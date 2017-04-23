@@ -91,32 +91,34 @@ static object_t scm_mul(vm_t *vm, object_t args) {
   return make_fixnum_int(vm, result);
 }
 
-static object_t scm_lt(vm_t *vm, object_t args) {
-  ASSERT_NUMBER("<", car(args))
-
-  long prev = scm_fixnum(car(args));
-  args = cdr(args);
-
-  while (args != NULL) {
-    ASSERT_NUMBER("<", car(args))
-
-    long operand = scm_fixnum(car(args));
-    if (!(prev < operand)) {
-      return f;
-    }
-
-    prev = operand;
-    args = cdr(args);
+#define RELATIONAL(c_name,scm_name,op) \
+  static object_t c_name(vm_t *vm, object_t args) { \
+    ASSERT_NUMBER(scm_name, car(args)) \
+    long prev = scm_fixnum(car(args)); \
+    args = cdr(args); \
+    while (args != NULL) { \
+      ASSERT_NUMBER(scm_name, car(args)) \
+      long operand = scm_fixnum(car(args)); \
+      if (!(prev op operand)) return f; \
+      prev = operand; \
+      args = cdr(args); \
+    } \
+    return t; \
   }
 
-  return t;
-}
+RELATIONAL(scm_lt, "<", <)
+RELATIONAL(scm_lte, "<=", <=)
+RELATIONAL(scm_gt, ">", >)
+RELATIONAL(scm_gte, ">=", >=)
 
 void define_number(vm_t *vm, object_t env) {
   def("+", scm_add)
   def("-", scm_sub)
   def("*", scm_mul)
   def("<", scm_lt)
+  def("<=", scm_lte)
+  def(">", scm_gt)
+  def(">=", scm_gte)
   def("number?", numberp)
 }
 
