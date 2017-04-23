@@ -79,3 +79,71 @@ object_t pair_eq(vm_t *vm, object_t a, object_t b) {
   return false(object_eq(vm, car(vm, a), car(vm, b))) ? f : object_eq(vm, cdr(vm, a), cdr(vm, b));
 }
 
+#define eval_predicate(fn,p) \
+  object_t fn(vm_t *vm, object_t args) { \
+    object_t o = car(vm, args); \
+    if (true(error(o))) return o; \
+    return p(o); \
+  }
+
+eval_predicate(nullp, null)
+eval_predicate(pairp, pair)
+
+object_t eval_cons(vm_t *vm, object_t args) {
+  object_t a = car(vm, args);
+  object_t b = car(vm, cdr(vm, args));
+  return cons(vm, a, b);
+}
+
+object_t eval_car(vm_t *vm, object_t args) {
+  object_t pair = car(vm, args);
+  if (pair == NULL) return NULL;
+  if (scm_type(pair) == ERROR) return pair;
+  if (scm_type(pair) != PAIR) {
+    return make_error(vm, "car: object not pair", pair);
+  }
+  return car(vm, pair);
+}
+
+object_t eval_cdr(vm_t *vm, object_t args) {
+  object_t pair = car(vm, args);
+  if (pair == NULL) return NULL;
+  if (scm_type(pair) == ERROR) return pair;
+  if (scm_type(pair) != PAIR) {
+    return make_error(vm, "cdr: object not pair", pair);
+  }
+  return cdr(vm, pair);
+}
+
+object_t eval_set_car(vm_t *vm, object_t args) {
+  object_t pair = car(vm, args);
+  if (pair == NULL) return NULL;
+  object_t value = car(vm, cdr(vm, args));
+  if (scm_type(pair) == ERROR) return pair;
+  if (scm_type(pair) != PAIR) {
+    return make_error(vm, "set-car! object not pair", pair);
+  }
+  return set_car(vm, pair, value);
+}
+
+object_t eval_set_cdr(vm_t *vm, object_t args) {
+  object_t pair = car(vm, args);
+  if (pair == NULL) return NULL;
+  object_t value = car(vm, cdr(vm, args));
+  if (scm_type(pair) == ERROR) return pair;
+  if (scm_type(pair) != PAIR) {
+    return make_error(vm, "set-cdr! object not pair", pair);
+  }
+  return set_cdr(vm, pair, value);
+}
+
+void define_pair(vm_t *vm, object_t env) {
+  def("cons", eval_cons)
+  def("car", eval_car)
+  def("cdr", eval_cdr)
+  def("set-car!", eval_set_car)
+  def("set-cdr!", eval_set_cdr)
+
+  def("pair?", pairp)
+  def("null?", nullp)
+}
