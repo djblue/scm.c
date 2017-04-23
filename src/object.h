@@ -6,7 +6,6 @@
 
 typedef enum {
   FIXNUM = 1,
-  FLONUM,
   STRING,
   CHARACTER,
   SYMBOL,

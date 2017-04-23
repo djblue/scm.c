@@ -5,7 +5,6 @@
 #include "vm.h"
 
 object_t make_fixnum(vm_t *vm, char *str);
-object_t make_flonum(vm_t *vm, char *str);
 
 long scm_fixnum(object_t o);
 int scm_is_fixnum(object_t o);

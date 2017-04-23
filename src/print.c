@@ -38,9 +38,6 @@ static void print_object(vm_t *vm, FILE *fp, object_t o) {
     case FIXNUM:
       fprintf(fp, __green("%ld"), scm_fixnum(o));
       break;
-    case FLONUM:
-      fprintf(fp, __green("%f"), object_data(o, float));
-      break;
     case CHARACTER:
       fprintf(fp, __yellow("#\\%c"), object_data(o, char));
       break;

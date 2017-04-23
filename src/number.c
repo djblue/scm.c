@@ -16,18 +16,6 @@ static object_t make_fixnum_int(vm_t *vm, long fix) {
   return (object_t) ((fix << 1) | FIXNUM_TAG);
 }
 
-object_t make_flonum(vm_t *vm, char *str) {
-  object_t o = make(vm, FLONUM, sizeof(float));
-  object_data(o, float) = atof(str);
-  return o;
-}
-
-static object_t make_flonum_float(vm_t *vm, float flo) {
-  object_t o = make(vm, FLONUM, sizeof(float));
-  object_data(o, float) = flo;
-  return o;
-}
-
 long scm_fixnum(object_t o) {
   return ((long) o) >> 1;
 }
@@ -37,7 +25,7 @@ int scm_is_fixnum(object_t o) {
 }
 
 static object_t number(object_t o) {
-  if (o == NULL || (scm_type(o) != FIXNUM && scm_type(o) != FLONUM)) {
+  if (scm_type(o) != FIXNUM) {
     return f;
   }
   return t;
@@ -55,12 +43,6 @@ static object_t plus(vm_t *vm, object_t a, object_t b) {
     return make_error(vm,
         "+: operand is not a number", b);
 
-  if (scm_type(a) == FLONUM || scm_type(b) == FLONUM) {
-    if (scm_type(a) != FLONUM) return make_flonum_float(vm, scm_fixnum(a) + object_data(b, float));
-    if (scm_type(b) != FLONUM) return make_flonum_float(vm, object_data(a, float) + scm_fixnum(b));
-    return make_flonum_float(vm, object_data(a, float) + object_data(b, float));
-  }
-
   return make_fixnum_int(vm, scm_fixnum(a) + scm_fixnum(b));
 }
 
@@ -74,12 +56,6 @@ static object_t minus(vm_t *vm, object_t a, object_t b) {
   if (!true(number(b)))
     return make_error(vm,
         "-: operand is not a number", b);
-
-  if (scm_type(a) == FLONUM || scm_type(b) == FLONUM) {
-    if (scm_type(a) != FLONUM) return make_flonum_float(vm, scm_fixnum(a) - object_data(b, float));
-    if (scm_type(b) != FLONUM) return make_flonum_float(vm, object_data(a, float) - scm_fixnum(b));
-    return make_flonum_float(vm, object_data(a, float) - object_data(b, float));
-  }
 
   return make_fixnum_int(vm, scm_fixnum(a) - scm_fixnum(b));
 }
@@ -95,12 +71,6 @@ static object_t multiply(vm_t *vm, object_t a, object_t b) {
   if (!true(number(b)))
     return make_error(vm,
         "*: operand is not a number", b);
-
-  if (scm_type(a) == FLONUM || scm_type(b) == FLONUM) {
-    if (scm_type(a) != FLONUM) return make_flonum_float(vm, scm_fixnum(a) * object_data(b, float));
-    if (scm_type(b) != FLONUM) return make_flonum_float(vm, object_data(a, float) * scm_fixnum(b));
-    return make_flonum_float(vm, object_data(a, float) * object_data(b, float));
-  }
 
   return make_fixnum_int(vm, scm_fixnum(a) * scm_fixnum(b));
 }
