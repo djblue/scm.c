@@ -23,7 +23,7 @@ char *symbol_generator(const char *text, int state) {
 
   if (!state) {
     frames = fetch(vm, ENV);
-    vars = car(car(frames));
+    vars = caar(frames);
     len = strlen(text);
   }
 
@@ -37,7 +37,7 @@ char *symbol_generator(const char *text, int state) {
       vars = cdr(vars);
     }
     frames = cdr(frames);
-    vars = car(car(frames));
+    vars = caar(frames);
   }
 
   return NULL;

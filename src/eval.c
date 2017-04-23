@@ -67,8 +67,7 @@ tailcall:
         RECUR(car(fetch(vm, EXPR)), if_continue)
         if (true(error(fetch(vm, VAL)))) RET(fetch(vm, VAL))
         assign(vm, EXPR, !false(fetch(vm, VAL))
-            ? car(cdr(fetch(vm, EXPR)))
-            : car(cdr(cdr(fetch(vm, EXPR)))));
+            ? cadr(fetch(vm, EXPR)) : caddr(fetch(vm, EXPR)));
         goto tailcall;
 
       case F_QUOTE:
@@ -76,17 +75,17 @@ tailcall:
 
       case F_DEFINE:
         if (true(pair(car(fetch(vm, EXPR))))) {
-          RECUR(cons(vm, sym_lambda, cons(vm, cdr(car(fetch(vm, EXPR))), cdr(fetch(vm, EXPR)))), define_continue_1)
-          define(vm, fetch(vm, ENV), car(car(fetch(vm, EXPR))), fetch(vm, VAL));
+          RECUR(cons(vm, sym_lambda, cons(vm, cdar(fetch(vm, EXPR)), cdr(fetch(vm, EXPR)))), define_continue_1)
+          define(vm, fetch(vm, ENV), caar(fetch(vm, EXPR)), fetch(vm, VAL));
         } else {
-          RECUR(car(cdr(fetch(vm, EXPR))), define_continue_2)
+          RECUR(cadr(fetch(vm, EXPR)), define_continue_2)
           define(vm, fetch(vm, ENV), car(fetch(vm, EXPR)), fetch(vm, VAL));
         }
 
         RET(t)
 
       case F_SET:
-        RECUR(car(cdr(fetch(vm, EXPR))), set_continue)
+        RECUR(cadr(fetch(vm, EXPR)), set_continue)
         RET(set(vm, fetch(vm, ENV), car(fetch(vm, EXPR)), fetch(vm, VAL)))
 
       case F_LAMBDA:
@@ -132,13 +131,13 @@ tailcall:
 
       case F_COND:
         while (fetch(vm, EXPR) != NULL) {
-          if (true(object_eq(vm, car(car(fetch(vm, EXPR))), sym_else))) {
-            assign(vm, EXPR, car(cdr(car(fetch(vm, EXPR)))));
+          if (true(object_eq(vm, caar(fetch(vm, EXPR)), sym_else))) {
+            assign(vm, EXPR, cadar(fetch(vm, EXPR)));
             goto tailcall;
           }
           RECUR(car(car(fetch(vm, EXPR))), cond_continue)
           if (true(fetch(vm, VAL))) {
-            assign(vm, EXPR, car(cdr(car(fetch(vm, EXPR)))));
+            assign(vm, EXPR, cadar(fetch(vm, EXPR)));
             goto tailcall;
           }
 
@@ -175,7 +174,7 @@ tailcall:
       case F_APPLY:
         RECUR(car(fetch(vm, EXPR)), apply_continue_1)
         assign(vm, FUN, fetch(vm, VAL));
-        RECUR(car(cdr(fetch(vm, EXPR))), apply_continue_2)
+        RECUR(cadr(fetch(vm, EXPR)), apply_continue_2)
         if (scm_type(fetch(vm, VAL)) != NIL && scm_type(fetch(vm, VAL)) != PAIR)
           RET(make_error(vm, "apply: cannot apply non-list args", fetch(vm, VAL)))
         assign(vm, ARGL, fetch(vm, VAL));
@@ -310,7 +309,7 @@ object_t procedurep(vm_t *vm, object_t args) {
 object_t eq(vm_t *vm, object_t args) {
   if (args == NULL) return NULL;
   if (cdr(args) == NULL) return NULL;
-  if (car(args) == car(cdr(args))) return t;
+  if (car(args) == cadr(args)) return t;
   return f;
 }
 
