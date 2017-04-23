@@ -3,10 +3,6 @@
 #include "print.h"
 #include "colors.h"
 
-static char *get_str(object_t o) {
-  return &object_data(o, char);
-}
-
 static void print_object(vm_t *vm, FILE *fp, object_t o);
 
 static void print_pair(vm_t *vm, FILE *fp, object_t o) {
@@ -49,7 +45,7 @@ static void print_object(vm_t *vm, FILE *fp, object_t o) {
       fprintf(fp, __yellow("#\\%c"), object_data(o, char));
       break;
     case STRING:
-      fprintf(fp, __yellow("\"%s\""), get_str(o));
+      fprintf(fp, __yellow("\"%s\""), string_cstr(o));
       break;
     case TRUE:
       fprintf(fp, __green("#t"));
@@ -89,7 +85,7 @@ static void print_object(vm_t *vm, FILE *fp, object_t o) {
       print_port(vm, o);
       break;
     default:
-      fprintf(fp, "cannot write unknown type");
+      fprintf(fp, "print: cannot write unknown type");
   }
 }
 

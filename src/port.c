@@ -34,13 +34,13 @@ object_t scm_open(vm_t *vm, object_t args) {
   object_t str = car(vm, args);
 
   if (false(string(str)))
-    return make_error(vm, "open: first argument is not a string.", str);
+    return make_error(vm, "open: first argument is not a string", str);
 
   char *path = string_cstr(str);
   FILE *fp = fopen(path, "r");
 
   if (fp == NULL) {
-    return make_error(vm, "open: can't open input file.", str);
+    return make_error(vm, "open: cannot open input file", str);
   }
 
   object_t port = make_port(vm);
