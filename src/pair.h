@@ -16,6 +16,15 @@ object_t set_cdr(object_t pair, object_t cdr);
 #define cdar(p) cdr(car (p))
 #define cddr(p) cdr(cdr (p))
 
+#define caaar(p) car(caar (p))
+#define caadr(p) car(cadr (p))
+#define cadar(p) car(cdar (p))
+#define caddr(p) car(cddr (p))
+#define cdaar(p) cdr(caar (p))
+#define cdadr(p) cdr(cadr (p))
+#define cddar(p) cdr(cdar (p))
+#define cdddr(p) cdr(cddr (p))
+
 object_t list(vm_t *vm, int argc, ...);
 
 object_t null(object_t o);
