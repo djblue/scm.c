@@ -269,7 +269,6 @@ object_t scm_eval(vm_t *vm, object_t expr) {
   }
 
 eval_predicate(nullp, null)
-eval_predicate(numberp, number)
 eval_predicate(booleanp, boolean)
 eval_predicate(errorp, error)
 eval_predicate(stringp, string)
@@ -358,36 +357,6 @@ object_t procedurep(vm_t *vm, object_t args) {
   }
 }
 
-#include "number.h"
-
-object_t eval_plus(vm_t *vm, object_t args) {
-  if (args == NULL) return NULL;
-  object_t op = car(vm, args);
-  if (true(error(op))) return op;
-  return plus(vm, op, eval_plus(vm, cdr(vm, args)));
-}
-
-object_t eval_minus(vm_t *vm, object_t args) {
-  if (args == NULL) return NULL;
-  object_t op = car(vm, args);
-  if (cdr(vm, args) == NULL) {
-    op = minus(vm, op, NULL);
-  }
-  args = cdr(vm, args);
-  while (args != NULL) {
-    op = minus(vm, op, car(vm, args));
-    args = cdr(vm, args);
-  }
-  return op;
-}
-
-object_t eval_multiply(vm_t *vm, object_t args) {
-  if (args == NULL) return NULL;
-  object_t op = car(vm, args);
-  if (true(error(op))) return op;
-  return multiply(vm, op, eval_multiply(vm, cdr(vm, args)));
-}
-
 object_t eq(vm_t *vm, object_t args) {
   if (args == NULL) return NULL;
   if (cdr(vm, args) == NULL) return NULL;
@@ -432,14 +401,10 @@ void init(vm_t *vm, object_t env) {
   sym_eval = defs("eval", F_EVAL)
   sym_apply = defs("apply", F_APPLY)
 
-  def("+", eval_plus)
-  def("-", eval_minus)
-  def("*", eval_multiply)
   def("=", eval_eq)
 
   def("interaction-environment", interaction_environment)
 
-  def("number?", numberp)
   def("boolean?", booleanp)
   def("error?", errorp)
   def("string?", stringp)
