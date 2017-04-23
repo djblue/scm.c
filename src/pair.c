@@ -17,32 +17,24 @@ object_t cons(vm_t *vm, object_t car, object_t cdr) {
   return o;
 }
 
-object_t car(vm_t *vm, object_t pair) {
+object_t car(object_t pair) {
   if (pair == NULL) return NULL;
   return object_data(pair, pair_t).car;
 }
 
-object_t cdr(vm_t *vm, object_t pair) {
+object_t cdr(object_t pair) {
   if (pair == NULL) return NULL;
   return object_data(pair, pair_t).cdr;
 }
 
-object_t set_car(vm_t *vm, object_t pair, object_t car) {
+object_t set_car(object_t pair, object_t car) {
   if (pair == NULL) return NULL;
-  if (scm_type(pair) == ERROR) return pair;
-  if (scm_type(pair) != PAIR) {
-    return make_error(vm, "set-car!: object not pair", pair);
-  }
   object_data(pair, pair_t).car = car;
   return t;
 }
 
-object_t set_cdr(vm_t *vm, object_t pair, object_t cdr) {
+object_t set_cdr(object_t pair, object_t cdr) {
   if (pair == NULL) return NULL;
-  if (scm_type(pair) == ERROR) return pair;
-  if (scm_type(pair) != PAIR) {
-    return make_error(vm, "set-cdr!: object not pair", pair);
-  }
   object_data(pair, pair_t).cdr = cdr;
   return t;
 }
@@ -56,7 +48,7 @@ object_t list(vm_t *vm, int argc, ...) {
   for (int i = 0; i < argc; i++) {
     object_t pair = cons(vm, va_arg(argp, object_t), NULL);
     if (prev != NULL) {
-      set_cdr(vm, prev, pair);
+      set_cdr(prev, pair);
     } else if (head == NULL) {
       head = pair;
     }
@@ -76,12 +68,12 @@ object_t null(object_t o) {
 predicate(pair, PAIR)
 
 object_t pair_eq(vm_t *vm, object_t a, object_t b) {
-  return false(object_eq(vm, car(vm, a), car(vm, b))) ? f : object_eq(vm, cdr(vm, a), cdr(vm, b));
+  return false(object_eq(vm, car(a), car(b))) ? f : object_eq(vm, cdr(a), cdr(b));
 }
 
 #define eval_predicate(fn,p) \
   object_t fn(vm_t *vm, object_t args) { \
-    object_t o = car(vm, args); \
+    object_t o = car(args); \
     if (true(error(o))) return o; \
     return p(o); \
   }
@@ -90,51 +82,43 @@ eval_predicate(nullp, null)
 eval_predicate(pairp, pair)
 
 object_t eval_cons(vm_t *vm, object_t args) {
-  object_t a = car(vm, args);
-  object_t b = car(vm, cdr(vm, args));
-  return cons(vm, a, b);
+  return cons(vm, car(args), cadr(args));
 }
 
 object_t eval_car(vm_t *vm, object_t args) {
-  object_t pair = car(vm, args);
+  object_t pair = car(args);
   if (pair == NULL) return NULL;
-  if (scm_type(pair) == ERROR) return pair;
   if (scm_type(pair) != PAIR) {
     return make_error(vm, "car: object not pair", pair);
   }
-  return car(vm, pair);
+  return car(pair);
 }
 
 object_t eval_cdr(vm_t *vm, object_t args) {
-  object_t pair = car(vm, args);
+  object_t pair = car(args);
   if (pair == NULL) return NULL;
-  if (scm_type(pair) == ERROR) return pair;
   if (scm_type(pair) != PAIR) {
     return make_error(vm, "cdr: object not pair", pair);
   }
-  return cdr(vm, pair);
+  return cdr(pair);
 }
 
 object_t eval_set_car(vm_t *vm, object_t args) {
-  object_t pair = car(vm, args);
+  object_t pair = car(args);
   if (pair == NULL) return NULL;
-  object_t value = car(vm, cdr(vm, args));
-  if (scm_type(pair) == ERROR) return pair;
   if (scm_type(pair) != PAIR) {
     return make_error(vm, "set-car! object not pair", pair);
   }
-  return set_car(vm, pair, value);
+  return set_car(pair, cadr(args));
 }
 
 object_t eval_set_cdr(vm_t *vm, object_t args) {
-  object_t pair = car(vm, args);
+  object_t pair = car(args);
   if (pair == NULL) return NULL;
-  object_t value = car(vm, cdr(vm, args));
-  if (scm_type(pair) == ERROR) return pair;
   if (scm_type(pair) != PAIR) {
     return make_error(vm, "set-cdr! object not pair", pair);
   }
-  return set_cdr(vm, pair, value);
+  return set_cdr(pair, cadr(args));
 }
 
 void define_pair(vm_t *vm, object_t env) {

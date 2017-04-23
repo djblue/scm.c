@@ -82,37 +82,37 @@ object_t number_eq(vm_t *vm, object_t a, object_t b) {
 }
 
 static object_t numberp(vm_t *vm, object_t args) {
-  object_t o = car(vm, args);
+  object_t o = car(args);
   if (true(error(o))) return o;
   return number(o);
 }
 
 static object_t eval_plus(vm_t *vm, object_t args) {
   if (args == NULL) return NULL;
-  object_t op = car(vm, args);
+  object_t op = car(args);
   if (true(error(op))) return op;
-  return plus(vm, op, eval_plus(vm, cdr(vm, args)));
+  return plus(vm, op, eval_plus(vm, cdr(args)));
 }
 
 static object_t eval_minus(vm_t *vm, object_t args) {
   if (args == NULL) return NULL;
-  object_t op = car(vm, args);
-  if (cdr(vm, args) == NULL) {
+  object_t op = car(args);
+  if (cdr(args) == NULL) {
     op = minus(vm, op, NULL);
   }
-  args = cdr(vm, args);
+  args = cdr(args);
   while (args != NULL) {
-    op = minus(vm, op, car(vm, args));
-    args = cdr(vm, args);
+    op = minus(vm, op, car(args));
+    args = cdr(args);
   }
   return op;
 }
 
 static object_t eval_multiply(vm_t *vm, object_t args) {
   if (args == NULL) return NULL;
-  object_t op = car(vm, args);
+  object_t op = car(args);
   if (true(error(op))) return op;
-  return multiply(vm, op, eval_multiply(vm, cdr(vm, args)));
+  return multiply(vm, op, eval_multiply(vm, cdr(args)));
 }
 
 void define_number(vm_t *vm, object_t env) {

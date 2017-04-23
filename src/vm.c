@@ -130,8 +130,8 @@ static void mark(vm_t *vm, object_t o) {
 
   switch (scm_type(o)) {
     case PAIR:
-      mark(vm, car(vm, o));
-      mark(vm, cdr(vm, o));
+      mark(vm, car(o));
+      mark(vm, cdr(o));
       break;
     case PROCEDURE:
     case MACRO:

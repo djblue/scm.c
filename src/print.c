@@ -10,8 +10,8 @@ static void print_pair(vm_t *vm, FILE *fp, object_t o) {
 
   object_t temp = o, next;
   while (temp != NULL) {
-    print_object(vm, fp, car(vm, temp));
-    next = cdr(vm, temp);
+    print_object(vm, fp, car(temp));
+    next = cdr(temp);
     if (next == NULL || scm_type(next) != PAIR) break;
     fprintf(fp, " ");
     temp = next;

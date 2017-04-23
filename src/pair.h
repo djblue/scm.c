@@ -5,10 +5,16 @@
 #include "vm.h"
 
 object_t cons(vm_t *vm, object_t car, object_t cdr);
-object_t car(vm_t *vm, object_t pair);
-object_t cdr(vm_t *vm, object_t pair);
-object_t set_car(vm_t *vm, object_t pair, object_t car);
-object_t set_cdr(vm_t *vm, object_t pair, object_t cdr);
+
+object_t car(object_t pair);
+object_t cdr(object_t pair);
+object_t set_car(object_t pair, object_t car);
+object_t set_cdr(object_t pair, object_t cdr);
+
+#define caar(p) car(car (p))
+#define cadr(p) car(cdr (p))
+#define cdar(p) cdr(car (p))
+#define cddr(p) cdr(cdr (p))
 
 object_t list(vm_t *vm, int argc, ...);
 
