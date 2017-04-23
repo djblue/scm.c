@@ -45,11 +45,11 @@ object_t plus(vm_t *vm, object_t a, object_t b) {
 
   if (!true(number(a)))
     return make_error(vm,
-        "can't perform arithmetic on non numeric values", a);
+        "+: operand is not a number", a);
 
   if (!true(number(b)))
     return make_error(vm,
-        "can't perform arithmetic on non numeric values", b);
+        "+: operand is not a number", b);
 
   if (scm_type(a) == FLONUM || scm_type(b) == FLONUM) {
     if (scm_type(a) != FLONUM) return make_flonum_float(vm, scm_fixnum(a) + object_data(b, float));
@@ -65,11 +65,11 @@ object_t minus(vm_t *vm, object_t a, object_t b) {
 
   if (!true(number(a)))
     return make_error(vm,
-        "can't perform arithmetic on non numeric values", a);
+        "-: operand is not a number", a);
 
   if (!true(number(b)))
     return make_error(vm,
-        "can't perform arithmetic on non numeric values", b);
+        "-: operand is not a number", b);
 
   if (scm_type(a) == FLONUM || scm_type(b) == FLONUM) {
     if (scm_type(a) != FLONUM) return make_flonum_float(vm, scm_fixnum(a) - object_data(b, float));
@@ -86,11 +86,11 @@ object_t multiply(vm_t *vm, object_t a, object_t b) {
 
   if (!true(number(a)))
     return make_error(vm,
-        "can't perform arithmetic on non numeric values", a);
+        "*: operand is not a number", a);
 
   if (!true(number(b)))
     return make_error(vm,
-        "can't perform arithmetic on non numeric values", b);
+        "*: operand is not a number", b);
 
   if (scm_type(a) == FLONUM || scm_type(b) == FLONUM) {
     if (scm_type(a) != FLONUM) return make_flonum_float(vm, scm_fixnum(a) * object_data(b, float));

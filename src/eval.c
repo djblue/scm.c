@@ -45,7 +45,7 @@ object_t reverse(vm_t *vm, object_t args, object_t acc) {
 
 static void eval(vm_t *vm) {
 tailcall:
-  if (interrupt) RET(make_error(vm, "execution interrupted", NULL))
+  if (interrupt) RET(make_error(vm, "eval: execution interrupted", NULL))
 
   vm_gc(vm);
 
@@ -56,7 +56,7 @@ tailcall:
   RECUR(car(vm, fetch(vm, EXPR)), procedure_continue)
   assign(vm, FUN, fetch(vm, VAL));
 
-  if (fetch(vm, FUN) == NULL) RET(make_error(vm, "Nil is not operator.", NULL))
+  if (fetch(vm, FUN) == NULL) RET(make_error(vm, "eval: nil is not operator", NULL))
 
   assign(vm, EXPR, cdr(vm, fetch(vm, EXPR)));
 
@@ -188,7 +188,7 @@ tailcall:
         vm_set_macro_expand(vm, 0);
         RET(fetch(vm, VAL))
 
-      default: RET(make_error(vm, "Unknown special operator.", fetch(vm, FUN)))
+      default: RET(make_error(vm, "eval: unknown special operator", fetch(vm, FUN)))
     }
 
     case PRIMITIVE:
@@ -219,7 +219,7 @@ macro_expand_continue:
       }
 
     default:
-    RET(make_error(vm, "Not a procedure", fetch(vm, FUN)))
+    RET(make_error(vm, "eval: not a procedure", fetch(vm, FUN)))
   }
 
 apply:
@@ -288,7 +288,7 @@ object_t eval_car(vm_t *vm, object_t args) {
   if (pair == NULL) return NULL;
   if (scm_type(pair) == ERROR) return pair;
   if (scm_type(pair) != PAIR) {
-    return make_error(vm, "Object not pair.", pair);
+    return make_error(vm, "car: object not pair", pair);
   }
   return car(vm, pair);
 }
@@ -298,7 +298,7 @@ object_t eval_cdr(vm_t *vm, object_t args) {
   if (pair == NULL) return NULL;
   if (scm_type(pair) == ERROR) return pair;
   if (scm_type(pair) != PAIR) {
-    return make_error(vm, "Object not pair.", pair);
+    return make_error(vm, "cdr: object not pair", pair);
   }
   return cdr(vm, pair);
 }
@@ -309,7 +309,7 @@ object_t eval_set_car(vm_t *vm, object_t args) {
   object_t value = car(vm, cdr(vm, args));
   if (scm_type(pair) == ERROR) return pair;
   if (scm_type(pair) != PAIR) {
-    return make_error(vm, "Object not pair.", pair);
+    return make_error(vm, "set-car! object not pair", pair);
   }
   return set_car(vm, pair, value);
 }
@@ -320,7 +320,7 @@ object_t eval_set_cdr(vm_t *vm, object_t args) {
   object_t value = car(vm, cdr(vm, args));
   if (scm_type(pair) == ERROR) return pair;
   if (scm_type(pair) != PAIR) {
-    return make_error(vm, "Object not pair.", pair);
+    return make_error(vm, "set-cdr! object not pair", pair);
   }
   return set_cdr(vm, pair, value);
 }
@@ -398,7 +398,7 @@ object_t eq(vm_t *vm, object_t args) {
 object_t eval_error(vm_t *vm, object_t args) {
   object_t message = car(vm, args);
   if (scm_type(message) != STRING)
-    return make_error(vm, "Cannot make error.", message);
+    return make_error(vm, "error: cannot make error", message);
   object_t irritant = car(vm, cdr(vm, args));
   return make_error(vm, string_cstr(message), irritant);
 }

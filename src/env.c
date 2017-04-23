@@ -73,7 +73,7 @@ object_t set(vm_t *vm, object_t env, object_t sym, object_t val) {
     env = cdr(vm, env);
   }
 
-  return make_error(vm, "set!: cannot find var.", sym);
+  return make_error(vm, "set!: cannot find var", sym);
 }
 
 object_t lookup(vm_t *vm, object_t env, object_t sym) {
@@ -99,6 +99,6 @@ object_t lookup(vm_t *vm, object_t env, object_t sym) {
     env = cdr(vm, env);
   }
 
-  return make_error(vm, "Cannot find symbol.", sym);
+  return make_error(vm, "lookup: no such binding", sym);
 }
 
