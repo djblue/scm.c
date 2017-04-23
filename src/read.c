@@ -27,7 +27,7 @@ object_t c_read(vm_t *vm, FILE *fp) {
 }
 
 object_t scm_read(vm_t *vm, object_t args) {
-  object_t port = (scm_type(args) == PORT) ? args : car(vm, args);
+  object_t port = (scm_type(args) == PORT) ? args : car(args);
 
   if (port != NULL && scm_type(port) != PORT)
     return make_error(vm, "read: argument is not port", port);

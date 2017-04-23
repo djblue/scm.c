@@ -31,7 +31,7 @@ void print_port(vm_t *vm, object_t port) {
 }
 
 object_t scm_open(vm_t *vm, object_t args) {
-  object_t str = car(vm, args);
+  object_t str = car(args);
 
   if (false(string(str)))
     return make_error(vm, "open: first argument is not a string", str);
@@ -50,7 +50,7 @@ object_t scm_open(vm_t *vm, object_t args) {
 }
 
 object_t scm_close(vm_t *vm, object_t args) {
-  object_t port = (scm_type(args) == PORT) ? args : car(vm, args);
+  object_t port = (scm_type(args) == PORT) ? args : car(args);
 
   if (scm_type(port) != PORT)
     return make_error(vm, "close: argument is not a port", port);

@@ -23,21 +23,21 @@ char *symbol_generator(const char *text, int state) {
 
   if (!state) {
     frames = fetch(vm, ENV);
-    vars = car(vm, car(vm, frames));
+    vars = car(car(frames));
     len = strlen(text);
   }
 
   while (frames != NULL) {
     while (vars != NULL) {
-      char *name = symbol_str(vm, car(vm, vars));
+      char *name = symbol_str(vm, car(vars));
       if (strncmp(name, text, len) == 0) {
-        vars = cdr(vm, vars);
+        vars = cdr(vars);
         return strdup(name);
       }
-      vars = cdr(vm, vars);
+      vars = cdr(vars);
     }
-    frames = cdr(vm, frames);
-    vars = car(vm, car(vm, frames));
+    frames = cdr(frames);
+    vars = car(car(frames));
   }
 
   return NULL;
