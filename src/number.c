@@ -12,7 +12,7 @@ object_t make_fixnum(vm_t *vm, char *str) {
   return (object_t) value;
 }
 
-object_t make_fixnum_int(vm_t *vm, long fix) {
+static object_t make_fixnum_int(vm_t *vm, long fix) {
   return (object_t) ((fix << 1) | FIXNUM_TAG);
 }
 
@@ -22,7 +22,7 @@ object_t make_flonum(vm_t *vm, char *str) {
   return o;
 }
 
-object_t make_flonum_float(vm_t *vm, float flo) {
+static object_t make_flonum_float(vm_t *vm, float flo) {
   object_t o = make(vm, FLONUM, sizeof(float));
   object_data(o, float) = flo;
   return o;
@@ -36,14 +36,14 @@ int scm_is_fixnum(object_t o) {
   return (((long) o) & 0x1) == FIXNUM_TAG;
 }
 
-object_t number(object_t o) {
+static object_t number(object_t o) {
   if (o == NULL || (scm_type(o) != FIXNUM && scm_type(o) != FLONUM)) {
     return f;
   }
   return t;
 }
 
-object_t plus(vm_t *vm, object_t a, object_t b) {
+static object_t plus(vm_t *vm, object_t a, object_t b) {
   if (a == NULL) return plus(vm, make_fixnum_int(vm, 0), b);
   if (b == NULL) return plus(vm, a, make_fixnum_int(vm, 0));
 
@@ -64,7 +64,7 @@ object_t plus(vm_t *vm, object_t a, object_t b) {
   return make_fixnum_int(vm, scm_fixnum(a) + scm_fixnum(b));
 }
 
-object_t minus(vm_t *vm, object_t a, object_t b) {
+static object_t minus(vm_t *vm, object_t a, object_t b) {
   if (b == NULL) return minus(vm, make_fixnum_int(vm, 0), a);
 
   if (!true(number(a)))
@@ -84,7 +84,7 @@ object_t minus(vm_t *vm, object_t a, object_t b) {
   return make_fixnum_int(vm, scm_fixnum(a) - scm_fixnum(b));
 }
 
-object_t multiply(vm_t *vm, object_t a, object_t b) {
+static object_t multiply(vm_t *vm, object_t a, object_t b) {
   if (a == NULL) return multiply(vm, make_fixnum_int(vm, 1), b);
   if (b == NULL) return multiply(vm, a, make_fixnum_int(vm, 1));
 
@@ -105,35 +105,26 @@ object_t multiply(vm_t *vm, object_t a, object_t b) {
   return make_fixnum_int(vm, scm_fixnum(a) * scm_fixnum(b));
 }
 
-object_t fixnum(object_t o) {
-  if (o == NULL || !scm_is_fixnum(o)) {
-    return f;
-  }
-  return t;
-}
-
-predicate(flonum, FLONUM)
-
 object_t number_eq(vm_t *vm, object_t a, object_t b) {
   if (a == NULL || b == NULL) return f;
   if (scm_type(a) != FIXNUM || scm_type(b) != FIXNUM) return f;
   return (scm_fixnum(a) == scm_fixnum(b)) ? t : f;
 }
 
-object_t numberp(vm_t *vm, object_t args) {
+static object_t numberp(vm_t *vm, object_t args) {
   object_t o = car(vm, args);
   if (true(error(o))) return o;
   return number(o);
 }
 
-object_t eval_plus(vm_t *vm, object_t args) {
+static object_t eval_plus(vm_t *vm, object_t args) {
   if (args == NULL) return NULL;
   object_t op = car(vm, args);
   if (true(error(op))) return op;
   return plus(vm, op, eval_plus(vm, cdr(vm, args)));
 }
 
-object_t eval_minus(vm_t *vm, object_t args) {
+static object_t eval_minus(vm_t *vm, object_t args) {
   if (args == NULL) return NULL;
   object_t op = car(vm, args);
   if (cdr(vm, args) == NULL) {
@@ -147,7 +138,7 @@ object_t eval_minus(vm_t *vm, object_t args) {
   return op;
 }
 
-object_t eval_multiply(vm_t *vm, object_t args) {
+static object_t eval_multiply(vm_t *vm, object_t args) {
   if (args == NULL) return NULL;
   object_t op = car(vm, args);
   if (true(error(op))) return op;
