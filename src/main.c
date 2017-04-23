@@ -12,11 +12,16 @@ int main (int argc, char** argv) {
   vm_t *vm = make_vm();
 
   object_t env = make_frame(vm);
-  init(vm, env);
-  define_pair(vm, env);
+  define_boolean(vm, env);
   define_number(vm, env);
+  define_char(vm, env);
+  define_string(vm, env);
+  define_error(vm, env);
+  define_pair(vm, env);
   define_port(vm, env);
   define_read(vm, env);
+  define_print(vm, env);
+  define_eval(vm, env);
   assign(vm, ENV, env);
 
 #ifdef linux

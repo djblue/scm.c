@@ -61,6 +61,7 @@ object_t scm_close(vm_t *vm, object_t args) {
 }
 
 void define_port(vm_t *vm, object_t env) {
+  eof = scm_guard(make(vm, ENDOFINPUT, 0));
   def("open", scm_open)
 }
 

@@ -1,4 +1,5 @@
 #include "number.h"
+
 #include "error.h"
 #include "pair.h"
 #include "env.h"
@@ -29,6 +30,12 @@ int scm_is_fixnum(object_t o) {
   return (((long) o) & 0x1) == FIXNUM_TAG;
 }
 
+object_t number_eq(vm_t *vm, object_t a, object_t b) {
+  if (a == NULL || b == NULL) return f;
+  if (scm_type(a) != FIXNUM || scm_type(b) != FIXNUM) return f;
+  return (scm_fixnum(a) == scm_fixnum(b)) ? t : f;
+}
+
 static object_t number(object_t o) {
   if (scm_type(o) != FIXNUM) {
     return f;
@@ -36,16 +43,8 @@ static object_t number(object_t o) {
   return t;
 }
 
-object_t number_eq(vm_t *vm, object_t a, object_t b) {
-  if (a == NULL || b == NULL) return f;
-  if (scm_type(a) != FIXNUM || scm_type(b) != FIXNUM) return f;
-  return (scm_fixnum(a) == scm_fixnum(b)) ? t : f;
-}
-
 static object_t numberp(vm_t *vm, object_t args) {
-  object_t o = car(args);
-  if (true(error(o))) return o;
-  return number(o);
+  return number(car(args));
 }
 
 static object_t scm_add(vm_t *vm, object_t args) {

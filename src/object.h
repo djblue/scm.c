@@ -5,22 +5,21 @@
 #include "vm.h"
 
 typedef enum {
-  FIXNUM = 1,
+  NIL = 0,
+  FIXNUM,
   STRING,
   CHARACTER,
   SYMBOL,
   TRUE,
   FALSE,
   PAIR,
-  NIL,
   SPECIAL,
   PRIMITIVE,
   PROCEDURE,
   MACRO,
   ERROR,
   PORT,
-  ENDOFINPUT,
-  UENDOFINPUT
+  ENDOFINPUT
 } type_t;
 
 extern object_t t;

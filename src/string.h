@@ -15,4 +15,6 @@ object_t str_to_error(vm_t *vm, string_t *str);
 
 object_t string(object_t o);
 
+void define_string(vm_t *vm, object_t env);
+
 #endif

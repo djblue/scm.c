@@ -7,7 +7,6 @@
 #include "vm.h"
 
 extern object_t eof;
-extern object_t ueof;
 
 object_t make_port_from_file(vm_t *vm, FILE *fp);
 object_t scm_open(vm_t *vm, object_t args);

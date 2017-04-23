@@ -6,7 +6,8 @@
 
 object_t make_char(vm_t *vm, char *str);
 
-object_t character(object_t o);
 object_t character_eq(vm_t *vm, object_t a, object_t b);
+
+void define_char(vm_t *vm, object_t env);
 
 #endif

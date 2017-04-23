@@ -3,6 +3,11 @@
 #include "print.h"
 #include "colors.h"
 
+#include "pair.h"
+#include "env.h"
+#include "symbol.h"
+#include "primitive.h"
+
 static void print_object(vm_t *vm, FILE *fp, object_t o);
 
 static void print_pair(vm_t *vm, FILE *fp, object_t o) {
@@ -90,5 +95,15 @@ void print(vm_t *vm, object_t o) {
   FILE *fp = port_pointer(fetch(vm, STDOUT));
   print_object(vm, fp, o);
   fprintf(fp, "\n");
+}
+
+object_t eval_print(vm_t *vm, object_t args) {
+  object_t o = car(args);
+  print(vm, o);
+  return o;
+}
+
+void define_print(vm_t *vm, object_t env) {
+  def("write", eval_print)
 }
 

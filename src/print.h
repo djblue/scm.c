@@ -6,4 +6,6 @@
 
 void print(vm_t *vm, object_t o);
 
+void define_print(vm_t *vm, object_t env);
+
 #endif

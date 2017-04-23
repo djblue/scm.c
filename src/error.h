@@ -12,4 +12,6 @@ object_t scm_error_irritant(object_t error);
 
 object_t error(object_t o);
 
+void define_error(vm_t *vm, object_t env);
+
 #endif

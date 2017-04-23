@@ -1,6 +1,10 @@
 #include <string.h>
 
 #include "string.h"
+#include "pair.h"
+#include "env.h"
+#include "symbol.h"
+#include "primitive.h"
 
 object_t make_string(vm_t *vm, char *str) {
   size_t n = strlen(str) + 1 - 2;
@@ -16,3 +20,10 @@ char *string_cstr(object_t o) {
 
 predicate(string, STRING)
 
+object_t stringp(vm_t *vm, object_t args) {
+  return string(car(args));
+}
+
+void define_string(vm_t *vm, object_t env) {
+  def("string?", stringp)
+}
