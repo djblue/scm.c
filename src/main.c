@@ -13,6 +13,7 @@ int main (int argc, char** argv) {
 
   object_t env = make_frame(vm);
   init(vm, env);
+  define_pair(vm, env);
   define_number(vm, env);
   define_port(vm, env);
   define_read(vm, env);

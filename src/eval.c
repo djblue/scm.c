@@ -268,61 +268,11 @@ object_t scm_eval(vm_t *vm, object_t expr) {
     return p(o); \
   }
 
-eval_predicate(nullp, null)
 eval_predicate(booleanp, boolean)
 eval_predicate(errorp, error)
 eval_predicate(stringp, string)
 eval_predicate(characterp, character)
 eval_predicate(symbolp, symbol)
-eval_predicate(pairp, pair)
-
-object_t eval_cons(vm_t *vm, object_t args) {
-  object_t a = car(vm, args);
-  object_t b = car(vm, cdr(vm, args));
-  return cons(vm, a, b);
-}
-
-object_t eval_car(vm_t *vm, object_t args) {
-  object_t pair = car(vm, args);
-  if (pair == NULL) return NULL;
-  if (scm_type(pair) == ERROR) return pair;
-  if (scm_type(pair) != PAIR) {
-    return make_error(vm, "car: object not pair", pair);
-  }
-  return car(vm, pair);
-}
-
-object_t eval_cdr(vm_t *vm, object_t args) {
-  object_t pair = car(vm, args);
-  if (pair == NULL) return NULL;
-  if (scm_type(pair) == ERROR) return pair;
-  if (scm_type(pair) != PAIR) {
-    return make_error(vm, "cdr: object not pair", pair);
-  }
-  return cdr(vm, pair);
-}
-
-object_t eval_set_car(vm_t *vm, object_t args) {
-  object_t pair = car(vm, args);
-  if (pair == NULL) return NULL;
-  object_t value = car(vm, cdr(vm, args));
-  if (scm_type(pair) == ERROR) return pair;
-  if (scm_type(pair) != PAIR) {
-    return make_error(vm, "set-car! object not pair", pair);
-  }
-  return set_car(vm, pair, value);
-}
-
-object_t eval_set_cdr(vm_t *vm, object_t args) {
-  object_t pair = car(vm, args);
-  if (pair == NULL) return NULL;
-  object_t value = car(vm, cdr(vm, args));
-  if (scm_type(pair) == ERROR) return pair;
-  if (scm_type(pair) != PAIR) {
-    return make_error(vm, "set-cdr! object not pair", pair);
-  }
-  return set_cdr(vm, pair, value);
-}
 
 object_t eval_print(vm_t *vm, object_t args) {
   object_t o = car(vm, args);
@@ -410,18 +360,10 @@ void init(vm_t *vm, object_t env) {
   def("string?", stringp)
   def("char?", characterp)
   def("symbol?", symbolp)
-  def("pair?", pairp)
-  def("null?", nullp)
   def("procedure?", procedurep)
   def("eq?", eq)
 
   def("error", eval_error)
-
-  def("cons", eval_cons)
-  def("car", eval_car)
-  def("cdr", eval_cdr)
-  def("set-car!", eval_set_car)
-  def("set-cdr!", eval_set_cdr)
 
   def("write", eval_print)
 }
