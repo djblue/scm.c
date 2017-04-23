@@ -93,7 +93,6 @@ static int mygetinput(yyscan_t scanner, FILE *fp, char *buf, int size) {
 %option extra-type="extra_t *"
 
 FIXNUM 0|[1-9]{DIGIT}*
-FLONUM {FIXNUM}\.{DIGIT}+
 
 LETTER [a-zA-Z]
 SPECIAL_INITIAL [!$%&*/:<=>?\^_~]
@@ -124,7 +123,6 @@ BOOLEAN #t|#f
 ("\n"|"\t"|" ")+
 
 {FIXNUM}          { yylval->str = yytext; return FIXNUM_T; }
-{FLONUM}          { yylval->str = yytext; return FLONUM_T; }
 {STRING}          { yylval->str = yytext; return STRING_T; }
 {SYMBOL}          { yylval->str = yytext; return SYMBOL_T; }
 {CHARACTER}       { yylval->str = yytext; return CHARACTER_T; }

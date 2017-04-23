@@ -22,7 +22,7 @@ void yyerror(vm_t *vm, yyscan_t scanner, object_t *obj, char const *msg);
   object_t obj;
 }
 
-%token BOOLEAN_T FIXNUM_T FLONUM_T CHARACTER_T STRING_T SYMBOL_T EOF_T COMMENT_T
+%token BOOLEAN_T FIXNUM_T CHARACTER_T STRING_T SYMBOL_T EOF_T COMMENT_T
 
 %type <obj> atom
 %type <obj> list
@@ -89,7 +89,6 @@ unquotesplice : ',' '@' expr { $$ = list(vm, 2, make_symbol(vm, "unquote-splicin
 
 atom : BOOLEAN_T    { $$ = make_boolean(vm, yylval.str); }
      | FIXNUM_T     { $$ = make_fixnum(vm, yylval.str);  }
-     | FLONUM_T     { $$ = make_fixnum(vm, yylval.str);  }
      | CHARACTER_T  { $$ = make_char(vm, yylval.str);    }
      | STRING_T     { $$ = make_string(vm, yylval.str);  }
      | SYMBOL_T     { $$ = make_symbol(vm, yylval.str);  }
