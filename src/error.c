@@ -1,6 +1,10 @@
 #include <string.h>
 
 #include "error.h"
+#include "pair.h"
+#include "env.h"
+#include "symbol.h"
+#include "primitive.h"
 
 typedef struct {
   object_t irritant;
@@ -24,4 +28,16 @@ object_t scm_error_irritant(object_t error) {
 }
 
 predicate(error, ERROR)
+
+object_t eval_error(vm_t *vm, object_t args) {
+  object_t message = car(args);
+  if (scm_type(message) != STRING)
+    return make_error(vm, "error: cannot make error", message);
+  object_t irritant = car(cdr(args));
+  return make_error(vm, string_cstr(message), irritant);
+}
+
+void define_error(vm_t *vm, object_t env) {
+  def("error", eval_error)
+}
 

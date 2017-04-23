@@ -263,21 +263,10 @@ object_t scm_eval(vm_t *vm, object_t expr) {
 #define eval_predicate(fn,p) \
   object_t fn(vm_t *vm, object_t args) { \
     object_t o = car(args); \
-    if (true(error(o))) return o; \
     return p(o); \
   }
 
-eval_predicate(booleanp, boolean)
-eval_predicate(errorp, error)
-eval_predicate(stringp, string)
-eval_predicate(characterp, character)
 eval_predicate(symbolp, symbol)
-
-object_t eval_print(vm_t *vm, object_t args) {
-  object_t o = car(args);
-  print(vm, o);
-  return o;
-}
 
 object_t eval_eq(vm_t *vm, object_t args) {
   if (args == NULL) return NULL;
@@ -313,24 +302,11 @@ object_t eq(vm_t *vm, object_t args) {
   return f;
 }
 
-object_t eval_error(vm_t *vm, object_t args) {
-  object_t message = car(args);
-  if (scm_type(message) != STRING)
-    return make_error(vm, "error: cannot make error", message);
-  object_t irritant = car(cdr(args));
-  return make_error(vm, string_cstr(message), irritant);
-}
-
 object_t interaction_environment(vm_t *vm, object_t args) {
   return fetch(vm, ENV);
 }
 
-void init(vm_t *vm, object_t env) {
-
-  eof = scm_guard(make(vm, ENDOFINPUT, 0));
-  ueof = scm_guard(make(vm, UENDOFINPUT, 0));
-  t = scm_guard(make(vm, TRUE, 0));
-  f = scm_guard(make(vm, FALSE, 0));
+void define_eval(vm_t *vm, object_t env) {
   sym_else = make_symbol(vm, "else");
   stack_overflow = scm_guard(make_error(vm, "stack overflow", NULL));
 
@@ -354,16 +330,8 @@ void init(vm_t *vm, object_t env) {
 
   def("interaction-environment", interaction_environment)
 
-  def("boolean?", booleanp)
-  def("error?", errorp)
-  def("string?", stringp)
-  def("char?", characterp)
   def("symbol?", symbolp)
   def("procedure?", procedurep)
   def("eq?", eq)
-
-  def("error", eval_error)
-
-  def("write", eval_print)
 }
 

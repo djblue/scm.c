@@ -6,6 +6,6 @@
 
 object_t make_boolean(vm_t *vm, char *str);
 
-object_t boolean(object_t o);
+void define_boolean(vm_t *vm, object_t env);
 
 #endif

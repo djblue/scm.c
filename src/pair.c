@@ -74,7 +74,6 @@ object_t pair_eq(vm_t *vm, object_t a, object_t b) {
 #define eval_predicate(fn,p) \
   object_t fn(vm_t *vm, object_t args) { \
     object_t o = car(args); \
-    if (true(error(o))) return o; \
     return p(o); \
   }
 
