@@ -59,6 +59,10 @@ static object_t scm_add(vm_t *vm, object_t args) {
 }
 
 static object_t scm_sub(vm_t *vm, object_t args) {
+  if (!true(number(car(args)))) {
+    return make_error(vm, "-: operand is not a number", car(args));
+  }
+
   long result = scm_fixnum(car(args));
   args = cdr(args);
 
@@ -93,10 +97,36 @@ static object_t scm_mul(vm_t *vm, object_t args) {
   return make_fixnum_int(vm, result);
 }
 
+static object_t scm_lt(vm_t *vm, object_t args) {
+  if (!true(number(car(args)))) {
+    return make_error(vm, "<: operand is not a number", car(args));
+  }
+
+  long prev = scm_fixnum(car(args));
+  args = cdr(args);
+
+  while (args != NULL) {
+    if (!true(number(car(args)))) {
+      return make_error(vm, "<: operand is not a number", car(args));
+    }
+
+    long operand = scm_fixnum(car(args));
+    if (!(prev < operand)) {
+      return f;
+    }
+
+    prev = operand;
+    args = cdr(args);
+  }
+
+  return t;
+}
+
 void define_number(vm_t *vm, object_t env) {
   def("+", scm_add)
   def("-", scm_sub)
   def("*", scm_mul)
+  def("<", scm_lt)
   def("number?", numberp)
 }
 
