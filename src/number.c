@@ -31,50 +31,6 @@ static object_t number(object_t o) {
   return t;
 }
 
-static object_t plus(vm_t *vm, object_t a, object_t b) {
-  if (a == NULL) return plus(vm, make_fixnum_int(vm, 0), b);
-  if (b == NULL) return plus(vm, a, make_fixnum_int(vm, 0));
-
-  if (!true(number(a)))
-    return make_error(vm,
-        "+: operand is not a number", a);
-
-  if (!true(number(b)))
-    return make_error(vm,
-        "+: operand is not a number", b);
-
-  return make_fixnum_int(vm, scm_fixnum(a) + scm_fixnum(b));
-}
-
-static object_t minus(vm_t *vm, object_t a, object_t b) {
-  if (b == NULL) return minus(vm, make_fixnum_int(vm, 0), a);
-
-  if (!true(number(a)))
-    return make_error(vm,
-        "-: operand is not a number", a);
-
-  if (!true(number(b)))
-    return make_error(vm,
-        "-: operand is not a number", b);
-
-  return make_fixnum_int(vm, scm_fixnum(a) - scm_fixnum(b));
-}
-
-static object_t multiply(vm_t *vm, object_t a, object_t b) {
-  if (a == NULL) return multiply(vm, make_fixnum_int(vm, 1), b);
-  if (b == NULL) return multiply(vm, a, make_fixnum_int(vm, 1));
-
-  if (!true(number(a)))
-    return make_error(vm,
-        "*: operand is not a number", a);
-
-  if (!true(number(b)))
-    return make_error(vm,
-        "*: operand is not a number", b);
-
-  return make_fixnum_int(vm, scm_fixnum(a) * scm_fixnum(b));
-}
-
 object_t number_eq(vm_t *vm, object_t a, object_t b) {
   if (a == NULL || b == NULL) return f;
   if (scm_type(a) != FIXNUM || scm_type(b) != FIXNUM) return f;
@@ -87,38 +43,60 @@ static object_t numberp(vm_t *vm, object_t args) {
   return number(o);
 }
 
-static object_t eval_plus(vm_t *vm, object_t args) {
-  if (args == NULL) return NULL;
-  object_t op = car(args);
-  if (true(error(op))) return op;
-  return plus(vm, op, eval_plus(vm, cdr(args)));
-}
+static object_t scm_add(vm_t *vm, object_t args) {
+  long result = 0;
 
-static object_t eval_minus(vm_t *vm, object_t args) {
-  if (args == NULL) return NULL;
-  object_t op = car(args);
-  if (cdr(args) == NULL) {
-    op = minus(vm, op, NULL);
-  }
-  args = cdr(args);
   while (args != NULL) {
-    op = minus(vm, op, car(args));
+    if (!true(number(car(args)))) {
+      return make_error(vm, "+: operand is not a number", car(args));
+    }
+
+    result += scm_fixnum(car(args));
     args = cdr(args);
   }
-  return op;
+
+  return make_fixnum_int(vm, result);
 }
 
-static object_t eval_multiply(vm_t *vm, object_t args) {
-  if (args == NULL) return NULL;
-  object_t op = car(args);
-  if (true(error(op))) return op;
-  return multiply(vm, op, eval_multiply(vm, cdr(args)));
+static object_t scm_sub(vm_t *vm, object_t args) {
+  long result = scm_fixnum(car(args));
+  args = cdr(args);
+
+  if (args == NULL) {
+    result = 0 - result;
+  }
+
+  while (args != NULL) {
+    if (!true(number(car(args)))) {
+      return make_error(vm, "-: operand is not a number", car(args));
+    }
+
+    result -= scm_fixnum(car(args));
+    args = cdr(args);
+  }
+
+  return make_fixnum_int(vm, result);
+}
+
+static object_t scm_mul(vm_t *vm, object_t args) {
+  long result = 1;
+
+  while (args != NULL) {
+    if (!true(number(car(args)))) {
+      return make_error(vm, "*: operand is not a number", car(args));
+    }
+
+    result *= scm_fixnum(car(args));
+    args = cdr(args);
+  }
+
+  return make_fixnum_int(vm, result);
 }
 
 void define_number(vm_t *vm, object_t env) {
-  def("+", eval_plus)
-  def("-", eval_minus)
-  def("*", eval_multiply)
+  def("+", scm_add)
+  def("-", scm_sub)
+  def("*", scm_mul)
   def("number?", numberp)
 }
 
