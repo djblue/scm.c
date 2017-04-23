@@ -7,6 +7,11 @@
 
 #define FIXNUM_TAG 0x1
 
+#define ASSERT_NUMBER(op,value)\
+  if (!true(number(value))) { \
+    return make_error(vm, op": operand is not a number", car(args)); \
+  }
+
 object_t make_fixnum(vm_t *vm, char *str) {
   long value = (atol(str) << 1) | FIXNUM_TAG;
   return (object_t) value;
@@ -47,10 +52,7 @@ static object_t scm_add(vm_t *vm, object_t args) {
   long result = 0;
 
   while (args != NULL) {
-    if (!true(number(car(args)))) {
-      return make_error(vm, "+: operand is not a number", car(args));
-    }
-
+    ASSERT_NUMBER("+", car(args))
     result += scm_fixnum(car(args));
     args = cdr(args);
   }
@@ -59,9 +61,7 @@ static object_t scm_add(vm_t *vm, object_t args) {
 }
 
 static object_t scm_sub(vm_t *vm, object_t args) {
-  if (!true(number(car(args)))) {
-    return make_error(vm, "-: operand is not a number", car(args));
-  }
+  ASSERT_NUMBER("-", car(args))
 
   long result = scm_fixnum(car(args));
   args = cdr(args);
@@ -71,10 +71,7 @@ static object_t scm_sub(vm_t *vm, object_t args) {
   }
 
   while (args != NULL) {
-    if (!true(number(car(args)))) {
-      return make_error(vm, "-: operand is not a number", car(args));
-    }
-
+    ASSERT_NUMBER("-", car(args))
     result -= scm_fixnum(car(args));
     args = cdr(args);
   }
@@ -86,10 +83,7 @@ static object_t scm_mul(vm_t *vm, object_t args) {
   long result = 1;
 
   while (args != NULL) {
-    if (!true(number(car(args)))) {
-      return make_error(vm, "*: operand is not a number", car(args));
-    }
-
+    ASSERT_NUMBER("*", car(args))
     result *= scm_fixnum(car(args));
     args = cdr(args);
   }
@@ -98,17 +92,13 @@ static object_t scm_mul(vm_t *vm, object_t args) {
 }
 
 static object_t scm_lt(vm_t *vm, object_t args) {
-  if (!true(number(car(args)))) {
-    return make_error(vm, "<: operand is not a number", car(args));
-  }
+  ASSERT_NUMBER("<", car(args))
 
   long prev = scm_fixnum(car(args));
   args = cdr(args);
 
   while (args != NULL) {
-    if (!true(number(car(args)))) {
-      return make_error(vm, "<: operand is not a number", car(args));
-    }
+    ASSERT_NUMBER("<", car(args))
 
     long operand = scm_fixnum(car(args));
     if (!(prev < operand)) {
