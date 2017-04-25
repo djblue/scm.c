@@ -18,7 +18,7 @@ object_t make_fixnum(vm_t *vm, char *str) {
   return (object_t) value;
 }
 
-static object_t make_fixnum_int(vm_t *vm, long fix) {
+object_t make_fixnum_int(vm_t *vm, long fix) {
   return (object_t) ((fix << 1) | FIXNUM_TAG);
 }
 

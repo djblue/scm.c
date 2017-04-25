@@ -7,6 +7,7 @@
 object_t make_fixnum(vm_t *vm, char *str);
 
 long scm_fixnum(object_t o);
+object_t make_fixnum_int(vm_t *vm, long fix);
 int scm_is_fixnum(object_t o);
 
 object_t number_eq(vm_t *vm, object_t a, object_t b);
