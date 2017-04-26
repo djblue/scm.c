@@ -6,7 +6,7 @@
 #include "primitive.h"
 
 typedef enum {
-  HALT,
+  HALT = 0,
   REFER,
   CONSTANT,
   CLOSE,
@@ -16,11 +16,24 @@ typedef enum {
   NUATE,
   FRAME,
   ARGUMENT,
-  Apply,
+  APPLY,
   RETURN
 } op_t;
 
 static object_t scm_lookup(object_t access, object_t e) {
+  long rib, elt;
+
+  for (rib = scm_fixnum(car(access)); rib > 0; rib--) {
+    e = cdr(e);
+  }
+
+  object_t r = car(e);
+
+  for (elt = scm_fixnum(cdr(access)); elt > 0; elt--) {
+    r = cdr(r);
+  }
+  
+  return r;
 }
 
 static object_t scm_closure(vm_t *vm, object_t body, object_t e) {
@@ -91,7 +104,7 @@ static object_t scm_beval(vm_t *vm, object_t args) {
         r = cons(vm, a, r);
         x = cadr(x);
         continue;
-      case Apply:
+      case APPLY:
         if (scm_type(a) == PRIMITIVE) {
           a = object_data(a, primitive)(vm, r);
           x = ret;
@@ -102,10 +115,10 @@ static object_t scm_beval(vm_t *vm, object_t args) {
         }
         continue;
       case RETURN:
-        x = cadr(x);
-        e = caddr(x);
-        r = car(cdddr(x));
-        s = cadr(cdddr(x));
+        x = car(s);
+        e = cadr(s);
+        r = caddr(s);
+        s = car(cdddr(s));
         continue;
       default:
         break;
