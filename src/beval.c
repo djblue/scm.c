@@ -64,6 +64,12 @@ static object_t scm_beval(vm_t *vm, object_t args) {
   object_t r = NULL;        // the current value rib
   object_t s = NULL;        // the current stack
 
+  int sp = 0;
+  object_t stack[8192];
+
+#define PUSH(value) stack[sp++] = value;
+#define POP stack[--sp]
+
   object_t ret = list(vm, 1, make_fixnum_int(vm, 11));
 
   void *label;
@@ -118,7 +124,11 @@ NUATE:
   x = ret;
   CONTINUE
 FRAME:
-  s = scm_call_frame(vm, cadr(x), e, r, s);
+  //s = scm_call_frame(vm, cadr(x), e, r, s);
+  PUSH(cadr(x))
+  PUSH(e)
+  PUSH(r)
+  PUSH(s)
   r = NULL;
   x = caddr(x);
   CONTINUE
@@ -137,10 +147,16 @@ APPLY:
   }
   CONTINUE
 RETURN:
+  s = POP;
+  r = POP;
+  e = POP;
+  x = POP;
+  /*
   x = car(s);
   e = cadr(s);
   r = caddr(s);
   s = car(cdddr(s));
+  */
   CONTINUE
 
   return NULL;
