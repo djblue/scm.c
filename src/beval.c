@@ -1,3 +1,5 @@
+#pragma GCC diagnostic ignored "-Wpedantic"
+
 #include "beval.h"
 
 #include "pair.h"
@@ -5,7 +7,7 @@
 #include "symbol.h"
 #include "primitive.h"
 
-typedef enum {
+/*typedef enum {
   HALT = 0,
   REFER,
   CONSTANT,
@@ -18,7 +20,7 @@ typedef enum {
   ARGUMENT,
   APPLY,
   RETURN
-} op_t;
+} op_t;*/
 
 static object_t scm_lookup(object_t access, object_t e) {
   long rib, elt;
@@ -42,7 +44,7 @@ static object_t scm_closure(vm_t *vm, object_t body, object_t e) {
 
 static object_t scm_continuation(vm_t *vm, object_t s) {
   object_t zero = make_fixnum_int(vm, 0);
-  object_t body = list(vm, 3, make_fixnum_int(vm, CONTI), s, cons(vm, zero, zero));
+  object_t body = list(vm, 3, make_fixnum_int(vm, 6), s, cons(vm, zero, zero));
   return scm_closure(vm, body, NULL);
 }
 
@@ -62,71 +64,86 @@ static object_t scm_beval(vm_t *vm, object_t args) {
   object_t r = NULL;        // the current value rib
   object_t s = NULL;        // the current stack
 
-  object_t ret = list(vm, 1, make_fixnum_int(vm, RETURN));
+  object_t ret = list(vm, 1, make_fixnum_int(vm, 11));
 
-  while (1) {
-    switch(scm_fixnum(car(x))) {
-      case HALT: goto halt;
-      case REFER:
-        a = car(scm_lookup(cadr(x), e));
-        x = caddr(x);
-        continue;
-      case CONSTANT:
-        a = cadr(x);
-        x = caddr(x);
-        continue;
-      case CLOSE:
-        a = scm_closure(vm, cadr(x), e);
-        x = caddr(x);
-        continue;
-      case TEST:
-        x = (a == t) ? cadr(x) : caddr(x);
-        continue;
-      case ASSIGN:
-        set_car(scm_lookup(cadr(x), e), a);
-        x = caddr(x);
-        continue;
-      case CONTI:
-        a = scm_continuation(vm, s);
-        x = cadr(x);
-        continue;
-      case NUATE:
-        a = car(scm_lookup(caddr(x), e));
-        s = cadr(x);
-        x = ret;
-        continue;
-      case FRAME:
-        s = scm_call_frame(vm, cadr(x), e, r, s);
-        r = NULL;
-        x = caddr(x);
-        continue;
-      case ARGUMENT:
-        r = cons(vm, a, r);
-        x = cadr(x);
-        continue;
-      case APPLY:
-        if (scm_type(a) == PRIMITIVE) {
-          a = object_data(a, primitive)(vm, r);
-          x = ret;
-        } else {
-          x = car(a);
-          e = scm_extend(vm, cadr(a), r);
-          r = NULL;
-        }
-        continue;
-      case RETURN:
-        x = car(s);
-        e = cadr(s);
-        r = caddr(s);
-        s = car(cdddr(s));
-        continue;
-      default:
-        break;
-    }
-  }
+  void *label;
+  static void *labels[] = {
+    &&HALT,
+    &&REFER,
+    &&CONSTANT,
+    &&CLOSE,
+    &&TEST,
+    &&ASSIGN,
+    &&CONTI,
+    &&NUATE,
+    &&FRAME,
+    &&ARGUMENT,
+    &&APPLY,
+    &&RETURN
+  };
 
-halt:
+
+#define CONTINUE label = labels[scm_fixnum(car(x))]; goto *label;
+
+  CONTINUE
+
+HALT: 
   return a;
+REFER:
+  a = car(scm_lookup(cadr(x), e));
+  x = caddr(x);
+  CONTINUE
+CONSTANT:
+  a = cadr(x);
+  x = caddr(x);
+  CONTINUE
+CLOSE:
+  a = scm_closure(vm, cadr(x), e);
+  x = caddr(x);
+  CONTINUE
+TEST:
+  x = (a == t) ? cadr(x) : caddr(x);
+  CONTINUE
+ASSIGN:
+  set_car(scm_lookup(cadr(x), e), a);
+  x = caddr(x);
+  CONTINUE
+CONTI:
+  a = scm_continuation(vm, s);
+  x = cadr(x);
+  CONTINUE
+NUATE:
+  a = car(scm_lookup(caddr(x), e));
+  s = cadr(x);
+  x = ret;
+  CONTINUE
+FRAME:
+  s = scm_call_frame(vm, cadr(x), e, r, s);
+  r = NULL;
+  x = caddr(x);
+  CONTINUE
+ARGUMENT:
+  r = cons(vm, a, r);
+  x = cadr(x);
+  CONTINUE
+APPLY:
+  if (scm_type(a) == PRIMITIVE) {
+    a = object_data(a, primitive)(vm, r);
+    x = ret;
+  } else {
+    x = car(a);
+    e = scm_extend(vm, cadr(a), r);
+    r = NULL;
+  }
+  CONTINUE
+RETURN:
+  x = car(s);
+  e = cadr(s);
+  r = caddr(s);
+  s = car(cdddr(s));
+  CONTINUE
+
+  return NULL;
 }
 
 void define_beval(vm_t *vm, object_t env) {
