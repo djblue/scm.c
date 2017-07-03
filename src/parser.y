@@ -25,6 +25,7 @@ void yyerror(vm_t *vm, yyscan_t scanner, object_t *obj, char const *msg);
 %token BOOLEAN_T FIXNUM_T CHARACTER_T STRING_T SYMBOL_T EOF_T COMMENT_T
 
 %type <obj> atom
+%type <obj> vector
 %type <obj> list
 %type <obj> exprs
 %type <obj> expr
@@ -41,6 +42,7 @@ form : expr { *obj = $1; YYACCEPT; }
      ;
 
 expr : atom
+     | vector
      | list
      | quote
      | quasiquote
@@ -60,6 +62,9 @@ bstart : '[' { yyget_extra(scanner)->balance++; }
 
 bend : ']' { yyget_extra(scanner)->balance--; }
      ;
+
+vector : '#' list { $$ = make_vector_from_list(vm, list(vm, 1, $2)); }
+       ;
 
 list : lstart exprs lend { $$ = $2; }
      | lstart lend { $$ = NULL; }

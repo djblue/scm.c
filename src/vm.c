@@ -133,6 +133,13 @@ static void mark(vm_t *vm, object_t o) {
       mark(vm, car(o));
       mark(vm, cdr(o));
       break;
+    case VECTOR: {
+      long length = scm_vector_length(o);
+      for (long i = 0; i < length; i++) {
+        mark(vm, scm_vector_ref(o, i));
+      }
+      break;
+    }
     case PROCEDURE:
     case MACRO:
       mark(vm, object_data(o, proc_t).body);

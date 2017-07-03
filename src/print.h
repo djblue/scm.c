@@ -5,6 +5,7 @@
 #include "vm.h"
 
 void print(vm_t *vm, object_t o);
+void print_object(vm_t *vm, FILE *fp, object_t o);
 
 void define_print(vm_t *vm, object_t env);
 

@@ -8,6 +8,7 @@ typedef enum {
   NIL = 0,
   FIXNUM,
   STRING,
+  VECTOR,
   CHARACTER,
   SYMBOL,
   TRUE,

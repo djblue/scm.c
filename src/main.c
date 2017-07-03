@@ -29,6 +29,7 @@ int main (int argc, char** argv) {
   define_number(vm, env);
   define_char(vm, env);
   define_string(vm, env);
+  define_vector(vm, env);
   define_error(vm, env);
   define_pair(vm, env);
   define_port(vm, env);

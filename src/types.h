@@ -5,6 +5,7 @@
 
 #include "boolean.h"
 #include "string.h"
+#include "vector.h"
 #include "character.h"
 #include "symbol.h"
 #include "number.h"

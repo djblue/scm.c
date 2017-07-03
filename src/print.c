@@ -8,8 +8,6 @@
 #include "symbol.h"
 #include "primitive.h"
 
-static void print_object(vm_t *vm, FILE *fp, object_t o);
-
 static void print_pair(vm_t *vm, FILE *fp, object_t o) {
   fprintf(fp, "(");
 
@@ -32,7 +30,7 @@ static void print_pair(vm_t *vm, FILE *fp, object_t o) {
   fprintf(fp, ")");
 }
 
-static void print_object(vm_t *vm, FILE *fp, object_t o) {
+void print_object(vm_t *vm, FILE *fp, object_t o) {
   switch (scm_type(o)) {
     case ENDOFINPUT:
       fprintf(fp, __yellow("#<eof>"));
@@ -48,6 +46,9 @@ static void print_object(vm_t *vm, FILE *fp, object_t o) {
       break;
     case STRING:
       fprintf(fp, __yellow("\"%s\""), string_cstr(o));
+      break;
+    case VECTOR:
+      print_vector(vm, fp, o);
       break;
     case TRUE:
       fprintf(fp, __green("#t"));

@@ -127,6 +127,18 @@
   (lambda args
     (f (apply g args))))
 
+(define (vector-fill! vec v)
+  (if (vector? vec)
+    (begin
+      (define (fill i len)
+        (if (< i len)
+          (begin
+            (vector-set! vec i v)
+            (fill (inc i) len))
+          #t))
+      (fill 0 (vector-length vec)))
+    (error "vector-fill!: not a vector" v)))
+
 (define (qq-expand-list x)
   (cond
     [(not (pair? x)) (list 'list (list 'quote x))]
