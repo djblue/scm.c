@@ -39,8 +39,14 @@ object_t scm_read(vm_t *vm, object_t args) {
 }
 
 object_t scm_load(vm_t *vm, object_t args) {
-  object_t port = scm_guard(scm_open(vm, args));
-  if (scm_type(port) == ERROR) return port;
+  object_t port;
+
+  if (scm_type(car(args)) == PORT) {
+    port = car(args);
+  } else {
+    port = scm_guard(scm_open(vm, args));
+    if (scm_type(port) == ERROR) return port;
+  }
 
   while (1) {
     object_t value = scm_read(vm, port);

@@ -1,6 +1,10 @@
 #include <stdio.h>
 #include <string.h>
 
+#ifdef __APPLE__
+  #include "fmemopen.h"
+#endif
+
 #include "types.h"
 #include "colors.h"
 #include "env.h"
@@ -49,6 +53,23 @@ object_t scm_open(vm_t *vm, object_t args) {
   return port;
 }
 
+object_t scm_open_input_string(vm_t *vm, object_t args) {
+  object_t str = car(args);
+
+  if (false(string(str))) {
+    return make_error(vm, "open-input-string: first argument is not a string.", str);
+  }
+
+  char *cstr = string_cstr(str);
+  FILE *fp = fmemopen(cstr, strlen(cstr), "r");
+
+  object_t port = make_port(vm);
+  object_data(port, port_t).path = str;
+  object_data(port, port_t).fp = fp;
+
+  return port;
+}
+
 object_t scm_close(vm_t *vm, object_t args) {
   object_t port = (scm_type(args) == PORT) ? args : car(args);
 
@@ -63,5 +84,6 @@ object_t scm_close(vm_t *vm, object_t args) {
 void define_port(vm_t *vm, object_t env) {
   eof = scm_guard(make(vm, ENDOFINPUT, 0));
   def("open", scm_open)
+  def("open-input-string", scm_open_input_string)
 }
 

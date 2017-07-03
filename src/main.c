@@ -7,6 +7,19 @@
 #include "print.h"
 #include "port.h"
 
+#include "core.xxd"
+
+object_t load_core(vm_t *vm) {
+  char *buffer = (char *) malloc(core_scm_len + 3);
+  sprintf(buffer, "\"%s\"", core_scm);
+  object_t args = list(vm, 1, make_string(vm, buffer));
+  object_t port = scm_guard(scm_open_input_string(vm, args));
+  object_t load = scm_load(vm, list(vm, 1, port));
+  scm_unguard(port);
+  free(buffer);
+  return load;
+}
+
 int main (int argc, char** argv) {
 
   vm_t *vm = make_vm();
@@ -24,18 +37,12 @@ int main (int argc, char** argv) {
   define_eval(vm, env);
   assign(vm, ENV, env);
 
-#ifdef linux
-#include "core.xxd"
+  object_t loaded = load_core(vm);
 
-  FILE *core = fmemopen(core_scm, core_scm_len, "r");
-
-  while (1) {
-    object_t value = c_read(vm, core);
-    if (value == eof) break;
-    scm_eval(vm, value);
+  if (loaded != t) {
+    print(vm, make_error(vm, "failed to load core.scm", loaded));
+    return 1;
   }
-
-#endif
 
   scm_read_load(".scm_history");
 
