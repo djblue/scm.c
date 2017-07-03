@@ -51,7 +51,7 @@ int main (int argc, char** argv) {
       print(vm, value);
     }
 
-    vm_gc(vm);
+    //vm_gc(vm);
   }
 
   scm_read_save(".scm_history");

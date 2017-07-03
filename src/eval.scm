@@ -32,7 +32,7 @@
                        ls
                        (range n (cons (- i 1) ls) (- i 1)))))
       vars
-      (compile '(range 10 '() 10) vars (list HALT))))
+      (compile '(range 100000 '() 100000) vars (list HALT))))
 
   (beval program vals)
 

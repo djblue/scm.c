@@ -47,7 +47,7 @@ static void eval(vm_t *vm) {
 tailcall:
   if (interrupt) RET(make_error(vm, "eval: execution interrupted", NULL))
 
-  vm_gc(vm);
+  //vm_gc(vm);
 
   if (fetch(vm, EXPR) == NULL) RET(NULL)
   if (scm_type(fetch(vm, EXPR)) == SYMBOL) RET(lookup(vm, fetch(vm, ENV), fetch(vm, EXPR)))
