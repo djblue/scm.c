@@ -1,7 +1,7 @@
 BIN=scm
 CC=gcc
 CFLAGS=-flto -std=gnu99 -g -O3 -Wall -pedantic
-LDFLAGS=-lreadline
+LDFLAGS=-L/usr/local/lib -I/usr/local/include -lreadline
 
 # find all source files
 SOURCES=$(shell find . | grep '\.c' | egrep -v "lexer.c|parser.c") lexer.c parser.c
