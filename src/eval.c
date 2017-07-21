@@ -180,13 +180,6 @@ tailcall:
         assign(vm, ARGL, fetch(vm, VAL));
         goto apply;
 
-      case F_MACROEXPAND:
-        RECUR(car(fetch(vm, EXPR)), macroexpand_continue_1)
-        vm_set_macro_expand(vm, 1);
-        RECUR(fetch(vm, VAL), macroexpand_continue_2)
-        vm_set_macro_expand(vm, 0);
-        RET(fetch(vm, VAL))
-
       default: RET(make_error(vm, "eval: unknown special operator", fetch(vm, FUN)))
     }
 
@@ -315,7 +308,6 @@ void define_eval(vm_t *vm, object_t env) {
   sym_quote = defs("quote", F_QUOTE)
   sym_lambda = defs("lambda", F_LAMBDA)
   sym_macro = defs("macro", F_MACRO)
-  sym_macroexpand = defs("macroexpand", F_MACROEXPAND)
   sym_begin = defs("begin", F_BEGIN)
   sym_and = defs("and", F_AND)
   sym_or = defs("or", F_OR)
