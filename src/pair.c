@@ -65,7 +65,9 @@ object_t null(object_t o) {
   return f;
 }
 
-predicate(pair, PAIR)
+object_t pair(object_t o) {
+  return scm_type(o) != PAIR ? f : t;
+}
 
 object_t pair_eq(object_t a, object_t b) {
   return false(object_eq(car(a), car(b))) ? f : object_eq(cdr(a), cdr(b));

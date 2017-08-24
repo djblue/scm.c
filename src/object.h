@@ -2,7 +2,8 @@
 #define OBJECTS_H
 
 #include <stdlib.h>
-#include "vm.h"
+
+typedef struct _object_t* object_t;
 
 typedef enum {
   NIL = 0,
@@ -29,6 +30,7 @@ extern object_t f;
 #define true(o) ((o) == t)
 #define false(o) ((o) == f)
 
+void object_init(object_t o, type_t);
 type_t scm_type(object_t o);
 
 void scm_mark(object_t o);
@@ -38,15 +40,8 @@ object_t scm_guard(object_t o);
 object_t scm_unguard(object_t o);
 int scm_has_guard(object_t o);
 
-object_t make(vm_t *vm, type_t type, size_t n);
 object_t object_eq(object_t a, object_t b);
 
 #define object_data(o,type) (*((type*)(((char*)o) + sizeof(object_t))))
-
-#define predicate(fun,TYPE) \
-  object_t fun(object_t o) { \
-    if (o == NULL || scm_type(o) != TYPE) { \
-      return f; } \
-    return t; }
 
 #endif

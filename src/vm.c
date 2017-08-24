@@ -1,7 +1,6 @@
 #include "stdio.h"
 
 #include "vm.h"
-#include "object.h"
 #include "types.h"
 
 typedef struct alloc_t alloc_t;
@@ -213,5 +212,15 @@ object_t vm_alloc(vm_t *vm, size_t n) {
   vm->root_alloc = alloc;
   vm->allocs++;
   return alloc_data(alloc);
+}
+
+object_t make(vm_t *vm, type_t type, size_t n) {
+  object_t o = (object_t) vm_alloc(vm, sizeof(object_t) + n);
+  if (o == 0) {
+    fprintf(stderr, "out of memory.");
+    exit(1);
+  }
+  object_init(o, type);
+  return o;
 }
 

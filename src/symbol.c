@@ -65,4 +65,6 @@ void symbol_set_binding(object_t sym, object_t binding) {
   object_data(sym, symbol_t).value = binding;
 }
 
-predicate(symbol, SYMBOL)
+object_t symbol(object_t o) {
+  return scm_type(o) != SYMBOL ? f : t;
+}

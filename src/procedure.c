@@ -14,4 +14,6 @@ object_t make_procedure(vm_t *vm, object_t env, object_t params, object_t body, 
   return o;
 }
 
-predicate(procedure, PROCEDURE)
+object_t procedure(object_t o) {
+  return scm_type(o) != PROCEDURE ? f : t;
+}

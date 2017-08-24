@@ -28,7 +28,9 @@ static long length(object_t str) {
   return strlen(string_cstr(str));
 }
 
-predicate(string, STRING)
+object_t string(object_t o) {
+  return scm_type(o) != STRING ? f : t;
+}
 
 object_t stringp(vm_t *vm, size_t n, object_t args[]) {
   if (n != 1) {

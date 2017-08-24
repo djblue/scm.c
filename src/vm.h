@@ -2,10 +2,9 @@
 #define VM_H
 
 #include <stdlib.h>
+#include "object.h"
 
 typedef struct vm_t vm_t;
-
-typedef struct _object_t* object_t;
 
 typedef enum {
   ENV,
@@ -32,6 +31,7 @@ int vm_macro_expand(vm_t *vm);
 void vm_set_macro_expand(vm_t *vm, int flag);
 
 object_t vm_alloc(vm_t *vm, size_t s);
+object_t make(vm_t *vm, type_t type, size_t n);
 
 void vm_gc(vm_t *vm);
 void vm_reset(vm_t *vm);

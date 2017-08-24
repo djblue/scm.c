@@ -1,6 +1,5 @@
 #include <stdio.h>
 
-#include "vm.h"
 #include "types.h"
 #include "number.h"
 
@@ -11,17 +10,11 @@ struct _object_t {
   unsigned char guard;
 };
 
-object_t make(vm_t *vm, type_t type, size_t n) {
-  object_t o = (object_t) vm_alloc(vm, sizeof(object_t) + n);
-  if (o == 0) {
-    fprintf(stderr, "out of memory.");
-    exit(1);
-  }
+void object_init(object_t o, type_t type) {
   o->type = type;
   o->trace = 0;
   o->marked = 0;
   o->guard = 0;
-  return o;
 }
 
 type_t scm_type(object_t o) {
