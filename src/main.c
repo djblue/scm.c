@@ -6,6 +6,7 @@
 #include "read.h"
 #include "print.h"
 #include "port.h"
+#include "os.h"
 
 #include "core.xxd"
 
@@ -33,6 +34,7 @@ int main (int argc, char** argv) {
   define_read(vm, env);
   define_print(vm, env);
   define_eval(vm, env);
+  define_os(vm, env);
   assign(vm, ENV, env);
 
   object_t loaded = load_core(vm);
