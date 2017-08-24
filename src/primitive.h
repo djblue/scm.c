@@ -42,7 +42,7 @@ typedef enum {
   F_APPLY
 } special_t;
 
-typedef object_t (*primitive)(vm_t *vm, object_t args);
+typedef object_t (*primitive)(vm_t *vm, size_t n, object_t args[]);
 
 object_t make_special(vm_t *vm, special_t s);
 object_t make_primitive(vm_t *vm, primitive fn);

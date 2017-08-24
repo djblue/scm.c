@@ -98,8 +98,11 @@ void print(vm_t *vm, object_t o) {
   fprintf(fp, "\n");
 }
 
-object_t eval_print(vm_t *vm, object_t args) {
-  object_t o = car(args);
+object_t eval_print(vm_t *vm, size_t n, object_t args[]) {
+  if (n != 1) {
+    return make_error(vm, "write: incorrect argument count", NULL);
+  }
+  object_t o = args[0];
   print(vm, o);
   return o;
 }

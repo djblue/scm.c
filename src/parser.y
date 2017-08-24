@@ -63,18 +63,18 @@ bstart : '[' { yyget_extra(scanner)->balance++; }
 bend : ']' { yyget_extra(scanner)->balance--; }
      ;
 
-vector : '#' list { $$ = make_vector_from_list(vm, list(vm, 1, $2)); }
+vector : '#' list { $$ = make_vector_from_list(vm, 1, &$2); }
        ;
 
-list : lstart exprs lend { $$ = $2; }
-     | lstart lend { $$ = NULL; }
-     | bstart exprs bend { $$ = $2; }
+list : lstart lend { $$ = NULL; }
      | bstart bend { $$ = NULL; }
+     | lstart exprs lend { $$ = $2; }
+     | bstart exprs bend { $$ = $2; }
      ;
 
-exprs : %empty { $$ = NULL; }
-      | expr exprs { $$ = cons(vm, $1, $2); }
+exprs : expr { $$ = cons(vm, $1, NULL); }
       | expr '.' expr { $$ = cons(vm, $1, $3); }
+      | expr exprs { $$ = cons(vm, $1, $2); }
       ;
 
 comment : COMMENT_T expr { $$ = list(vm, 2, make_symbol(vm, "comment"), $2); }
@@ -95,7 +95,7 @@ unquotesplice : ',' '@' expr { $$ = list(vm, 2, make_symbol(vm, "unquote-splicin
 atom : BOOLEAN_T    { $$ = make_boolean(vm, yylval.str); }
      | FIXNUM_T     { $$ = make_fixnum(vm, yylval.str);  }
      | CHARACTER_T  { $$ = make_char(vm, yylval.str);    }
-     | STRING_T     { $$ = make_string(vm, yylval.str);  }
+     | STRING_T     { $$ = make_string_internal(vm, yylval.str); }
      | SYMBOL_T     { $$ = make_symbol(vm, yylval.str);  }
      ;
 

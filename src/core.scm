@@ -139,6 +139,18 @@
       (fill 0 (vector-length vec)))
     (error "vector-fill!: not a vector" v)))
 
+(define (string->list str)
+  (if (not (string? str))
+    (error "string->list: not a string" str)
+    (begin
+      (define (iter ls i)
+        (if (= i 0)
+          ls
+          (iter
+            (cons (string-ref str (dec i)) ls)
+            (dec i))))
+      (iter '() (string-length str)))))
+
 (define (qq-expand-list x)
   (cond
     [(not (pair? x)) (list 'list (list 'quote x))]
@@ -186,8 +198,7 @@
 
 (define-macro (let bindings . body)
               (for-each validate-binding bindings)
-              `(apply
-                    (lambda ,(map car bindings) ,@body)
-                    (list ,@(map cadr bindings))))
+              `((lambda ,(map car bindings) ,@body)
+                    ,@(map cadr bindings)))
 
 (define-macro (comment . body) #t)

@@ -14,8 +14,8 @@ object_t make_boolean(vm_t *vm, char *str) {
   }
 }
 
-static object_t booleanp(vm_t *vm, object_t args) {
-  object_t o = car(args);
+static object_t booleanp(vm_t *vm, size_t n, object_t args[]) {
+  object_t o = args[0];
   return (o == t || o == f) ? t : f;
 }
 

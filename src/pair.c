@@ -71,53 +71,84 @@ object_t pair_eq(vm_t *vm, object_t a, object_t b) {
   return false(object_eq(vm, car(a), car(b))) ? f : object_eq(vm, cdr(a), cdr(b));
 }
 
-#define eval_predicate(fn,p) \
-  object_t fn(vm_t *vm, object_t args) { \
-    object_t o = car(args); \
-    return p(o); \
+static object_t nullp(vm_t *vm, size_t n, object_t args[]) {
+  if (n != 1) {
+    return make_error(vm, "null?: incorrect argument count", NULL);
   }
 
-eval_predicate(nullp, null)
-eval_predicate(pairp, pair)
-
-object_t eval_cons(vm_t *vm, object_t args) {
-  return cons(vm, car(args), cadr(args));
+  return null(args[0]);
 }
 
-object_t eval_car(vm_t *vm, object_t args) {
-  object_t pair = car(args);
-  if (pair == NULL) return NULL;
-  if (scm_type(pair) != PAIR) {
-    return make_error(vm, "car: object not pair", pair);
+static object_t pairp(vm_t *vm, size_t n, object_t args[]) {
+  if (n != 1) {
+    return make_error(vm, "pair?: incorrect argument count", NULL);
   }
+
+  return pair(args[0]);
+}
+
+object_t eval_cons(vm_t *vm, size_t n, object_t args[]) {
+  if (n != 2) {
+    return make_error(vm, "cons: incorrect argument count", NULL);
+  }
+
+  return cons(vm, args[0], args[1]);
+}
+
+object_t eval_car(vm_t *vm, size_t n, object_t args[]) {
+  if (n != 1) {
+    return make_error(vm, "car: incorrect argument count", NULL);
+  }
+
+  object_t pair = args[0];
+
+  if (scm_type(pair) != PAIR) {
+    return make_error(vm, "car: object is not pair", pair);
+  }
+
   return car(pair);
 }
 
-object_t eval_cdr(vm_t *vm, object_t args) {
-  object_t pair = car(args);
-  if (pair == NULL) return NULL;
-  if (scm_type(pair) != PAIR) {
-    return make_error(vm, "cdr: object not pair", pair);
+object_t eval_cdr(vm_t *vm, size_t n, object_t args[]) {
+  if (n != 1) {
+    return make_error(vm, "cdr: incorrect argument count", NULL);
   }
+
+  object_t pair = args[0];
+
+  if (scm_type(pair) != PAIR) {
+    return make_error(vm, "cdr: object is not pair", pair);
+  }
+
   return cdr(pair);
 }
 
-object_t eval_set_car(vm_t *vm, object_t args) {
-  object_t pair = car(args);
-  if (pair == NULL) return NULL;
-  if (scm_type(pair) != PAIR) {
-    return make_error(vm, "set-car! object not pair", pair);
+object_t eval_set_car(vm_t *vm, size_t n, object_t args[]) {
+  if (n != 2) {
+    return make_error(vm, "set-car!: incorrect argument count", NULL);
   }
-  return set_car(pair, cadr(args));
+
+  object_t pair = args[0];
+
+  if (scm_type(pair) != PAIR) {
+    return make_error(vm, "set-car!: object not pair", pair);
+  }
+
+  return set_car(pair, args[1]);
 }
 
-object_t eval_set_cdr(vm_t *vm, object_t args) {
-  object_t pair = car(args);
-  if (pair == NULL) return NULL;
-  if (scm_type(pair) != PAIR) {
-    return make_error(vm, "set-cdr! object not pair", pair);
+object_t eval_set_cdr(vm_t *vm, size_t n, object_t args[]) {
+  if (n != 2) {
+    return make_error(vm, "set-cdr!: incorrect argument count", NULL);
   }
-  return set_cdr(pair, cadr(args));
+
+  object_t pair = args[0];
+
+  if (scm_type(pair) != PAIR) {
+    return make_error(vm, "set-cdr!: object not pair", pair);
+  }
+
+  return set_cdr(pair, args[1]);
 }
 
 void define_pair(vm_t *vm, object_t env) {

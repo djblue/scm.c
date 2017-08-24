@@ -10,13 +10,10 @@
 #include "core.xxd"
 
 object_t load_core(vm_t *vm) {
-  char *buffer = (char *) malloc(core_scm_len + 3);
-  sprintf(buffer, "\"%s\"", core_scm);
-  object_t args = list(vm, 1, make_string(vm, buffer));
-  object_t port = scm_guard(scm_open_input_string(vm, args));
-  object_t load = scm_load(vm, list(vm, 1, port));
+  object_t str = make_string(vm, core_scm_len, core_scm);
+  object_t port = scm_guard(scm_open_input_string(vm, 1, &str));
+  object_t load = scm_load(vm, 1, &port);
   scm_unguard(port);
-  free(buffer);
   return load;
 }
 
@@ -48,7 +45,7 @@ int main (int argc, char** argv) {
   scm_read_load(".scm_history");
 
   while (1) {
-    object_t value = scm_read(vm, NULL);
+    object_t value = scm_read(vm, 0, NULL);
     if (value == eof) break;
 
     value = scm_eval(vm, value);

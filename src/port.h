@@ -9,9 +9,9 @@
 extern object_t eof;
 
 object_t make_port_from_file(vm_t *vm, FILE *fp);
-object_t scm_open(vm_t *vm, object_t args);
-object_t scm_open_input_string(vm_t *vm, object_t args);
-object_t scm_close(vm_t *vm, object_t args);
+object_t scm_open(vm_t *vm, size_t n, object_t args[]);
+object_t scm_open_input_string(vm_t *vm, size_t n, object_t args[]);
+object_t scm_close(vm_t *vm, size_t n, object_t args[]);
 
 FILE *port_pointer(object_t port);
 void print_port(vm_t *vm, object_t port);

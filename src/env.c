@@ -32,6 +32,8 @@ static object_t frame_search(vm_t *vm, object_t frame, object_t sym) {
 }
 
 object_t define(vm_t *vm, object_t frames, object_t var, object_t val) {
+  symbol_set_binding(var, val);
+
   object_t frame = car(frames);
   object_t pair = frame_search(vm, frame, var);
 

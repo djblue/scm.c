@@ -44,6 +44,8 @@ object_t reverse(vm_t *vm, object_t args, object_t acc) {
 }
 
 static void eval(vm_t *vm) {
+  object_t args[256];
+
 tailcall:
   if (interrupt) RET(make_error(vm, "eval: execution interrupted", NULL))
 
@@ -216,8 +218,15 @@ macro_expand_continue:
 
 apply:
   switch (scm_type(fetch(vm, FUN))) {
-    case PRIMITIVE:
-      RET((object_data(fetch(vm, FUN), primitive))(vm, fetch(vm, ARGL)))
+    case PRIMITIVE: {
+      size_t n = 0;
+      object_t argl = fetch(vm, ARGL);
+      while (argl != NULL) {
+        args[n++] = car(argl);
+        argl = cdr(argl);
+      }
+      RET((object_data(fetch(vm, FUN), primitive))(vm, n, args))
+    }
     case MACRO:
     case PROCEDURE: {
       object_t body = object_data(fetch(vm, FUN), proc_t).body;
@@ -253,32 +262,35 @@ object_t scm_eval(vm_t *vm, object_t expr) {
   return fetch(vm, VAL);
 }
 
-#define eval_predicate(fn,p) \
-  object_t fn(vm_t *vm, object_t args) { \
-    object_t o = car(args); \
-    return p(o); \
+object_t symbolp(vm_t *vm, size_t n, object_t args[]) {
+  if (n != 1) {
+    return make_error(vm, "symbol?: incorrect argument count", NULL);
   }
 
-eval_predicate(symbolp, symbol)
+  return symbol(args[0]);
+}
 
-object_t eval_eq(vm_t *vm, object_t args) {
-  if (args == NULL) return NULL;
+object_t eval_eq(vm_t *vm, size_t n, object_t args[]) {
+  if (n < 1) {
+    return make_error(vm, "=: incorrect argument count", NULL);
+  }
 
-  object_t a = car(args);
-  object_t ls = cdr(args);
+  object_t a = args[0];
 
-  while (ls != NULL) {
-    object_t b = car(ls);
-    if (false(object_eq(vm, a, b))) return f;
-    ls = cdr(ls);
+  for (int i = 1; i < n; i++) {
+    object_t b = args[i];
+    if (object_eq(vm, a, b) != t) return f;
   }
 
   return t;
 }
 
-object_t procedurep(vm_t *vm, object_t args) {
-  object_t proc = car(args);
-  switch (scm_type(proc)) {
+object_t procedurep(vm_t *vm, size_t n, object_t args[]) {
+  if (n != 1) {
+    return make_error(vm, "procedure?: incorrect argument count", NULL);
+  }
+
+  switch (scm_type(args[0])) {
     case SPECIAL:
     case PRIMITIVE:
     case PROCEDURE:
@@ -288,14 +300,28 @@ object_t procedurep(vm_t *vm, object_t args) {
   }
 }
 
-object_t eq(vm_t *vm, object_t args) {
-  if (args == NULL) return NULL;
-  if (cdr(args) == NULL) return NULL;
-  if (car(args) == cadr(args)) return t;
-  return f;
+object_t macrop(vm_t *vm, size_t n, object_t args[]) {
+  if (n != 1) {
+    return make_error(vm, "procedure?: incorrect argument count", NULL);
+  }
+
+  return scm_type(args[0]) == MACRO ? t : f;
 }
 
-object_t interaction_environment(vm_t *vm, object_t args) {
+object_t eq(vm_t *vm, size_t n, object_t args[]) {
+  if (n != 2) {
+    return make_error(vm, "eq?: incorrect argument count", NULL);
+  }
+
+  return args[0] == args[1] ? t : f;
+}
+
+object_t interaction_environment(vm_t *vm, size_t n, object_t args[]) {
+  if (n != 0) {
+    return make_error(vm,
+        "interaction-environment: incorrect argument count", NULL);
+  }
+
   return fetch(vm, ENV);
 }
 
@@ -324,6 +350,7 @@ void define_eval(vm_t *vm, object_t env) {
 
   def("symbol?", symbolp)
   def("procedure?", procedurep)
+  def("macro?", macrop)
   def("eq?", eq)
 }
 

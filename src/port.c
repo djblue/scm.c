@@ -34,8 +34,12 @@ void print_port(vm_t *vm, object_t port) {
   printf(__yellow("#<port:%s>"), string_cstr(object_data(port, port_t).path));
 }
 
-object_t scm_open(vm_t *vm, object_t args) {
-  object_t str = car(args);
+object_t scm_open(vm_t *vm, size_t n, object_t args[]) {
+  if (n != 1) {
+    return make_error(vm, "open: incorrect argument count", NULL);
+  }
+
+  object_t str = args[0];
 
   if (false(string(str)))
     return make_error(vm, "open: first argument is not a string", str);
@@ -53,11 +57,17 @@ object_t scm_open(vm_t *vm, object_t args) {
   return port;
 }
 
-object_t scm_open_input_string(vm_t *vm, object_t args) {
-  object_t str = car(args);
+object_t scm_open_input_string(vm_t *vm, size_t n, object_t args[]) {
+  if (n != 1) {
+    return make_error(vm,
+        "open-input-string: incorrect argument count", NULL);
+  }
+
+  object_t str = args[0];
 
   if (false(string(str))) {
-    return make_error(vm, "open-input-string: first argument is not a string.", str);
+    return make_error(vm,
+        "open-input-string: first argument is not a string.", str);
   }
 
   char *cstr = string_cstr(str);
@@ -70,13 +80,18 @@ object_t scm_open_input_string(vm_t *vm, object_t args) {
   return port;
 }
 
-object_t scm_close(vm_t *vm, object_t args) {
-  object_t port = (scm_type(args) == PORT) ? args : car(args);
+object_t scm_close(vm_t *vm, size_t n, object_t args[]) {
+  if (n != 1) {
+    return make_error(vm,
+        "close: incorrect argument count", NULL);
+  }
+
+  object_t port = args[0];
 
   if (scm_type(port) != PORT)
     return make_error(vm, "close: argument is not a port", port);
 
-  fclose(port_pointer(args));
+  fclose(port_pointer(port));
 
   return t;
 }
@@ -84,6 +99,7 @@ object_t scm_close(vm_t *vm, object_t args) {
 void define_port(vm_t *vm, object_t env) {
   eof = scm_guard(make(vm, ENDOFINPUT, 0));
   def("open", scm_open)
+  def("close", scm_close)
   def("open-input-string", scm_open_input_string)
 }
 

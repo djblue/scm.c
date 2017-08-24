@@ -18,7 +18,7 @@ object_t make_fixnum(vm_t *vm, char *str) {
   return (object_t) value;
 }
 
-static object_t make_fixnum_int(vm_t *vm, long fix) {
+object_t make_fixnum_int(vm_t *vm, long fix) {
   return (object_t) ((fix << 1) | FIXNUM_TAG);
 }
 
@@ -43,64 +43,64 @@ static object_t number(object_t o) {
   return t;
 }
 
-static object_t numberp(vm_t *vm, object_t args) {
-  return number(car(args));
+static object_t numberp(vm_t *vm, size_t n, object_t args[]) {
+  return number(args[0]);
 }
 
-static object_t scm_add(vm_t *vm, object_t args) {
+static object_t scm_add(vm_t *vm, size_t n, object_t args[]) {
   long result = 0;
 
-  while (args != NULL) {
-    ASSERT_NUMBER("+", car(args))
-    result += scm_fixnum(car(args));
-    args = cdr(args);
+  for (int i = 0; i < n; i++) {
+    ASSERT_NUMBER("+", args[i])
+    result += scm_fixnum(args[i]);
   }
 
   return make_fixnum_int(vm, result);
 }
 
-static object_t scm_sub(vm_t *vm, object_t args) {
-  ASSERT_NUMBER("-", car(args))
+static object_t scm_sub(vm_t *vm, size_t n, object_t args[]) {
+  if (n < 1) {
+    return make_error(vm, "-: incorrect argument count", NULL);
+  }
 
-  long result = scm_fixnum(car(args));
-  args = cdr(args);
+  ASSERT_NUMBER("-", args[0])
 
-  if (args == NULL) {
+  long result = scm_fixnum(args[0]);
+  if (n == 1) {
     result = 0 - result;
-  }
-
-  while (args != NULL) {
-    ASSERT_NUMBER("-", car(args))
-    result -= scm_fixnum(car(args));
-    args = cdr(args);
+  } else {
+    for (int i = 1; i < n; i++) {
+      ASSERT_NUMBER("-", args[i])
+      result -= scm_fixnum(args[i]);
+    }
   }
 
   return make_fixnum_int(vm, result);
 }
 
-static object_t scm_mul(vm_t *vm, object_t args) {
+static object_t scm_mul(vm_t *vm, size_t n, object_t args[]) {
   long result = 1;
 
-  while (args != NULL) {
-    ASSERT_NUMBER("*", car(args))
-    result *= scm_fixnum(car(args));
-    args = cdr(args);
+  for (int i = 0; i < n; i++) {
+    ASSERT_NUMBER("*", args[i])
+    result *= scm_fixnum(args[i]);
   }
 
   return make_fixnum_int(vm, result);
 }
 
 #define RELATIONAL(c_name,scm_name,op) \
-  static object_t c_name(vm_t *vm, object_t args) { \
-    ASSERT_NUMBER(scm_name, car(args)) \
-    long prev = scm_fixnum(car(args)); \
-    args = cdr(args); \
-    while (args != NULL) { \
-      ASSERT_NUMBER(scm_name, car(args)) \
-      long operand = scm_fixnum(car(args)); \
+  static object_t c_name(vm_t *vm, size_t n, object_t args[]) { \
+    if (n < 1) { \
+      return make_error(vm, scm_name ": incorrect argument count", NULL); \
+    } \
+    ASSERT_NUMBER(scm_name, args[0]) \
+    long prev = scm_fixnum(args[0]); \
+    for (int i = 1; i < n; i++) { \
+      ASSERT_NUMBER(scm_name, args[i]) \
+      long operand = scm_fixnum(args[i]); \
       if (!(prev op operand)) return f; \
       prev = operand; \
-      args = cdr(args); \
     } \
     return t; \
   }
