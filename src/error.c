@@ -27,10 +27,6 @@ object_t scm_error_irritant(object_t error) {
   return object_data(error, error_t).irritant;
 }
 
-object_t error(object_t o) {
-  return scm_type(o) != ERROR ? f : t;
-}
-
 object_t eval_error(vm_t *vm, object_t args) {
   object_t message = car(args);
   if (scm_type(message) != STRING)

@@ -13,7 +13,5 @@ typedef struct {
 
 object_t make_procedure(vm_t *vm, object_t env, object_t args, object_t body, int macro);
 
-object_t procedure(object_t o);
-
 #endif
 

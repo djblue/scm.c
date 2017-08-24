@@ -10,8 +10,6 @@ object_t make_error(vm_t *vm, char *str, object_t irritant);
 char *scm_error_message(object_t error);
 object_t scm_error_irritant(object_t error);
 
-object_t error(object_t o);
-
 void define_error(vm_t *vm, object_t env);
 
 #endif

@@ -13,7 +13,3 @@ object_t make_procedure(vm_t *vm, object_t env, object_t params, object_t body, 
   object_data(o, proc_t).macro = macro;
   return o;
 }
-
-object_t procedure(object_t o) {
-  return scm_type(o) != PROCEDURE ? f : t;
-}

@@ -28,16 +28,12 @@ static long length(object_t str) {
   return strlen(string_cstr(str));
 }
 
-object_t string(object_t o) {
-  return scm_type(o) != STRING ? f : t;
-}
-
 object_t stringp(vm_t *vm, size_t n, object_t args[]) {
   if (n != 1) {
     return make_error(vm, "string?: incorrect argument count", NULL);
   }
 
-  return string(args[0]);
+  return scm_type(args[0]) != STRING ? f : t;
 }
 
 static object_t string_length(vm_t *vm, size_t n, object_t args[]) {

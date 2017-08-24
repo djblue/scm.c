@@ -41,7 +41,7 @@ object_t scm_open(vm_t *vm, size_t n, object_t args[]) {
 
   object_t str = args[0];
 
-  if (false(string(str)))
+  if (scm_type(str) != STRING)
     return make_error(vm, "open: first argument is not a string", str);
 
   char *path = string_cstr(str);
@@ -65,7 +65,7 @@ object_t scm_open_input_string(vm_t *vm, size_t n, object_t args[]) {
 
   object_t str = args[0];
 
-  if (false(string(str))) {
+  if (scm_type(str) != STRING) {
     return make_error(vm,
         "open-input-string: first argument is not a string.", str);
   }

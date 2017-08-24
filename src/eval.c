@@ -67,7 +67,7 @@ tailcall:
     switch (object_data(fetch(vm, FUN), special_t)) {
       case F_IF:
         RECUR(car(fetch(vm, EXPR)), if_continue)
-        if (true(error(fetch(vm, VAL)))) RET(fetch(vm, VAL))
+        if (scm_type(fetch(vm, VAL)) == ERROR) RET(fetch(vm, VAL))
         assign(vm, EXPR, !false(fetch(vm, VAL))
             ? cadr(fetch(vm, EXPR)) : caddr(fetch(vm, EXPR)));
         goto tailcall;
@@ -76,7 +76,7 @@ tailcall:
         RET(car(fetch(vm, EXPR)))
 
       case F_DEFINE:
-        if (true(pair(car(fetch(vm, EXPR))))) {
+        if (scm_type( car(fetch(vm, EXPR))) == PAIR) {
           RECUR(cons(vm, sym_lambda, cons(vm, cdar(fetch(vm, EXPR)), cdr(fetch(vm, EXPR)))), define_continue_1)
           define(vm, fetch(vm, ENV), caar(fetch(vm, EXPR)), fetch(vm, VAL));
         } else {

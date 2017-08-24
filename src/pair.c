@@ -60,15 +60,6 @@ object_t list(vm_t *vm, int argc, ...) {
   return head;
 }
 
-object_t null(object_t o) {
-  if (o == NULL) return t;
-  return f;
-}
-
-object_t pair(object_t o) {
-  return scm_type(o) != PAIR ? f : t;
-}
-
 object_t pair_eq(object_t a, object_t b) {
   return false(object_eq(car(a), car(b))) ? f : object_eq(cdr(a), cdr(b));
 }
@@ -78,7 +69,7 @@ static object_t nullp(vm_t *vm, size_t n, object_t args[]) {
     return make_error(vm, "null?: incorrect argument count", NULL);
   }
 
-  return null(args[0]);
+  return scm_type(args[0]) != NIL ? f : t;
 }
 
 static object_t pairp(vm_t *vm, size_t n, object_t args[]) {
@@ -86,7 +77,7 @@ static object_t pairp(vm_t *vm, size_t n, object_t args[]) {
     return make_error(vm, "pair?: incorrect argument count", NULL);
   }
 
-  return pair(args[0]);
+  return scm_type(args[0]) != PAIR ? f : t;
 }
 
 object_t eval_cons(vm_t *vm, size_t n, object_t args[]) {
