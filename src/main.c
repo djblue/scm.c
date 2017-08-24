@@ -3,6 +3,7 @@
 #include "vm.h"
 #include "types.h"
 #include "eval.h"
+#include "seval.h"
 #include "read.h"
 #include "print.h"
 #include "port.h"
@@ -34,6 +35,7 @@ int main (int argc, char** argv) {
   define_read(vm, env);
   define_print(vm, env);
   define_eval(vm, env);
+  define_seval(vm, env);
   define_os(vm, env);
   assign(vm, ENV, env);
 
