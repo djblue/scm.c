@@ -133,7 +133,7 @@ tailcall:
 
       case F_COND:
         while (fetch(vm, EXPR) != NULL) {
-          if (true(object_eq(vm, caar(fetch(vm, EXPR)), sym_else))) {
+          if (true(object_eq(caar(fetch(vm, EXPR)), sym_else))) {
             assign(vm, EXPR, cadar(fetch(vm, EXPR)));
             goto tailcall;
           }
@@ -152,13 +152,13 @@ tailcall:
         assign(vm, EXPR, cdr(fetch(vm, EXPR)));
         while (fetch(vm, EXPR) != NULL) {
           object_t entry = car(fetch(vm, EXPR));
-          if (true(object_eq(vm, car(entry), sym_else))) {
+          if (true(object_eq(car(entry), sym_else))) {
               assign(vm, EXPR, car(cdr(entry)));
               goto tailcall;
           }
           object_t list = car(entry);
           while (list != NULL) {
-            if (true(object_eq(vm, car(list), fetch(vm, VAL)))) {
+            if (true(object_eq(car(list), fetch(vm, VAL)))) {
               assign(vm, EXPR, car(cdr(entry)));
               goto tailcall;
             }
@@ -279,7 +279,7 @@ object_t eval_eq(vm_t *vm, size_t n, object_t args[]) {
 
   for (int i = 1; i < n; i++) {
     object_t b = args[i];
-    if (object_eq(vm, a, b) != t) return f;
+    if (object_eq(a, b) != t) return f;
   }
 
   return t;

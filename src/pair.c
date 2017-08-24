@@ -67,8 +67,8 @@ object_t null(object_t o) {
 
 predicate(pair, PAIR)
 
-object_t pair_eq(vm_t *vm, object_t a, object_t b) {
-  return false(object_eq(vm, car(a), car(b))) ? f : object_eq(vm, cdr(a), cdr(b));
+object_t pair_eq(object_t a, object_t b) {
+  return false(object_eq(car(a), car(b))) ? f : object_eq(cdr(a), cdr(b));
 }
 
 static object_t nullp(vm_t *vm, size_t n, object_t args[]) {

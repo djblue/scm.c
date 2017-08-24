@@ -30,7 +30,7 @@ object_t list(vm_t *vm, int argc, ...);
 object_t null(object_t o);
 object_t pair(object_t o);
 
-object_t pair_eq(vm_t *vm, object_t a, object_t b);
+object_t pair_eq(object_t a, object_t b);
 
 void define_pair(vm_t *vm, object_t env);
 

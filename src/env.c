@@ -22,7 +22,7 @@ static object_t frame_search(vm_t *vm, object_t frame, object_t sym) {
   object_t vals = cdr(frame);
 
   while (vars != NULL) {
-    if (true(symbol_eq(vm, car(vars), sym))) return vals;
+    if (true(symbol_eq(car(vars), sym))) return vals;
 
     vars = cdr(vars);
     vals = cdr(vals);
@@ -60,10 +60,10 @@ object_t set(vm_t *vm, object_t env, object_t sym, object_t val) {
     object_t vals = cdr(frame);
 
     while (vars != NULL) {
-      if (scm_type(vars) == SYMBOL && true(symbol_eq(vm, vars, sym))) {
+      if (scm_type(vars) == SYMBOL && true(symbol_eq(vars, sym))) {
         set_car(vals, val);
         return t;
-      } else if (true(symbol_eq(vm, car(vars), sym))) {
+      } else if (true(symbol_eq(car(vars), sym))) {
         set_car(vals, val);
         return t;
       }
@@ -88,9 +88,9 @@ object_t lookup(vm_t *vm, object_t env, object_t sym) {
     object_t vals = cdr(frame);
 
     while (vars != NULL) {
-      if (scm_type(vars) == SYMBOL && true(symbol_eq(vm, vars, sym))) {
+      if (scm_type(vars) == SYMBOL && true(symbol_eq(vars, sym))) {
         return vals;
-      } else if (true(symbol_eq(vm, car(vars), sym))) {
+      } else if (true(symbol_eq(car(vars), sym))) {
         return car(vals);
       }
 

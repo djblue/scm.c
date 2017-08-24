@@ -30,7 +30,7 @@ int scm_is_fixnum(object_t o) {
   return (((long) o) & 0x1) == FIXNUM_TAG;
 }
 
-object_t number_eq(vm_t *vm, object_t a, object_t b) {
+object_t number_eq(object_t a, object_t b) {
   if (a == NULL || b == NULL) return f;
   if (scm_type(a) != FIXNUM || scm_type(b) != FIXNUM) return f;
   return (scm_fixnum(a) == scm_fixnum(b)) ? t : f;

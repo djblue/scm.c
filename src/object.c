@@ -62,20 +62,20 @@ int scm_is_marked(object_t o) {
   return o->marked;
 }
 
-object_t object_eq(vm_t *vm, object_t a, object_t b) {
+object_t object_eq(object_t a, object_t b) {
   if (a == b) return t;
   if (a == NULL || b == NULL) return f;
   if (scm_type(a) != scm_type(b)) return f;
 
   switch(scm_type(a)) {
     case FIXNUM:
-      return number_eq(vm, a, b);
+      return number_eq(a, b);
     case CHARACTER:
-      return character_eq(vm, a, b);
+      return character_eq(a, b);
     case SYMBOL:
-      return symbol_eq(vm, a, b);
+      return symbol_eq(a, b);
     case PAIR:
-      return pair_eq(vm, a, b);
+      return pair_eq(a, b);
     default:
       return f;
   }

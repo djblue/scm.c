@@ -17,7 +17,7 @@ object_t _make_char(vm_t *vm, char c) {
   return o;
 }
 
-object_t character_eq(vm_t *vm, object_t a, object_t b) {
+object_t character_eq(object_t a, object_t b) {
   return f;
 }
 

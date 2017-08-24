@@ -39,8 +39,7 @@ object_t scm_unguard(object_t o);
 int scm_has_guard(object_t o);
 
 object_t make(vm_t *vm, type_t type, size_t n);
-object_t object_eq(vm_t *vm, object_t a, object_t b);
-void free_object(vm_t *vm, object_t o);
+object_t object_eq(object_t a, object_t b);
 
 #define object_data(o,type) (*((type*)(((char*)o) + sizeof(object_t))))
 

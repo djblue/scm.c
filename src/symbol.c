@@ -43,7 +43,7 @@ object_t make_symbol(vm_t *vm, char *str) {
   return *pnode;
 }
 
-object_t symbol_eq(vm_t *vm, object_t a, object_t b) {
+object_t symbol_eq(object_t a, object_t b) {
   if (a == b) return t;
   return f;
 }
